@@ -190,3 +190,18 @@ footer {
     font-size: 28px;
   }
 }
+.backBtn {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 10px 18px;
+  background: #eef5ff;
+  color: #075fd1;
+  border: 1px solid #c7dcff;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.backBtn:hover {
+  background: #075fd1;
+  color: white;
+}
