@@ -10,6 +10,9 @@ export default function ProblemsPage() {
   return (
     <main className="two">
       <section className="panel">
+ <a href="/" className="backBtn">
+    ← トップページへ戻る
+  </a>
         <h1>困りごと投稿</h1>
         <input placeholder="タイトル" />
         <select><option>集客</option><option>採用</option><option>補助金</option></select>
