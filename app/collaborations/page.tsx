@@ -10,6 +10,9 @@ export default function CollaborationsPage() {
   return (
     <main className="two">
       <section className="panel">
+ <a href="/" className="backBtn">
+    ← トップページへ戻る
+  </a>
         <h1>コラボ募集投稿</h1>
         <input placeholder="募集タイトル" />
         <input placeholder="募集したい業種" />
