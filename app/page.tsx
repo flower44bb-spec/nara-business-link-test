@@ -56,12 +56,12 @@ export default function Home() {
       <header className="header">
         <a href="#top" className="logo">🦌 NARA BUSINESS LINK</a>
         <nav>
-          <a href="#top">ホーム</a>
-          <a href="#search">事業者検索</a>
-          <a href="#problems">困りごと相談</a>
-          <a href="#collab">コラボ募集</a>
-          <a href="#success">成功事例</a>
-        </nav>
+  <a href="/">ホーム</a>
+  <a href="/businesses">事業者検索</a>
+  <a href="/problems">困りごと相談</a>
+  <a href="/collaborations">コラボ募集</a>
+  <a href="/successes">成功事例</a>
+</nav>
         <a className="loginBtn" href="#login">ログイン</a>
       </header>
 
@@ -72,21 +72,21 @@ export default function Home() {
           <p className="lead">
             「交流」で終わらせず、青年部員同士で仕事が生まれる仕組みをつくる。
           </p>
-          <div className="heroBtns">
-            <a href="#search">事業者を探す</a>
-            <a className="outline" href="#problems">案件を見る</a>
-          </div>
+         <div className="heroBtns">
+  <a href="/businesses">事業者を探す</a>
+  <a className="outline" href="/problems">案件を見る</a>
+</div>
         </div>
 
         <div className="map">NARA<br />NETWORK</div>
       </section>
 
       <section className="menu">
-        <a href="#search">🔍<h3>事業者を探す</h3><p>業種・地域から検索</p></a>
-        <a href="#problems">💡<h3>困りごと相談</h3><p>課題を投稿・相談</p></a>
-        <a href="#collab">🤝<h3>コラボ募集</h3><p>協業相手を探す</p></a>
-        <a href="#success">🏆<h3>成功事例</h3><p>実績を共有</p></a>
-      </section>
+  <a href="/businesses">🔍<h3>事業者を探す</h3><p>業種・地域から検索</p></a>
+  <a href="/problems">💡<h3>困りごと相談</h3><p>課題を投稿・相談</p></a>
+  <a href="/collaborations">🤝<h3>コラボ募集</h3><p>協業相手を探す</p></a>
+  <a href="/successes">🏆<h3>成功事例</h3><p>実績を共有</p></a>
+</section>
 
       <section className="panel" id="search">
         <h2>事業者検索</h2>
