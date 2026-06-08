@@ -64,8 +64,8 @@ button,
   align-items: center;
   justify-content: space-between;
   background:
-    linear-gradient(90deg, rgba(235,246,255,0.97), rgba(235,246,255,0.70)),
-    url("https://images.unsplash.com/photo-1528360983277-13d401cdc186?auto=format&fit=crop&w=1600&q=80");
+    linear-gradient(90deg, rgba(235,246,255,0.95), rgba(235,246,255,0.72)),
+    url("https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=1600&q=80");
   background-size: cover;
   background-position: center;
 }
