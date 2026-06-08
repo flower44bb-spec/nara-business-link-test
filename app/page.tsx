@@ -50,12 +50,12 @@ export default function Home() {
       <header className="header">
         <div className="logo">🦌 NARA BUSINESS LINK</div>
         <nav>
-          <a href="#top">ホーム</a>
-          <a href="#search">事業者検索</a>
-          <a href="#posts">困りごと相談</a>
-          <a href="#collab">コラボ募集</a>
-          <a href="#success">成功事例</a>
-        </nav>
+  <a href="/">ホーム</a>
+  <a href="/businesses">事業者検索</a>
+  <a href="/problems">困りごと相談</a>
+  <a href="/collaborations">コラボ募集</a>
+  <a href="/successes">成功事例</a>
+</nav>
         <a className="loginBtn" href="#login">ログイン</a>
       </header>
 
