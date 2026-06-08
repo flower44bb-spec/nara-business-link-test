@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import "./globals.css";
 
 const businesses = [
@@ -16,21 +19,38 @@ const posts = [
 ];
 
 export default function Home() {
+  const [category, setCategory] = useState("すべて");
+  const [area, setArea] = useState("すべて");
+  const [keyword, setKeyword] = useState("");
+
+  const filteredBusinesses = businesses.filter((b) => {
+    const matchCategory = category === "すべて" || b.category === category;
+    const matchArea = area === "すべて" || b.area === area;
+    const matchKeyword =
+      keyword === "" ||
+      b.name.includes(keyword) ||
+      b.category.includes(keyword) ||
+      b.area.includes(keyword) ||
+      b.desc.includes(keyword);
+
+    return matchCategory && matchArea && matchKeyword;
+  });
+
   return (
     <main>
       <header className="header">
         <div className="logo">🦌 NARA BUSINESS LINK</div>
         <nav>
-          <a>ホーム</a>
-          <a>事業者検索</a>
-          <a>困りごと相談</a>
-          <a>コラボ募集</a>
-          <a>成功事例</a>
+          <a href="#top">ホーム</a>
+          <a href="#search">事業者検索</a>
+          <a href="#posts">困りごと相談</a>
+          <a href="#posts">コラボ募集</a>
+          <a href="#success">成功事例</a>
         </nav>
         <button>ログイン</button>
       </header>
 
-      <section className="hero">
+      <section className="hero" id="top">
         <div className="heroText">
           <p className="label">奈良県商工会青年部員限定</p>
           <h1>NARA<br />BUSINESS LINK</h1>
@@ -38,10 +58,15 @@ export default function Home() {
             「交流」で終わらせず、青年部員同士で仕事が生まれる仕組みをつくる。
           </p>
           <div className="heroButtons">
-            <button>事業者を探す</button>
-            <button className="white">案件を見る</button>
+            <button onClick={() => document.getElementById("search")?.scrollIntoView({ behavior: "smooth" })}>
+              事業者を探す
+            </button>
+            <button className="white" onClick={() => document.getElementById("posts")?.scrollIntoView({ behavior: "smooth" })}>
+              案件を見る
+            </button>
           </div>
         </div>
+
         <div className="mapBox">
           <div className="map">NARA<br />NETWORK</div>
         </div>
@@ -54,30 +79,56 @@ export default function Home() {
         <div>🏆<h3>成功事例</h3><p>マッチング実績を共有</p></div>
       </section>
 
-      <section className="search">
+      <section className="search" id="search">
         <h2>事業者検索</h2>
+
         <div className="filters">
-          <select><option>すべての業種</option><option>建設業</option><option>飲食業</option><option>IT・Web</option></select>
-          <select><option>すべての地域</option><option>奈良市</option><option>橿原市</option><option>葛城市</option></select>
-          <input placeholder="会社名・サービス・強みなど" />
-          <button>検索</button>
+          <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <option>すべて</option>
+            <option>建設業</option>
+            <option>飲食業</option>
+            <option>IT・Web</option>
+            <option>農業</option>
+            <option>自動車整備</option>
+            <option>士業・会計</option>
+          </select>
+
+          <select value={area} onChange={(e) => setArea(e.target.value)}>
+            <option>すべて</option>
+            <option>奈良市</option>
+            <option>橿原市</option>
+            <option>葛城市</option>
+            <option>生駒市</option>
+            <option>天理市</option>
+            <option>大和高田市</option>
+          </select>
+
+          <input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder="会社名・サービス・強みなど"
+          />
+
+          <button type="button">検索</button>
         </div>
 
+        <p>検索結果：{filteredBusinesses.length}件</p>
+
         <div className="grid">
-          {businesses.map((b) => (
+          {filteredBusinesses.map((b) => (
             <article className="card" key={b.name}>
               <div className="photo">{b.category}</div>
               <span>{b.category}</span>
               <h3>{b.name}</h3>
               <p className="area">{b.area}</p>
               <p>{b.desc}</p>
-              <button className="detail">詳細を見る</button>
+              <button className="detail" type="button">詳細を見る</button>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="posts">
+      <section className="posts" id="posts">
         <div>
           <h2>新着投稿</h2>
           {posts.map((p) => (
@@ -89,7 +140,7 @@ export default function Home() {
           ))}
         </div>
 
-        <div className="success">
+        <div className="success" id="success">
           <h2>成功事例</h2>
           <p className="badge">IT・Web × 飲食業</p>
           <h3>ホームページ制作の相談から受注が成立</h3>
