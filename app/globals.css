@@ -1,10 +1,6 @@
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -13,15 +9,12 @@ body {
   color: #0b2341;
 }
 
-a {
-  text-decoration: none;
-  color: inherit;
-}
+a { text-decoration: none; color: inherit; }
 
 .header {
   height: 72px;
   padding: 0 42px;
-  background: #ffffff;
+  background: #fff;
   border-bottom: 1px solid #dce7f5;
   display: flex;
   align-items: center;
@@ -44,9 +37,7 @@ nav {
   font-weight: 800;
 }
 
-.loginBtn,
-button,
-.heroBtns a {
+.loginBtn, button, .heroBtns a {
   background: #075fd1;
   color: white;
   border: none;
@@ -88,10 +79,6 @@ h2 {
   margin-top: 0;
 }
 
-h3 {
-  color: #0b2341;
-}
-
 .lead {
   font-size: 20px;
   line-height: 1.8;
@@ -125,14 +112,41 @@ h3 {
   box-shadow: 0 20px 50px rgba(0,0,0,.2);
 }
 
+.stats {
+  width: 86%;
+  margin: -55px auto 50px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  position: relative;
+  z-index: 5;
+}
+
+.stats div {
+  background: white;
+  border-radius: 18px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 14px 35px rgba(20,80,150,.14);
+}
+
+.stats strong {
+  display: block;
+  font-size: 34px;
+  color: #075fd1;
+}
+
+.stats span {
+  font-weight: 800;
+  font-size: 14px;
+}
+
 .menu {
   width: 86%;
-  margin: -70px auto 70px;
+  margin: 0 auto 70px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 22px;
-  position: relative;
-  z-index: 3;
 }
 
 .menu a {
@@ -140,7 +154,7 @@ h3 {
   padding: 34px 20px;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 14px 35px rgba(20, 80, 150, .15);
+  box-shadow: 0 14px 35px rgba(20,80,150,.15);
   font-size: 32px;
 }
 
@@ -160,7 +174,7 @@ h3 {
   background: white;
   padding: 42px;
   border-radius: 22px;
-  box-shadow: 0 14px 35px rgba(20, 80, 150, .12);
+  box-shadow: 0 14px 35px rgba(20,80,150,.12);
 }
 
 .two {
@@ -183,9 +197,7 @@ h3 {
   margin: 26px 0 22px;
 }
 
-input,
-select,
-textarea {
+input, select, textarea {
   width: 100%;
   padding: 14px;
   border: 1px solid #cddbeb;
@@ -195,9 +207,7 @@ textarea {
   background: white;
 }
 
-textarea {
-  min-height: 140px;
-}
+textarea { min-height: 140px; }
 
 .count {
   font-weight: 900;
@@ -210,21 +220,18 @@ textarea {
   gap: 22px;
 }
 
-.card,
-.post {
+.card, .post {
   border: 1px solid #dce7f5;
   border-radius: 18px;
   background: #fff;
   padding: 24px;
-  box-shadow: 0 8px 20px rgba(20, 80, 150, .06);
+  box-shadow: 0 8px 20px rgba(20,80,150,.06);
 }
 
-.card:hover,
-.post:hover,
-.menu a:hover {
+.card:hover, .post:hover, .menu a:hover {
   transform: translateY(-3px);
-  transition: 0.2s;
-  box-shadow: 0 14px 30px rgba(20, 80, 150, .14);
+  transition: .2s;
+  box-shadow: 0 14px 30px rgba(20,80,150,.14);
 }
 
 .photo {
@@ -240,21 +247,42 @@ textarea {
   text-align: center;
 }
 
-.card span,
-.post span,
-.badge {
+.card span, .post span, .badge {
   color: #075fd1;
   font-weight: 900;
   font-size: 13px;
 }
 
-.area {
-  font-weight: 800;
-}
+.area { font-weight: 800; }
 
 .note {
   color: #667;
   font-size: 13px;
+}
+
+.loginSuccess {
+  background: #eef6ff;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.modalBg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 24px;
+}
+
+.modal {
+  width: min(620px, 100%);
+  background: white;
+  border-radius: 22px;
+  padding: 36px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
 }
 
 footer {
@@ -266,38 +294,19 @@ footer {
 }
 
 @media (max-width: 900px) {
-  .header {
-    padding: 0 20px;
-  }
-
-  nav {
-    display: none;
-  }
-
+  .header { padding: 0 20px; }
+  nav { display: none; }
   .hero {
     flex-direction: column;
     align-items: flex-start;
     padding: 60px 6%;
   }
-
-  h1 {
-    font-size: 46px;
-  }
-
-  .menu,
-  .grid,
-  .two,
-  .filters {
+  h1 { font-size: 46px; }
+  .menu, .grid, .two, .filters, .stats {
     grid-template-columns: 1fr;
   }
-
-  .panel,
-  .two,
-  .menu {
+  .panel, .two, .menu, .stats {
     width: 92%;
   }
-
-  .map {
-    margin-top: 36px;
-  }
+  .map { margin-top: 36px; }
 }
