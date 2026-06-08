@@ -3,7 +3,31 @@
 import { useMemo, useState } from "react";
 import "./globals.css";
 
-const businesses = [
+type Business = {
+  name: string;
+  category: string;
+  area: string;
+  desc: string;
+  need: string;
+};
+
+type Post = {
+  type: string;
+  title: string;
+  from: string;
+  area: string;
+  detail: string;
+};
+
+type Success = {
+  tag: string;
+  title: string;
+  result: string;
+  text: string;
+  amount: string;
+};
+
+const businesses: Business[] = [
   { name: "奈良建設株式会社", category: "建設業", area: "奈良市", desc: "店舗改装・外構工事・リフォーム対応", need: "店舗を持つ事業者との連携" },
   { name: "カフェ ディアー", category: "飲食業", area: "橿原市", desc: "地元食材を活用したカフェ・ケータリング", need: "農家・デザイナーとの連携" },
   { name: "Web制作オフィスLily", category: "IT・Web", area: "生駒市", desc: "HP制作・SNS運用支援", need: "飲食店・小売業との連携" },
@@ -12,29 +36,43 @@ const businesses = [
   { name: "中村会計事務所", category: "士業・会計", area: "奈良市", desc: "税務・会計・補助金相談", need: "創業者・若手経営者" },
 ];
 
-const problems = [
+const initialProblems: Post[] = [
   { type: "困りごと", title: "Instagram運用を相談したい", from: "飲食業", area: "橿原市", detail: "新商品PRと店舗集客を強化したい。" },
   { type: "困りごと", title: "採用に困っている", from: "建設業", area: "奈良市", detail: "若手人材の採用方法を相談したい。" },
-  { type: "青年部限定案件", title: "店舗改装に伴う内装業者を探しています", from: "小売業", area: "葛城市", detail: "7月頃に店舗改装を予定。" },
 ];
 
-const collaborations = [
-  { title: "マルシェ共同出店メンバー募集", from: "農業", area: "天理市", detail: "食品・雑貨・体験系の事業者を募集。" },
-  { title: "奈良県産品の共同商品開発", from: "食品製造", area: "橿原市", detail: "地元素材を使った新商品を作りたい。" },
-  { title: "県青連フェス出展者募集", from: "サービス業", area: "奈良市", detail: "年度末フェスで一緒に出展できる事業者を募集。" },
+const initialCollaborations: Post[] = [
+  { type: "コラボ募集", title: "マルシェ共同出店メンバー募集", from: "農業", area: "天理市", detail: "食品・雑貨・体験系の事業者を募集。" },
+  { type: "コラボ募集", title: "県青連フェス出展者募集", from: "サービス業", area: "奈良市", detail: "年度末フェスで一緒に出展できる事業者を募集。" },
 ];
 
-const successes = [
-  { tag: "IT・Web × 飲食業", title: "ホームページ制作の相談から受注が成立", result: "HP制作受注", text: "飲食店の集客課題に対し、青年部内のWeb制作事業者とマッチング。" },
-  { tag: "農業 × 飲食業", title: "地元野菜の仕入れ連携が成立", result: "継続取引見込み", text: "販路拡大を希望する農家と、地元食材を使いたい飲食店が連携。" },
-  { tag: "建設業 × 小売業", title: "店舗改装の相談から見積依頼へ", result: "商談成立", text: "店舗改装を検討していた小売業者に青年部内の建設業者を紹介。" },
+const successes: Success[] = [
+  { tag: "IT・Web × 飲食業", title: "ホームページ制作の相談から受注が成立", result: "HP制作受注", text: "飲食店の集客課題に対し、青年部内のWeb制作事業者とマッチング。", amount: "300,000円" },
+  { tag: "農業 × 飲食業", title: "地元野菜の仕入れ連携が成立", result: "継続取引見込み", text: "販路拡大を希望する農家と、地元食材を使いたい飲食店が連携。", amount: "年間600,000円見込み" },
+  { tag: "建設業 × 小売業", title: "店舗改装の相談から見積依頼へ", result: "商談成立", text: "店舗改装を検討していた小売業者に青年部内の建設業者を紹介。", amount: "1,200,000円見込み" },
 ];
 
 export default function Home() {
   const [category, setCategory] = useState("すべて");
   const [area, setArea] = useState("すべて");
   const [keyword, setKeyword] = useState("");
-  const [selected, setSelected] = useState(businesses[0]);
+  const [selected, setSelected] = useState<Business>(businesses[0]);
+
+  const [problems, setProblems] = useState<Post[]>(initialProblems);
+  const [collaborations, setCollaborations] = useState<Post[]>(initialCollaborations);
+
+  const [problemTitle, setProblemTitle] = useState("");
+  const [problemArea, setProblemArea] = useState("");
+  const [problemDetail, setProblemDetail] = useState("");
+
+  const [collabTitle, setCollabTitle] = useState("");
+  const [collabArea, setCollabArea] = useState("");
+  const [collabDetail, setCollabDetail] = useState("");
+
+  const [loginName, setLoginName] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const [modal, setModal] = useState<Success | null>(null);
 
   const filtered = useMemo(() => {
     return businesses.filter((b) => {
@@ -51,17 +89,39 @@ export default function Home() {
     });
   }, [category, area, keyword]);
 
+  const addProblem = () => {
+    if (!problemTitle.trim()) return;
+    setProblems([
+      { type: "困りごと", title: problemTitle, from: "青年部員", area: problemArea || "奈良県内", detail: problemDetail || "詳細確認中" },
+      ...problems,
+    ]);
+    setProblemTitle("");
+    setProblemArea("");
+    setProblemDetail("");
+  };
+
+  const addCollaboration = () => {
+    if (!collabTitle.trim()) return;
+    setCollaborations([
+      { type: "コラボ募集", title: collabTitle, from: "青年部員", area: collabArea || "奈良県内", detail: collabDetail || "詳細確認中" },
+      ...collaborations,
+    ]);
+    setCollabTitle("");
+    setCollabArea("");
+    setCollabDetail("");
+  };
+
   return (
     <main>
       <header className="header">
         <a href="#top" className="logo">🦌 NARA BUSINESS LINK</a>
         <nav>
-  <a href="/">ホーム</a>
-  <a href="/businesses">事業者検索</a>
-  <a href="/problems">困りごと相談</a>
-  <a href="/collaborations">コラボ募集</a>
-  <a href="/successes">成功事例</a>
-</nav>
+          <a href="#top">ホーム</a>
+          <a href="#search">事業者検索</a>
+          <a href="#problems">困りごと相談</a>
+          <a href="#collab">コラボ募集</a>
+          <a href="#success">成功事例</a>
+        </nav>
         <a className="loginBtn" href="#login">ログイン</a>
       </header>
 
@@ -69,28 +129,31 @@ export default function Home() {
         <div className="heroText">
           <p className="label">奈良県商工会青年部員限定</p>
           <h1>NARA<br />BUSINESS LINK</h1>
-          <p className="lead">
-            「交流」で終わらせず、青年部員同士で仕事が生まれる仕組みをつくる。
-          </p>
-         <div className="heroBtns">
-  <a href="/businesses">事業者を探す</a>
-  <a className="outline" href="/problems">案件を見る</a>
-</div>
+          <p className="lead">「交流」で終わらせず、青年部員同士で仕事が生まれる仕組みをつくる。</p>
+          <div className="heroBtns">
+            <a href="#search">事業者を探す</a>
+            <a className="outline" href="#problems">案件を見る</a>
+          </div>
         </div>
-
         <div className="map">NARA<br />NETWORK</div>
       </section>
 
+      <section className="stats">
+        <div><strong>127</strong><span>登録事業者数</span></div>
+        <div><strong>{problems.length + collaborations.length}</strong><span>相談・募集件数</span></div>
+        <div><strong>{successes.length}</strong><span>成功事例</span></div>
+        <div><strong>2,100万円</strong><span>推定取引効果</span></div>
+      </section>
+
       <section className="menu">
-  <a href="/businesses">🔍<h3>事業者を探す</h3><p>業種・地域から検索</p></a>
-  <a href="/problems">💡<h3>困りごと相談</h3><p>課題を投稿・相談</p></a>
-  <a href="/collaborations">🤝<h3>コラボ募集</h3><p>協業相手を探す</p></a>
-  <a href="/successes">🏆<h3>成功事例</h3><p>実績を共有</p></a>
-</section>
+        <a href="#search">🔍<h3>事業者を探す</h3><p>業種・地域から検索</p></a>
+        <a href="#problems">💡<h3>困りごと相談</h3><p>投稿すると一覧に反映</p></a>
+        <a href="#collab">🤝<h3>コラボ募集</h3><p>協業相手を探す</p></a>
+        <a href="#success">🏆<h3>成功事例</h3><p>詳細表示も可能</p></a>
+      </section>
 
       <section className="panel" id="search">
         <h2>事業者検索</h2>
-
         <div className="filters">
           <select value={category} onChange={(e) => setCategory(e.target.value)}>
             <option>すべて</option>
@@ -101,7 +164,6 @@ export default function Home() {
             <option>自動車整備</option>
             <option>士業・会計</option>
           </select>
-
           <select value={area} onChange={(e) => setArea(e.target.value)}>
             <option>すべて</option>
             <option>奈良市</option>
@@ -111,13 +173,7 @@ export default function Home() {
             <option>天理市</option>
             <option>大和高田市</option>
           </select>
-
-          <input
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder="会社名・サービス・強みなど"
-          />
-
+          <input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="会社名・サービス・強みなど" />
           <button type="button">検索</button>
         </div>
 
@@ -150,32 +206,36 @@ export default function Home() {
 
         <div className="panel" id="login">
           <h2>ログイン</h2>
-          <input placeholder="メールアドレス" />
-          <input placeholder="パスワード" type="password" />
-          <button type="button">ログインする</button>
-          <p className="note">※現在はデモ画面です。実運用時はSupabaseで認証管理します。</p>
+          {isLoggedIn ? (
+            <div className="loginSuccess">
+              <h3>ログイン成功</h3>
+              <p>こんにちは、{loginName || "青年部員"} さん。</p>
+              <p className="note">※デモ表示です。実運用時はSupabase認証に接続します。</p>
+            </div>
+          ) : (
+            <>
+              <input value={loginName} onChange={(e) => setLoginName(e.target.value)} placeholder="お名前" />
+              <input placeholder="メールアドレス" />
+              <input placeholder="パスワード" type="password" />
+              <button type="button" onClick={() => setIsLoggedIn(true)}>ログインする</button>
+            </>
+          )}
         </div>
       </section>
 
       <section className="two" id="problems">
         <div className="panel">
           <h2>困りごと投稿</h2>
-          <input placeholder="タイトル" />
-          <select>
-            <option>集客</option>
-            <option>採用</option>
-            <option>補助金</option>
-            <option>資金繰り</option>
-            <option>その他</option>
-          </select>
-          <textarea placeholder="相談内容を入力してください"></textarea>
-          <button type="button">投稿する</button>
+          <input value={problemTitle} onChange={(e) => setProblemTitle(e.target.value)} placeholder="例）Instagram運用を相談したい" />
+          <input value={problemArea} onChange={(e) => setProblemArea(e.target.value)} placeholder="地域　例）葛城市" />
+          <textarea value={problemDetail} onChange={(e) => setProblemDetail(e.target.value)} placeholder="相談内容を入力してください"></textarea>
+          <button type="button" onClick={addProblem}>投稿する</button>
         </div>
 
         <div className="panel">
           <h2>困りごと一覧</h2>
           {problems.map((p) => (
-            <article className="post" key={p.title}>
+            <article className="post" key={p.title + p.detail}>
               <span>{p.type}</span>
               <h3>{p.title}</h3>
               <p>{p.from} ／ {p.area}</p>
@@ -188,17 +248,17 @@ export default function Home() {
       <section className="two" id="collab">
         <div className="panel">
           <h2>コラボ募集投稿</h2>
-          <input placeholder="募集タイトル" />
-          <input placeholder="募集したい業種" />
-          <textarea placeholder="協業内容を入力してください"></textarea>
-          <button type="button">募集を投稿する</button>
+          <input value={collabTitle} onChange={(e) => setCollabTitle(e.target.value)} placeholder="例）マルシェ共同出店メンバー募集" />
+          <input value={collabArea} onChange={(e) => setCollabArea(e.target.value)} placeholder="地域　例）奈良市" />
+          <textarea value={collabDetail} onChange={(e) => setCollabDetail(e.target.value)} placeholder="協業内容を入力してください"></textarea>
+          <button type="button" onClick={addCollaboration}>募集を投稿する</button>
         </div>
 
         <div className="panel">
           <h2>コラボ募集一覧</h2>
           {collaborations.map((c) => (
-            <article className="post" key={c.title}>
-              <span>コラボ募集</span>
+            <article className="post" key={c.title + c.detail}>
+              <span>{c.type}</span>
               <h3>{c.title}</h3>
               <p>{c.from} ／ {c.area}</p>
               <p>{c.detail}</p>
@@ -217,11 +277,24 @@ export default function Home() {
               <h3>{s.title}</h3>
               <p>{s.text}</p>
               <p><strong>成果：</strong>{s.result}</p>
-              <button type="button">詳細を見る</button>
+              <button type="button" onClick={() => setModal(s)}>詳細を見る</button>
             </article>
           ))}
         </div>
       </section>
+
+      {modal && (
+        <div className="modalBg" onClick={() => setModal(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <p className="badge">{modal.tag}</p>
+            <h2>{modal.title}</h2>
+            <p>{modal.text}</p>
+            <p><strong>成果：</strong>{modal.result}</p>
+            <p><strong>推定取引額：</strong>{modal.amount}</p>
+            <button type="button" onClick={() => setModal(null)}>閉じる</button>
+          </div>
+        </div>
+      )}
 
       <footer>
         奈良県商工会青年部連合会　ビジネスリンク部会
