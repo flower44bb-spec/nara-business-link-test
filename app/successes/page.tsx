@@ -3,6 +3,9 @@ import "../globals.css";
 export default function SuccessesPage() {
   return (
     <main className="panel">
+ <a href="/" className="backBtn">
+    ← トップページへ戻る
+  </a>
       <h1>成功事例一覧</h1>
 
       <div className="grid">
