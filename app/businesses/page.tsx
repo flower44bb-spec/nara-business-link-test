@@ -9,6 +9,9 @@ export default function BusinessesPage() {
 
   return (
     <main className="panel">
+ <a href="/" className="backBtn">
+    ← トップページへ戻る
+  </a>
       <h1>事業者検索</h1>
       <div className="filters">
         <select><option>すべての業種</option><option>建設業</option><option>飲食業</option></select>
