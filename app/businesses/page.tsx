@@ -1,37 +1,26 @@
-import "../globals.css";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+import { BusinessList } from "@/components/business-list";
+import { HomeLink, PageHero } from "@/components/ui";
 
 export default function BusinessesPage() {
-  const businesses = [
-    ["奈良建設株式会社", "建設業", "奈良市", "店舗改装・外構工事"],
-    ["カフェ ディアー", "飲食業", "橿原市", "地元食材カフェ"],
-    ["Web制作オフィスLily", "IT・Web", "生駒市", "HP制作・SNS運用"],
-  ];
-
   return (
-    <main className="panel">
- <a href="/" className="backBtn">
-    ← トップページへ戻る
-  </a>
-      <h1>事業者検索</h1>
-      <div className="filters">
-        <select><option>すべての業種</option><option>建設業</option><option>飲食業</option></select>
-        <select><option>すべての地域</option><option>奈良市</option><option>橿原市</option></select>
-        <input placeholder="会社名・サービス名で検索" />
-        <button>検索</button>
-      </div>
-
-      <div className="grid">
-        {businesses.map((b) => (
-          <article className="card" key={b[0]}>
-            <div className="photo">{b[1]}</div>
-            <span>{b[1]}</span>
-            <h3>{b[0]}</h3>
-            <p className="area">{b[2]}</p>
-            <p>{b[3]}</p>
-            <button>詳細を見る</button>
-          </article>
-        ))}
-      </div>
+    <main>
+      <PageHero
+        eyebrow="Business Directory"
+        title="事業者を探す"
+        description="奈良県内で活躍する青年部員の事業や得意分野から、相談相手・取引先・協業パートナーを探せます。"
+      />
+      <section className="page-content">
+        <div className="container">
+          <HomeLink />
+          <div className="toolbar">
+            <h2>登録事業者</h2>
+            <Link className="button" href="/businesses/new"><Plus size={17} /> 新規登録</Link>
+          </div>
+          <BusinessList />
+        </div>
+      </section>
     </main>
   );
 }

@@ -1,0 +1,166 @@
+"use client";
+
+import { Check, RefreshCw, Shield, Trash2, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ApprovalGate } from "@/components/approval-gate";
+import { HomeLink, Loading, PageHero } from "@/components/ui";
+import { recordTitle } from "@/lib/records";
+import { supabase } from "@/lib/supabase";
+import type { BaseRecord, MarchePost, Profile } from "@/types";
+
+const contentTables = [
+  { table: "businesses", label: "事業者" },
+  { table: "problems", label: "困りごと" },
+  { table: "collaborations", label: "コラボ募集" },
+  { table: "successes", label: "成功事例" },
+  { table: "marche_posts", label: "マルシェ" },
+] as const;
+
+type PendingContent = BaseRecord & {
+  sourceTable: string;
+  sourceLabel: string;
+};
+
+export default function AdminPage() {
+  const [users, setUsers] = useState<Profile[]>([]);
+  const [posts, setPosts] = useState<PendingContent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  async function load() {
+    setLoading(true);
+    setError("");
+    const [profileResult, ...postResults] = await Promise.all([
+      supabase.from("profiles").select("*").eq("role", "pending").order("created_at"),
+      ...contentTables.map(({ table }) =>
+        supabase.from(table).select("*").order("created_at", { ascending: false }),
+      ),
+    ]);
+    if (profileResult.error) setError(profileResult.error.message);
+    setUsers((profileResult.data as Profile[]) ?? []);
+    const combined: PendingContent[] = [];
+    postResults.forEach((result, index) => {
+      if (result.error) return;
+      for (const item of (result.data as BaseRecord[]) ?? []) {
+        combined.push({
+          ...item,
+          sourceTable: contentTables[index].table,
+          sourceLabel: contentTables[index].label,
+        });
+      }
+    });
+    setPosts(combined);
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
+
+  async function updateUser(profile: Profile, approve: boolean) {
+    setMessage("");
+    setError("");
+    const { error: updateError } = await supabase.from("profiles").update(
+      approve
+        ? { role: "member", rejected_at: null, updated_at: new Date().toISOString() }
+        : { role: "pending", rejected_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+    ).eq("id", profile.id);
+    if (updateError) setError(updateError.message);
+    else {
+      setMessage(`${profile.full_name || profile.email || "ユーザー"}を${approve ? "承認" : "却下"}しました。`);
+      await load();
+    }
+  }
+
+  async function updatePost(post: PendingContent, action: "approve" | "reject" | "delete") {
+    setMessage("");
+    setError("");
+    if (action === "delete" && !window.confirm("この投稿を削除します。よろしいですか？")) return;
+    const query = action === "delete"
+      ? supabase.from(post.sourceTable).delete().eq("id", post.id)
+      : supabase.from(post.sourceTable).update({
+          approval_status: action === "approve" ? "approved" : "rejected",
+        }).eq("id", post.id);
+    const { error: updateError } = await query;
+    if (updateError) setError(updateError.message);
+    else {
+      setMessage(`「${postTitle(post)}」を${action === "approve" ? "承認" : action === "reject" ? "却下" : "削除"}しました。`);
+      await load();
+    }
+  }
+
+  return (
+    <main>
+      <PageHero eyebrow="Administration" title="管理者ページ" description="会員登録と各投稿の承認状況を確認し、公開範囲を管理します。" />
+      <section className="page-content">
+        <div className="container">
+          <HomeLink />
+          <ApprovalGate adminOnly action="管理者ページ">
+            <div className="admin-toolbar">
+              <div><Shield /><strong>承認管理</strong></div>
+              <button className="button secondary" type="button" onClick={load}><RefreshCw size={16} /> 再読み込み</button>
+            </div>
+            {message && <p className="notice">{message}</p>}
+            {error && <p className="error">{error}</p>}
+            {loading ? <Loading /> : (
+              <div className="admin-sections">
+                <section className="admin-panel">
+                  <h2>未承認ユーザー <span>{users.filter((user) => !user.rejected_at).length}</span></h2>
+                  <div className="admin-table-wrap">
+                    <table className="admin-table">
+                      <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>状態</th><th>操作</th></tr></thead>
+                      <tbody>
+                        {users.length ? users.map((profile) => (
+                          <tr key={profile.id}>
+                            <td>{profile.full_name || "未設定"}</td>
+                            <td>{profile.email}</td>
+                            <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
+                            <td><span className={profile.rejected_at ? "status rejected" : "status pending"}>{profile.rejected_at ? "却下済み" : "承認待ち"}</span></td>
+                            <td className="action-cell">
+                              <button className="icon-action approve" type="button" onClick={() => updateUser(profile, true)}><Check size={16} /> 承認</button>
+                              {!profile.rejected_at && <button className="icon-action reject" type="button" onClick={() => updateUser(profile, false)}><X size={16} /> 却下</button>}
+                            </td>
+                          </tr>
+                        )) : <tr><td colSpan={5}>未承認ユーザーはいません。</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="admin-panel">
+                  <h2>投稿管理 <span>{posts.filter((post) => post.approval_status === "pending").length}</span></h2>
+                  <div className="admin-table-wrap">
+                    <table className="admin-table">
+                      <thead><tr><th>種別</th><th>タイトル</th><th>状態</th><th>投稿日</th><th>操作</th></tr></thead>
+                      <tbody>
+                        {posts.length ? posts.map((post) => (
+                          <tr key={`${post.sourceTable}-${post.id}`}>
+                            <td><span className="tag">{post.sourceLabel}</span></td>
+                            <td>{postTitle(post)}</td>
+                            <td><span className={`status ${post.approval_status}`}>{post.approval_status === "approved" ? "公開中" : post.approval_status === "rejected" ? "却下" : "承認待ち"}</span></td>
+                            <td>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : "-"}</td>
+                            <td className="action-cell">
+                              {post.approval_status !== "approved" && <button className="icon-action approve" type="button" onClick={() => updatePost(post, "approve")}><Check size={16} /> 承認</button>}
+                              {post.approval_status !== "rejected" && <button className="icon-action reject" type="button" onClick={() => updatePost(post, "reject")}><X size={16} /> 却下</button>}
+                              <button className="icon-action delete" type="button" onClick={() => updatePost(post, "delete")}><Trash2 size={16} /> 削除</button>
+                            </td>
+                          </tr>
+                        )) : <tr><td colSpan={5}>投稿はありません。</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+              </div>
+            )}
+          </ApprovalGate>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+function postTitle(post: PendingContent) {
+  if (post.sourceTable === "marche_posts") {
+    return String((post as unknown as MarchePost).event_name || "名称未設定");
+  }
+  return recordTitle(post);
+}

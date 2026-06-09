@@ -1,0 +1,14 @@
+# dependencies
+/node_modules
+
+# Next.js
+/.next
+/out
+
+# local environment files
+.env*
+!.env.example
+
+# logs and system files
+*.log
+.DS_Store
