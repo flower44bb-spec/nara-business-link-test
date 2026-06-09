@@ -32,7 +32,7 @@ export default function AdminPage() {
     setLoading(true);
     setError("");
     const [profileResult, ...postResults] = await Promise.all([
-      supabase.from("profiles").select("*").eq("role", "pending").order("created_at"),
+      supabase.from("profiles").select("*").order("created_at"),
       ...contentTables.map(({ table }) =>
         supabase.from(table).select("*").order("created_at", { ascending: false }),
       ),
@@ -104,12 +104,12 @@ export default function AdminPage() {
             {loading ? <Loading /> : (
               <div className="admin-sections">
                 <section className="admin-panel">
-                  <h2>未承認ユーザー <span>{users.filter((user) => !user.rejected_at).length}</span></h2>
+                  <h2>未承認ユーザー <span>{users.filter((user) => user.role === "pending" && !user.rejected_at).length}</span></h2>
                   <div className="admin-table-wrap">
                     <table className="admin-table">
                       <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>状態</th><th>操作</th></tr></thead>
                       <tbody>
-                        {users.length ? users.map((profile) => (
+                        {users.filter((profile) => profile.role === "pending").length ? users.filter((profile) => profile.role === "pending").map((profile) => (
                           <tr key={profile.id}>
                             <td>{profile.full_name || "未設定"}</td>
                             <td>{profile.email}</td>
@@ -121,6 +121,26 @@ export default function AdminPage() {
                             </td>
                           </tr>
                         )) : <tr><td colSpan={5}>未承認ユーザーはいません。</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="admin-panel">
+                  <h2>会員アカウント照会 <span>{users.length}</span></h2>
+                  <p>ログイン用メールアドレスを忘れた会員について、本人確認後に氏名・所属・会社名から照会してください。</p>
+                  <div className="admin-table-wrap">
+                    <table className="admin-table">
+                      <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>権限</th></tr></thead>
+                      <tbody>
+                        {users.length ? users.map((profile) => (
+                          <tr key={`account-${profile.id}`}>
+                            <td>{profile.full_name || "未設定"}</td>
+                            <td>{profile.email || "未設定"}</td>
+                            <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
+                            <td><span className={`status ${profile.role}`}>{profile.role === "admin" ? "管理者" : profile.role === "member" ? "承認済み" : "承認待ち"}</span></td>
+                          </tr>
+                        )) : <tr><td colSpan={4}>会員情報がありません。</td></tr>}
                       </tbody>
                     </table>
                   </div>

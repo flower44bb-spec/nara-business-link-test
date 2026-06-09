@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/auth-provider";
@@ -101,6 +102,11 @@ export default function AuthPage() {
               <button className="button" type="submit" disabled={loading}>
                 {loading ? "送信中..." : mode === "login" ? "ログイン" : "会員登録"}
               </button>
+              {mode === "login" && (
+                <Link className="auth-help-link" href="/auth/forgot-password">
+                  メールアドレス・パスワードを忘れた方
+                </Link>
+              )}
             </form>
           </>
         )}
