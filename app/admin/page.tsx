@@ -19,6 +19,7 @@ const contentTables = [
 type PendingContent = BaseRecord & {
   sourceTable: string;
   sourceLabel: string;
+  author?: Profile;
 };
 
 export default function AdminPage() {
@@ -38,7 +39,9 @@ export default function AdminPage() {
       ),
     ]);
     if (profileResult.error) setError(profileResult.error.message);
-    setUsers((profileResult.data as Profile[]) ?? []);
+    const loadedUsers = (profileResult.data as Profile[]) ?? [];
+    const profileMap = new Map(loadedUsers.map((profile) => [profile.id, profile]));
+    setUsers(loadedUsers);
     const combined: PendingContent[] = [];
     postResults.forEach((result, index) => {
       if (result.error) return;
@@ -47,6 +50,7 @@ export default function AdminPage() {
           ...item,
           sourceTable: contentTables[index].table,
           sourceLabel: contentTables[index].label,
+          author: item.user_id ? profileMap.get(item.user_id) : undefined,
         });
       }
     });
@@ -150,12 +154,14 @@ export default function AdminPage() {
                   <h2>投稿管理 <span>{posts.filter((post) => post.approval_status === "pending").length}</span></h2>
                   <div className="admin-table-wrap">
                     <table className="admin-table">
-                      <thead><tr><th>種別</th><th>タイトル</th><th>状態</th><th>投稿日</th><th>操作</th></tr></thead>
+                      <thead><tr><th>種別</th><th>タイトル</th><th>氏名</th><th>所属・会社</th><th>状態</th><th>投稿日</th><th>操作</th></tr></thead>
                       <tbody>
                         {posts.length ? posts.map((post) => (
                           <tr key={`${post.sourceTable}-${post.id}`}>
                             <td><span className="tag">{post.sourceLabel}</span></td>
                             <td>{postTitle(post)}</td>
+                            <td>{post.author?.full_name || "未設定"}</td>
+                            <td>{post.author?.local_chapter || "-"} / {post.author?.company_name || "-"}</td>
                             <td><span className={`status ${post.approval_status}`}>{post.approval_status === "approved" ? "公開中" : post.approval_status === "rejected" ? "却下" : "承認待ち"}</span></td>
                             <td>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : "-"}</td>
                             <td className="action-cell">
@@ -164,7 +170,7 @@ export default function AdminPage() {
                               <button className="icon-action delete" type="button" onClick={() => updatePost(post, "delete")}><Trash2 size={16} /> 削除</button>
                             </td>
                           </tr>
-                        )) : <tr><td colSpan={5}>投稿はありません。</td></tr>}
+                        )) : <tr><td colSpan={7}>投稿はありません。</td></tr>}
                       </tbody>
                     </table>
                   </div>
