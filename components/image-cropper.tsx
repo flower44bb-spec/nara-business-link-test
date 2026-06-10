@@ -24,25 +24,49 @@ type CropState = {
 export function ImageCropper({
   currentImageUrl,
   onChange,
+  onProcessingChange,
 }: {
   currentImageUrl?: string | null;
   onChange: (file: File | null) => void;
+  onProcessingChange?: (processing: boolean) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef({ pointerId: 0, x: 0, y: 0 });
+  const exportIdRef = useRef(0);
   const [crop, setCrop] = useState<CropState | null>(null);
   const [error, setError] = useState("");
-  const [applied, setApplied] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (!crop) return;
     drawCrop(canvasRef.current, crop);
-  }, [crop]);
+    const exportId = exportIdRef.current + 1;
+    exportIdRef.current = exportId;
+    setProcessing(true);
+    onProcessingChange?.(true);
+
+    const timer = window.setTimeout(() => {
+      exportCrop(canvasRef.current, crop).then((file) => {
+        if (exportId !== exportIdRef.current) return;
+        if (!file) {
+          setError("画像の切り出しに失敗しました。");
+          onChange(null);
+        } else {
+          onChange(file);
+          setError("");
+        }
+        setProcessing(false);
+        onProcessingChange?.(false);
+      });
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [crop, onChange, onProcessingChange]);
 
   function selectImage(file?: File) {
     setError("");
-    setApplied(false);
     onChange(null);
+    onProcessingChange?.(Boolean(file));
     if (!file) {
       setCrop(null);
       return;
@@ -50,11 +74,13 @@ export function ImageCropper({
     if (!ACCEPTED_TYPES.includes(file.type)) {
       setError("JPEG・PNG・WebP形式の画像を選択してください。");
       setCrop(null);
+      onProcessingChange?.(false);
       return;
     }
     if (file.size > MAX_FILE_SIZE) {
       setError("画像は10MB以下にしてください。");
       setCrop(null);
+      onProcessingChange?.(false);
       return;
     }
 
@@ -73,6 +99,7 @@ export function ImageCropper({
     image.onerror = () => {
       URL.revokeObjectURL(objectUrl);
       setError("画像を読み込めませんでした。別の画像を選択してください。");
+      onProcessingChange?.(false);
     };
     image.src = objectUrl;
   }
@@ -94,8 +121,6 @@ export function ImageCropper({
     const deltaY = (event.clientY - dragRef.current.y) * (OUTPUT_HEIGHT / rect.height);
     dragRef.current.x = event.clientX;
     dragRef.current.y = event.clientY;
-    setApplied(false);
-    onChange(null);
     setCrop((current) =>
       current
         ? clampCrop({
@@ -115,32 +140,8 @@ export function ImageCropper({
   }
 
   function changeZoom(value: number) {
-    setApplied(false);
-    onChange(null);
     setCrop((current) =>
       current ? clampCrop({ ...current, zoom: value }) : current,
-    );
-  }
-
-  function applyCrop() {
-    const canvas = canvasRef.current;
-    if (!canvas || !crop) return;
-    canvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          setError("画像の切り出しに失敗しました。");
-          return;
-        }
-        onChange(
-          new File([blob], `${crop.fileName}-cropped.jpg`, {
-            type: "image/jpeg",
-          }),
-        );
-        setApplied(true);
-        setError("");
-      },
-      "image/jpeg",
-      0.88,
     );
   }
 
@@ -186,9 +187,9 @@ export function ImageCropper({
               onChange={(event) => changeZoom(Number(event.target.value))}
             />
           </label>
-          <button className="button secondary" type="button" onClick={applyCrop}>
-            {applied ? "この表示範囲を選択済み" : "この表示範囲を使用"}
-          </button>
+          <p className={processing ? "crop-status processing" : "crop-status ready"}>
+            {processing ? "表示範囲を反映しています..." : "この表示範囲が保存されます"}
+          </p>
         </div>
       ) : currentImageUrl ? (
         <div className="current-business-image">
@@ -198,6 +199,28 @@ export function ImageCropper({
       ) : null}
     </div>
   );
+}
+
+function exportCrop(canvas: HTMLCanvasElement | null, crop: CropState) {
+  return new Promise<File | null>((resolve) => {
+    if (!canvas) {
+      resolve(null);
+      return;
+    }
+    canvas.toBlob(
+      (blob) => {
+        resolve(
+          blob
+            ? new File([blob], `${crop.fileName}-cropped.jpg`, {
+                type: "image/jpeg",
+              })
+            : null,
+        );
+      },
+      "image/jpeg",
+      0.88,
+    );
+  });
 }
 
 function clampCrop(crop: CropState) {

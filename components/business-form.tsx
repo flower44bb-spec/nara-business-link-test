@@ -24,6 +24,7 @@ export function BusinessForm({
   const [needs, setNeeds] = useState(String(business?.collaboration_needs || ""));
   const [contact, setContact] = useState(String(business?.contact || ""));
   const [image, setImage] = useState<File | null>(null);
+  const [imageProcessing, setImageProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,6 +32,10 @@ export function BusinessForm({
     event.preventDefault();
     if (!user || !isApproved) {
       router.push("/auth");
+      return;
+    }
+    if (imageProcessing) {
+      setError("画像の表示範囲を反映中です。完了してから保存してください。");
       return;
     }
 
@@ -64,7 +69,7 @@ export function BusinessForm({
       collaboration_needs: needs,
       contact,
       image_url: imageUrl || null,
-      user_id: user.id,
+      user_id: business?.user_id || user.id,
       approval_status: isAdmin ? business?.approval_status || "approved" : "pending",
     };
     const result = business
@@ -121,11 +126,20 @@ export function BusinessForm({
         <ImageCropper
           currentImageUrl={String(business?.image_url || "")}
           onChange={setImage}
+          onProcessingChange={setImageProcessing}
         />
       </div>
       <div className="form-actions">
         <button className="button secondary" type="button" onClick={() => router.back()}>キャンセル</button>
-        <button className="button" type="submit" disabled={saving}>{saving ? "保存中..." : business ? "変更を保存（再承認）" : "事業者を登録（承認申請）"}</button>
+        <button className="button" type="submit" disabled={saving || imageProcessing}>
+          {saving
+            ? "保存中..."
+            : imageProcessing
+              ? "画像を反映中..."
+              : business
+                ? "変更を保存（再承認）"
+                : "事業者を登録（承認申請）"}
+        </button>
       </div>
     </form>
   );

@@ -149,6 +149,9 @@ button { cursor: pointer; }
 }
 .crop-zoom { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 8px; font-size: 12px; }
 .crop-zoom input { min-height: auto; padding: 0; }
+.crop-status { margin: 0; padding: 10px 12px; border-radius: 4px; font-size: 12px; font-weight: 700; text-align: center; }
+.crop-status.processing { color: #7b5b16; background: #fff0c7; }
+.crop-status.ready { color: #176c53; background: #dff2ea; }
 .current-business-image { display: grid; gap: 8px; }
 .current-business-image img { width: min(100%, 420px); aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; }
 .current-business-image span { color: var(--muted); font-size: 12px; }
