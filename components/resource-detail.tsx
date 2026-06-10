@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, CircleCheckBig, Handshake, MapPin } from "lucide-react";
+import { CalendarDays, CircleCheckBig, Handshake, MapPin, Pencil } from "lucide-react";
+import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
@@ -63,7 +64,12 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
       <section className="page-content">
         <div className="container">
           <BackLink href={`/${config.table}`} />
-          {saved && <p className="notice">投稿を受け付けました。管理者承認後に公開されます。</p>}
+          {saved === "new" && <p className="notice">投稿を受け付けました。管理者承認後に公開されます。</p>}
+          {saved === "edit" && (
+            <p className="notice">
+              {isAdmin ? "変更を保存しました。" : "変更を保存しました。管理者の再承認後に公開されます。"}
+            </p>
+          )}
           {loading ? <Loading /> : error || !item ? <Empty text={`投稿を取得できませんでした。${error}`} /> : (
             <div className="detail-layout">
               <article className="detail-card">
@@ -122,6 +128,11 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
                     <CircleCheckBig size={16} />
                     {item.resolved_at ? "未解決に戻す" : "解決済みに変更"}
                   </button>
+                )}
+                {canDelete && (
+                  <Link className="button secondary" href={`/${config.table}/${id}/edit`}>
+                    <Pencil size={16} /> 編集する
+                  </Link>
                 )}
                 {canDelete && <DeleteButton table={config.table} id={id} redirect={`/${config.table}`} />}
                 <MessageUserButton recipientId={item.user_id} />

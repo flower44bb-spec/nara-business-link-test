@@ -4,18 +4,26 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { ApprovalGate } from "@/components/approval-gate";
-import { insertRecord } from "@/lib/mutations";
+import { insertRecord, updateRecord } from "@/lib/mutations";
 import type { BaseRecord, ResourceConfig } from "@/types";
 
-export function ResourceForm({ config }: { config: ResourceConfig }) {
+export function ResourceForm({
+  config,
+  item,
+}: {
+  config: ResourceConfig;
+  item?: BaseRecord;
+}) {
   const router = useRouter();
-  const { user, isApproved, loading: authLoading } = useAuth();
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [area, setArea] = useState("");
-  const [description, setDescription] = useState("");
-  const [result, setResult] = useState("");
-  const [transactionAmount, setTransactionAmount] = useState("");
+  const { user, isApproved, isAdmin, loading: authLoading } = useAuth();
+  const [title, setTitle] = useState(String(item?.title || ""));
+  const [category, setCategory] = useState(String(item?.category || ""));
+  const [area, setArea] = useState(String(item?.area || ""));
+  const [description, setDescription] = useState(String(item?.description || item?.detail || ""));
+  const [result, setResult] = useState(String(item?.result || ""));
+  const [transactionAmount, setTransactionAmount] = useState(
+    item?.transaction_amount == null ? "" : String(item.transaction_amount),
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -27,7 +35,7 @@ export function ResourceForm({ config }: { config: ResourceConfig }) {
     }
     setSaving(true);
     setError("");
-    const { data, error: insertError } = await insertRecord(config.table, {
+    const payload = {
       title,
       category,
       area,
@@ -37,17 +45,20 @@ export function ResourceForm({ config }: { config: ResourceConfig }) {
         config.table === "successes" && transactionAmount
           ? Number(transactionAmount)
           : null,
-      user_id: user.id,
-      approval_status: "pending",
-    });
+      user_id: item?.user_id || user.id,
+      approval_status: isAdmin ? item?.approval_status || "approved" : "pending",
+    };
+    const { data, error: saveError } = item
+      ? await updateRecord(config.table, String(item.id), payload)
+      : await insertRecord(config.table, payload);
 
-    if (insertError) {
-      setError(insertError.message);
+    if (saveError) {
+      setError(saveError.message);
       setSaving(false);
       return;
     }
     const saved = data as BaseRecord;
-    router.push(`/${config.table}/${saved.id}?saved=1`);
+    router.push(`/${config.table}/${saved.id}?saved=${item ? "edit" : "new"}`);
     router.refresh();
   }
 
@@ -96,7 +107,15 @@ export function ResourceForm({ config }: { config: ResourceConfig }) {
       )}
       <div className="form-actions">
         <button className="button secondary" type="button" onClick={() => router.back()}>キャンセル</button>
-        <button className="button" type="submit" disabled={saving}>{saving ? "投稿中..." : `${config.singular}を投稿（承認申請）`}</button>
+        <button className="button" type="submit" disabled={saving}>
+          {saving
+            ? "保存中..."
+            : item
+              ? isAdmin
+                ? "変更を保存"
+                : "変更を保存（再承認）"
+              : `${config.singular}を投稿（承認申請）`}
+        </button>
       </div>
     </form>
   );
