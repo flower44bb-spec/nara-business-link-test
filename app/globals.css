@@ -132,6 +132,26 @@ button { cursor: pointer; }
   width: 100%; min-height: 48px; padding: 11px 14px; border: 1px solid #cfc8b9; border-radius: 4px; color: var(--ink); background: white;
 }
 .field textarea { min-height: 140px; resize: vertical; }
+.visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+.image-cropper { display: grid; gap: 12px; }
+.image-select-button {
+  width: fit-content; min-height: 44px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px;
+  color: var(--green); background: white; border: 1px solid var(--green); border-radius: 4px; cursor: pointer;
+}
+.image-help { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+.crop-editor { display: grid; gap: 14px; padding: 16px; background: #edf3f9; border-radius: 8px; }
+.crop-canvas-wrap { position: relative; overflow: hidden; background: #102b46; border-radius: 6px; }
+.crop-canvas-wrap canvas { width: 100%; aspect-ratio: 16 / 9; display: block; cursor: grab; touch-action: none; }
+.crop-canvas-wrap canvas:active { cursor: grabbing; }
+.crop-canvas-wrap > span {
+  position: absolute; left: 12px; bottom: 12px; padding: 7px 10px; display: inline-flex; align-items: center; gap: 5px;
+  color: white; background: rgba(9, 34, 59, .75); border-radius: 4px; font-size: 11px; pointer-events: none;
+}
+.crop-zoom { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 8px; font-size: 12px; }
+.crop-zoom input { min-height: auto; padding: 0; }
+.current-business-image { display: grid; gap: 8px; }
+.current-business-image img { width: min(100%, 420px); aspect-ratio: 16 / 9; object-fit: cover; border-radius: 6px; }
+.current-business-image span { color: var(--muted); font-size: 12px; }
 .search-grid .button { min-height: 48px; }
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .card { overflow: hidden; }

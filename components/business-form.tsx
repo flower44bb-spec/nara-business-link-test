@@ -2,9 +2,9 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ImagePlus } from "lucide-react";
 import { useAuth } from "@/components/auth-provider";
 import { ApprovalGate } from "@/components/approval-gate";
+import { ImageCropper } from "@/components/image-cropper";
 import { insertRecord, updateRecord } from "@/lib/mutations";
 import { supabase } from "@/lib/supabase";
 import type { BaseRecord } from "@/types";
@@ -117,8 +117,11 @@ export function BusinessForm({
         <input id="contact" placeholder="メールアドレス、電話番号など" value={contact} onChange={(event) => setContact(event.target.value)} />
       </div>
       <div className="field">
-        <label htmlFor="image"><ImagePlus size={17} /> 事業者画像</label>
-        <input id="image" type="file" accept="image/*" onChange={(event) => setImage(event.target.files?.[0] ?? null)} />
+        <label>事業者画像</label>
+        <ImageCropper
+          currentImageUrl={String(business?.image_url || "")}
+          onChange={setImage}
+        />
       </div>
       <div className="form-actions">
         <button className="button secondary" type="button" onClick={() => router.back()}>キャンセル</button>
