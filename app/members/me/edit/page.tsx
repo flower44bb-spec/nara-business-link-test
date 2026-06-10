@@ -1,11 +1,12 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { ImagePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ApprovalGate } from "@/components/approval-gate";
 import { useAuth } from "@/components/auth-provider";
+import { ImageCropper } from "@/components/image-cropper";
 import { BackLink, PageHero } from "@/components/ui";
+import { updateRecord } from "@/lib/mutations";
 import { supabase } from "@/lib/supabase";
 
 export default function EditMyProfilePage() {
@@ -16,6 +17,7 @@ export default function EditMyProfilePage() {
     bio: "", can_help_with: "", wants_to_connect_with: "", line_notify_target: "",
   });
   const [image, setImage] = useState<File | null>(null);
+  const [imageProcessing, setImageProcessing] = useState(false);
   const [lineEnabled, setLineEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -40,23 +42,30 @@ export default function EditMyProfilePage() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!user || !isApproved) return;
+    if (imageProcessing) {
+      setError("画像の表示範囲を反映中です。完了してから保存してください。");
+      return;
+    }
     setSaving(true);
     setError("");
     let avatarUrl = profile?.avatar_url || null;
     if (image) {
-      const extension = image.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${Date.now()}.${extension}`;
-      const { error: uploadError } = await supabase.storage.from("profile-images").upload(path, image);
+      const path = `${user.id}/${crypto.randomUUID()}.jpg`;
+      const { error: uploadError } = await supabase.storage.from("profile-images").upload(path, image, {
+        contentType: "image/jpeg",
+        cacheControl: "3600",
+        upsert: false,
+      });
       if (uploadError) {
-        setError(uploadError.message);
+        setError(`プロフィール画像をアップロードできませんでした: ${uploadError.message}`);
         setSaving(false);
         return;
       }
       avatarUrl = supabase.storage.from("profile-images").getPublicUrl(path).data.publicUrl;
     }
-    const { error: updateError } = await supabase.from("profiles").update({
+    const { error: updateError } = await updateRecord("profiles", user.id, {
       ...form, avatar_url: avatarUrl, line_notifications_enabled: lineEnabled, updated_at: new Date().toISOString(),
-    }).eq("id", user.id);
+    });
     if (updateError) {
       setError(updateError.message);
       setSaving(false);
@@ -99,8 +108,15 @@ export default function EditMyProfilePage() {
                   </div>
                 ))}
                 <div className="field">
-                  <label htmlFor="avatar"><ImagePlus size={17} /> プロフィール画像</label>
-                  <input id="avatar" type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] ?? null)} />
+                  <label>プロフィール画像</label>
+                  <ImageCropper
+                    currentImageUrl={profile?.avatar_url}
+                    onChange={setImage}
+                    onProcessingChange={setImageProcessing}
+                    outputWidth={800}
+                    outputHeight={800}
+                    imageLabel="プロフィール画像"
+                  />
                 </div>
                 <div className="field">
                   <label htmlFor="line_notify_target">LINE通知先（将来連携用）</label>
@@ -110,7 +126,9 @@ export default function EditMyProfilePage() {
                   <input type="checkbox" checked={lineEnabled} onChange={(e) => setLineEnabled(e.target.checked)} />
                   LINE通知を有効にする（API接続後に配信）
                 </label>
-                <button className="button" type="submit" disabled={saving}>{saving ? "保存中..." : "プロフィールを保存"}</button>
+                <button className="button" type="submit" disabled={saving || imageProcessing}>
+                  {saving ? "保存中..." : imageProcessing ? "画像を反映中..." : "プロフィールを保存"}
+                </button>
               </form>
             </ApprovalGate>
           </div>

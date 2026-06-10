@@ -4,6 +4,8 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ApprovalGate } from "./approval-gate";
 import { useAuth } from "./auth-provider";
+import { ImageCropper } from "./image-cropper";
+import { insertRecord, updateRecord } from "@/lib/mutations";
 import { supabase } from "@/lib/supabase";
 import type { MarchePost } from "@/types";
 
@@ -21,6 +23,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
     organizer: post?.organizer || "",
   });
   const [image, setImage] = useState<File | null>(null);
+  const [imageProcessing, setImageProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -31,12 +34,20 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!user || !isApproved) return;
+    if (imageProcessing) {
+      setError("画像の表示範囲を反映中です。完了してから保存してください。");
+      return;
+    }
     setSaving(true);
     setError("");
     let imageUrl = post?.image_url || null;
     if (image) {
-      const path = `${user.id}/${Date.now()}.${image.name.split(".").pop() || "jpg"}`;
-      const { error: uploadError } = await supabase.storage.from("marche-images").upload(path, image);
+      const path = `${user.id}/${crypto.randomUUID()}.jpg`;
+      const { error: uploadError } = await supabase.storage.from("marche-images").upload(path, image, {
+        contentType: "image/jpeg",
+        cacheControl: "3600",
+        upsert: false,
+      });
       if (uploadError) {
         setError(uploadError.message);
         setSaving(false);
@@ -52,10 +63,9 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
       approval_status: isAdmin ? post?.approval_status || "approved" : "pending",
       updated_at: new Date().toISOString(),
     };
-    const query = post
-      ? supabase.from("marche_posts").update(payload).eq("id", post.id).select("id").single()
-      : supabase.from("marche_posts").insert(payload).select("id").single();
-    const { data, error: saveError } = await query;
+    const { data, error: saveError } = post
+      ? await updateRecord("marche_posts", post.id, payload)
+      : await insertRecord("marche_posts", payload);
     if (saveError) {
       setError(saveError.message);
       setSaving(false);
@@ -84,12 +94,19 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
           <textarea id="description" value={form.description} onChange={(e) => set("description", e.target.value)} required />
         </div>
         <div className="field">
-          <label htmlFor="image">画像</label>
-          <input id="image" type="file" accept="image/*" onChange={(e) => setImage(e.target.files?.[0] ?? null)} />
+          <label>画像</label>
+          <ImageCropper
+            currentImageUrl={post?.image_url}
+            onChange={setImage}
+            onProcessingChange={setImageProcessing}
+            imageLabel="マルシェ画像"
+          />
         </div>
         <div className="form-actions">
           <button className="button secondary" type="button" onClick={() => router.back()}>キャンセル</button>
-          <button className="button" type="submit" disabled={saving}>{saving ? "保存中..." : "保存して承認申請"}</button>
+          <button className="button" type="submit" disabled={saving || imageProcessing}>
+            {saving ? "保存中..." : imageProcessing ? "画像を反映中..." : "保存して承認申請"}
+          </button>
         </div>
       </form>
     </ApprovalGate>

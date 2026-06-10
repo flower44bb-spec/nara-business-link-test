@@ -4,12 +4,11 @@ import { ImagePlus, Move, ZoomIn } from "lucide-react";
 import {
   PointerEvent as ReactPointerEvent,
   useEffect,
+  useId,
   useRef,
   useState,
 } from "react";
 
-const OUTPUT_WIDTH = 1600;
-const OUTPUT_HEIGHT = 900;
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
@@ -25,11 +24,18 @@ export function ImageCropper({
   currentImageUrl,
   onChange,
   onProcessingChange,
+  outputWidth = 1600,
+  outputHeight = 900,
+  imageLabel = "画像",
 }: {
   currentImageUrl?: string | null;
   onChange: (file: File | null) => void;
   onProcessingChange?: (processing: boolean) => void;
+  outputWidth?: number;
+  outputHeight?: number;
+  imageLabel?: string;
 }) {
+  const inputId = useId();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef({ pointerId: 0, x: 0, y: 0 });
   const exportIdRef = useRef(0);
@@ -39,7 +45,7 @@ export function ImageCropper({
 
   useEffect(() => {
     if (!crop) return;
-    drawCrop(canvasRef.current, crop);
+    drawCrop(canvasRef.current, crop, outputWidth, outputHeight);
     const exportId = exportIdRef.current + 1;
     exportIdRef.current = exportId;
     setProcessing(true);
@@ -61,7 +67,7 @@ export function ImageCropper({
     }, 120);
 
     return () => window.clearTimeout(timer);
-  }, [crop, onChange, onProcessingChange]);
+  }, [crop, onChange, onProcessingChange, outputHeight, outputWidth]);
 
   function selectImage(file?: File) {
     setError("");
@@ -90,7 +96,7 @@ export function ImageCropper({
       URL.revokeObjectURL(objectUrl);
       setCrop({
         image,
-        fileName: file.name.replace(/\.[^.]+$/, "") || "business-image",
+        fileName: file.name.replace(/\.[^.]+$/, "") || "image",
         zoom: 1,
         offsetX: 0,
         offsetY: 0,
@@ -117,8 +123,8 @@ export function ImageCropper({
   function drag(event: ReactPointerEvent<HTMLCanvasElement>) {
     if (!crop || dragRef.current.pointerId !== event.pointerId) return;
     const rect = event.currentTarget.getBoundingClientRect();
-    const deltaX = (event.clientX - dragRef.current.x) * (OUTPUT_WIDTH / rect.width);
-    const deltaY = (event.clientY - dragRef.current.y) * (OUTPUT_HEIGHT / rect.height);
+    const deltaX = (event.clientX - dragRef.current.x) * (outputWidth / rect.width);
+    const deltaY = (event.clientY - dragRef.current.y) * (outputHeight / rect.height);
     dragRef.current.x = event.clientX;
     dragRef.current.y = event.clientY;
     setCrop((current) =>
@@ -127,7 +133,7 @@ export function ImageCropper({
             ...current,
             offsetX: current.offsetX + deltaX,
             offsetY: current.offsetY + deltaY,
-          })
+          }, outputWidth, outputHeight)
         : current,
     );
   }
@@ -141,17 +147,17 @@ export function ImageCropper({
 
   function changeZoom(value: number) {
     setCrop((current) =>
-      current ? clampCrop({ ...current, zoom: value }) : current,
+      current ? clampCrop({ ...current, zoom: value }, outputWidth, outputHeight) : current,
     );
   }
 
   return (
     <div className="image-cropper">
-      <label className="image-select-button" htmlFor="business-image-source">
+      <label className="image-select-button" htmlFor={inputId}>
         <ImagePlus size={17} /> 画像を選択
       </label>
       <input
-        id="business-image-source"
+        id={inputId}
         className="visually-hidden"
         type="file"
         accept="image/jpeg,image/png,image/webp"
@@ -166,8 +172,9 @@ export function ImageCropper({
           <div className="crop-canvas-wrap">
             <canvas
               ref={canvasRef}
-              width={OUTPUT_WIDTH}
-              height={OUTPUT_HEIGHT}
+              width={outputWidth}
+              height={outputHeight}
+              style={{ aspectRatio: `${outputWidth} / ${outputHeight}` }}
               onPointerDown={startDrag}
               onPointerMove={drag}
               onPointerUp={endDrag}
@@ -193,7 +200,7 @@ export function ImageCropper({
         </div>
       ) : currentImageUrl ? (
         <div className="current-business-image">
-          <img src={currentImageUrl} alt="現在の事業者画像" />
+          <img src={currentImageUrl} alt={`現在の${imageLabel}`} />
           <span>現在の画像。変更する場合は新しい画像を選択してください。</span>
         </div>
       ) : null}
@@ -223,15 +230,15 @@ function exportCrop(canvas: HTMLCanvasElement | null, crop: CropState) {
   });
 }
 
-function clampCrop(crop: CropState) {
+function clampCrop(crop: CropState, outputWidth: number, outputHeight: number) {
   const baseScale = Math.max(
-    OUTPUT_WIDTH / crop.image.naturalWidth,
-    OUTPUT_HEIGHT / crop.image.naturalHeight,
+    outputWidth / crop.image.naturalWidth,
+    outputHeight / crop.image.naturalHeight,
   );
   const renderedWidth = crop.image.naturalWidth * baseScale * crop.zoom;
   const renderedHeight = crop.image.naturalHeight * baseScale * crop.zoom;
-  const maxX = Math.max(0, (renderedWidth - OUTPUT_WIDTH) / 2);
-  const maxY = Math.max(0, (renderedHeight - OUTPUT_HEIGHT) / 2);
+  const maxX = Math.max(0, (renderedWidth - outputWidth) / 2);
+  const maxY = Math.max(0, (renderedHeight - outputHeight) / 2);
 
   return {
     ...crop,
@@ -240,23 +247,28 @@ function clampCrop(crop: CropState) {
   };
 }
 
-function drawCrop(canvas: HTMLCanvasElement | null, crop: CropState) {
+function drawCrop(
+  canvas: HTMLCanvasElement | null,
+  crop: CropState,
+  outputWidth: number,
+  outputHeight: number,
+) {
   const context = canvas?.getContext("2d");
   if (!canvas || !context) return;
-  const next = clampCrop(crop);
+  const next = clampCrop(crop, outputWidth, outputHeight);
   const baseScale = Math.max(
-    OUTPUT_WIDTH / next.image.naturalWidth,
-    OUTPUT_HEIGHT / next.image.naturalHeight,
+    outputWidth / next.image.naturalWidth,
+    outputHeight / next.image.naturalHeight,
   );
   const scale = baseScale * next.zoom;
   const width = next.image.naturalWidth * scale;
   const height = next.image.naturalHeight * scale;
 
-  context.clearRect(0, 0, OUTPUT_WIDTH, OUTPUT_HEIGHT);
+  context.clearRect(0, 0, outputWidth, outputHeight);
   context.drawImage(
     next.image,
-    (OUTPUT_WIDTH - width) / 2 + next.offsetX,
-    (OUTPUT_HEIGHT - height) / 2 + next.offsetY,
+    (outputWidth - width) / 2 + next.offsetX,
+    (outputHeight - height) / 2 + next.offsetY,
     width,
     height,
   );

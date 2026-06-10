@@ -141,7 +141,7 @@ button { cursor: pointer; }
 .image-help { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .crop-editor { display: grid; gap: 14px; padding: 16px; background: #edf3f9; border-radius: 8px; }
 .crop-canvas-wrap { position: relative; overflow: hidden; background: #102b46; border-radius: 6px; }
-.crop-canvas-wrap canvas { width: 100%; aspect-ratio: 16 / 9; display: block; cursor: grab; touch-action: none; }
+.crop-canvas-wrap canvas { width: 100%; display: block; cursor: grab; touch-action: none; }
 .crop-canvas-wrap canvas:active { cursor: grabbing; }
 .crop-canvas-wrap > span {
   position: absolute; left: 12px; bottom: 12px; padding: 7px 10px; display: inline-flex; align-items: center; gap: 5px;
