@@ -6,6 +6,9 @@
    続けて、トップページの実績集計用に
    `supabase/migrations/202606100001_business_metrics.sql`
    を実行します。
+   事業者詳細項目と画像保存用に
+   `supabase/migrations/202606100002_business_details_and_images.sql`
+   も実行します。
 2. migration末尾のSQLを使い、最初の管理者を1名設定します。
 
 ```sql

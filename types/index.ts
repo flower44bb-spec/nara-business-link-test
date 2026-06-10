@@ -18,6 +18,7 @@ export type BaseRecord = {
   transaction_amount?: number | null;
   approval_status?: "pending" | "approved" | "rejected" | null;
   created_at?: string | null;
+  updated_at?: string | null;
   [key: string]: unknown;
 };
 

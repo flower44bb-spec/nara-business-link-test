@@ -9,7 +9,7 @@ async function withCompatibleColumns<T>(
 ) {
   const compatiblePayload = { ...payload };
 
-  for (let attempt = 0; attempt < 8; attempt += 1) {
+  for (let attempt = 0; attempt <= Object.keys(payload).length; attempt += 1) {
     const result = await action(compatiblePayload);
     if (!result.error) return result;
 

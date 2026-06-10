@@ -19,7 +19,9 @@ export function BusinessForm({
   const [name, setName] = useState(String(business?.name || business?.title || ""));
   const [category, setCategory] = useState(String(business?.category || ""));
   const [area, setArea] = useState(String(business?.area || ""));
-  const [description, setDescription] = useState(String(business?.description || business?.detail || ""));
+  const [description, setDescription] = useState(
+    String(business?.description || business?.detail || business?.content || ""),
+  );
   const [services, setServices] = useState(String(business?.services || ""));
   const [needs, setNeeds] = useState(String(business?.collaboration_needs || ""));
   const [contact, setContact] = useState(String(business?.contact || ""));
@@ -44,11 +46,14 @@ export function BusinessForm({
     let imageUrl = String(business?.image_url || "");
 
     if (image) {
-      const extension = image.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${Date.now()}.${extension}`;
+      const path = `${user.id}/${crypto.randomUUID()}.jpg`;
       const { error: uploadError } = await supabase.storage
         .from("business-images")
-        .upload(path, image, { contentType: image.type });
+        .upload(path, image, {
+          contentType: "image/jpeg",
+          cacheControl: "3600",
+          upsert: false,
+        });
       if (uploadError) {
         setError(`画像をアップロードできませんでした: ${uploadError.message}`);
         setSaving(false);
@@ -83,7 +88,7 @@ export function BusinessForm({
     }
 
     const saved = result.data as BaseRecord;
-    router.push(`/businesses/${saved.id}?saved=1`);
+    router.push(`/businesses/${saved.id}?saved=${business ? "edit" : "new"}&v=${Date.now()}`);
     router.refresh();
   }
 

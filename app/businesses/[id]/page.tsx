@@ -37,14 +37,25 @@ export default function BusinessDetailPage() {
       <section className="page-content">
         <div className="container">
           <BackLink href="/businesses" />
-          {saved && <p className="notice">保存しました。管理者承認後に公開されます。</p>}
+          {saved === "new" && <p className="notice">登録しました。管理者承認後に公開されます。</p>}
+          {saved === "edit" && (
+            <p className="notice">
+              {isAdmin ? "変更を保存しました。" : "変更を保存しました。管理者の再承認後に公開されます。"}
+            </p>
+          )}
           {loading ? <Loading /> : error || !business ? <Empty text={`事業者情報を取得できませんでした。${error}`} /> : (
             <div className="detail-layout">
               <article className="detail-card">
                 {business.approval_status && business.approval_status !== "approved" && (
                   <span className={`status ${business.approval_status}`}>{business.approval_status === "pending" ? "承認待ち" : "却下"}</span>
                 )}
-                {business.image_url && <img className="detail-image" src={business.image_url} alt={recordTitle(business)} />}
+                {business.image_url && (
+                  <img
+                    className="detail-image"
+                    src={`${business.image_url}${business.image_url.includes("?") ? "&" : "?"}v=${encodeURIComponent(String(business.updated_at || business.image_url))}`}
+                    alt={recordTitle(business)}
+                  />
+                )}
                 <span className="tag">{String(business.category || "業種未設定")}</span>
                 <h1>{recordTitle(business)}</h1>
                 <div className="meta">
