@@ -10,12 +10,19 @@ export function PageHero({
   title: string;
   description: string;
 }) {
+  const descriptionLines =
+    description.match(/[^、。！？!?]+[、。！？!?]?/g) ?? [description];
+
   return (
     <section className="page-hero">
       <div className="container">
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
-        <p>{description}</p>
+        <p className="page-description">
+          {descriptionLines.map((line, index) => (
+            <span key={`${line}-${index}`}>{line.trim()}</span>
+          ))}
+        </p>
       </div>
     </section>
   );

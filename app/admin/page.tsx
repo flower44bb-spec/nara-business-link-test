@@ -151,29 +151,85 @@ export default function AdminPage() {
                   </div>
                 </section>
 
-                <section className="admin-panel">
-                  <h2>投稿管理 <span>{posts.filter((post) => post.approval_status === "pending").length}</span></h2>
-                  <div className="admin-table-wrap">
-                    <table className="admin-table">
-                      <thead><tr><th>種別</th><th>タイトル</th><th>氏名</th><th>所属・会社</th><th>状態</th><th>投稿日</th><th>操作</th></tr></thead>
-                      <tbody>
-                        {posts.length ? posts.map((post) => (
-                          <tr key={`${post.sourceTable}-${post.id}`}>
-                            <td><span className="tag">{post.sourceLabel}</span></td>
-                            <td>{postTitle(post)}</td>
-                            <td>{post.author?.full_name || "未設定"}</td>
-                            <td>{post.author?.local_chapter || "-"} / {post.author?.company_name || "-"}</td>
-                            <td><span className={`status ${post.approval_status}`}>{post.approval_status === "approved" ? "公開中" : post.approval_status === "rejected" ? "却下" : "承認待ち"}</span></td>
-                            <td>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : "-"}</td>
-                            <td className="action-cell">
-                              {post.approval_status !== "approved" && <button className="icon-action approve" type="button" onClick={() => updatePost(post, "approve")}><Check size={16} /> 承認</button>}
-                              {post.approval_status !== "rejected" && <button className="icon-action reject" type="button" onClick={() => updatePost(post, "reject")}><X size={16} /> 却下</button>}
-                              <button className="icon-action delete" type="button" onClick={() => updatePost(post, "delete")}><Trash2 size={16} /> 削除</button>
-                            </td>
-                          </tr>
-                        )) : <tr><td colSpan={7}>投稿はありません。</td></tr>}
-                      </tbody>
-                    </table>
+                <section className="admin-panel admin-post-management">
+                  <h2>
+                    投稿管理
+                    <span>{posts.filter((post) => post.approval_status === "pending").length}</span>
+                  </h2>
+                  <p className="admin-panel-help">
+                    投稿種別を選ぶと、承認状況と投稿者情報を確認できます。
+                  </p>
+                  <div className="admin-post-groups">
+                    {contentTables.map(({ table, label }) => {
+                      const tablePosts = posts.filter((post) => post.sourceTable === table);
+                      const pendingCount = tablePosts.filter(
+                        (post) => post.approval_status === "pending",
+                      ).length;
+
+                      return (
+                        <details className="admin-post-group" open={pendingCount > 0 || undefined} key={table}>
+                          <summary>
+                            <span>{label}</span>
+                            <span className="admin-summary-meta">
+                              {pendingCount > 0 && (
+                                <span className="pending-count">{pendingCount}件 承認待ち</span>
+                              )}
+                              <span className="total-count">全{tablePosts.length}件</span>
+                            </span>
+                          </summary>
+                          <div className="admin-table-wrap">
+                            <table className="admin-table">
+                              <thead>
+                                <tr>
+                                  <th>タイトル</th>
+                                  <th>氏名</th>
+                                  <th>所属・会社</th>
+                                  <th>状態</th>
+                                  <th>投稿日</th>
+                                  <th>操作</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {tablePosts.length ? tablePosts.map((post) => (
+                                  <tr key={`${post.sourceTable}-${post.id}`}>
+                                    <td>{postTitle(post)}</td>
+                                    <td>{post.author?.full_name || "未設定"}</td>
+                                    <td>{post.author?.local_chapter || "-"} / {post.author?.company_name || "-"}</td>
+                                    <td>
+                                      <span className={`status ${post.approval_status}`}>
+                                        {post.approval_status === "approved"
+                                          ? "公開中"
+                                          : post.approval_status === "rejected"
+                                            ? "却下"
+                                            : "承認待ち"}
+                                      </span>
+                                    </td>
+                                    <td>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : "-"}</td>
+                                    <td className="action-cell">
+                                      {post.approval_status !== "approved" && (
+                                        <button className="icon-action approve" type="button" onClick={() => updatePost(post, "approve")}>
+                                          <Check size={16} /> 承認
+                                        </button>
+                                      )}
+                                      {post.approval_status !== "rejected" && (
+                                        <button className="icon-action reject" type="button" onClick={() => updatePost(post, "reject")}>
+                                          <X size={16} /> 却下
+                                        </button>
+                                      )}
+                                      <button className="icon-action delete" type="button" onClick={() => updatePost(post, "delete")}>
+                                        <Trash2 size={16} /> 削除
+                                      </button>
+                                    </td>
+                                  </tr>
+                                )) : (
+                                  <tr><td colSpan={6}>{label}の投稿はありません。</td></tr>
+                                )}
+                              </tbody>
+                            </table>
+                          </div>
+                        </details>
+                      );
+                    })}
                   </div>
                 </section>
               </div>
