@@ -79,6 +79,17 @@ button { cursor: pointer; }
 .hero-actions .button { background: var(--persimmon); border-color: var(--persimmon); }
 .hero-actions .button.secondary { color: white; border-color: rgba(255,255,255,.7); background: rgba(255,255,255,.08); }
 
+.stats-section { padding: 0 0 38px; margin-top: -35px; position: relative; z-index: 2; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.stat-card {
+  min-height: 118px; padding: 23px; display: flex; align-items: center; gap: 15px;
+  background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow);
+}
+.stat-icon { width: 46px; height: 46px; flex: 0 0 auto; display: grid; place-items: center; color: white; background: var(--green); border-radius: 50%; }
+.stat-card strong { display: block; color: var(--green); font-family: "Shippori Mincho", serif; font-size: clamp(24px, 3vw, 34px); line-height: 1.2; }
+.stat-card span:last-child { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.stats-note { margin: 12px 3px 0; color: var(--muted); font-size: 11px; text-align: right; }
+
 .home-section { padding: 82px 0; }
 .home-section.alt { background: #e7eff8; }
 .section-heading { max-width: 680px; margin-bottom: 36px; }
@@ -188,7 +199,9 @@ button { cursor: pointer; }
 .status.pending { color: #7b5b16; background: #fff0c7; }
 .status.rejected { color: #8a302a; background: #fbe1de; }
 .status.approved { color: #176c53; background: #dff2ea; }
+.status.successful { margin-left: 7px; color: #175f8c; background: #dceefa; }
 .status + .tag { margin-left: 7px; }
+.transaction-amount { color: var(--green); font-size: 14px; font-weight: 800; }
 .two-columns { grid-template-columns: 1fr auto !important; }
 .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .member-card { padding: 22px; display: flex; align-items: center; gap: 17px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
@@ -232,6 +245,7 @@ button { cursor: pointer; }
 .icon-action.reject, .icon-action.delete { color: #9a3932; border-color: #e4b3af; }
 
 @media (max-width: 900px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .feature-grid, .card-grid, .member-grid { grid-template-columns: repeat(2, 1fr); }
   .search-grid { grid-template-columns: 1fr 1fr; }
   .detail-layout { grid-template-columns: 1fr; }
@@ -256,6 +270,9 @@ button { cursor: pointer; }
   .hero-actions, .form-actions { flex-direction: column; }
   .hero-actions .button, .form-actions .button { width: 100%; }
   .home-section { padding: 60px 0; }
+  .stats-section { margin-top: -20px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-card { min-height: 96px; }
   .feature-grid, .card-grid, .search-grid, .member-grid { grid-template-columns: 1fr; }
   .feature-card p { min-height: auto; }
   .page-hero { padding: 55px 0; }

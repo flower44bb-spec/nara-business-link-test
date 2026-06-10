@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
+import { HomeStats } from "@/components/home-stats";
 
 const features = [
   {
@@ -81,6 +82,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <HomeStats />
 
       <section className="home-section">
         <div className="container">

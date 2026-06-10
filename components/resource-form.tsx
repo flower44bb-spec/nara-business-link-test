@@ -15,6 +15,7 @@ export function ResourceForm({ config }: { config: ResourceConfig }) {
   const [area, setArea] = useState("");
   const [description, setDescription] = useState("");
   const [result, setResult] = useState("");
+  const [transactionAmount, setTransactionAmount] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,6 +33,10 @@ export function ResourceForm({ config }: { config: ResourceConfig }) {
       area,
       description,
       result: config.table === "successes" ? result : undefined,
+      transaction_amount:
+        config.table === "successes" && transactionAmount
+          ? Number(transactionAmount)
+          : null,
       user_id: user.id,
       approval_status: "pending",
     });
@@ -69,10 +74,25 @@ export function ResourceForm({ config }: { config: ResourceConfig }) {
         <textarea id="description" placeholder={config.descriptionPlaceholder} value={description} onChange={(event) => setDescription(event.target.value)} required />
       </div>
       {config.table === "successes" && (
-        <div className="field">
-          <label htmlFor="result">成果</label>
-          <textarea id="result" placeholder="売上、継続取引、来場者数など、連携によって生まれた成果をご記入ください。" value={result} onChange={(event) => setResult(event.target.value)} />
-        </div>
+        <>
+          <div className="field">
+            <label htmlFor="result">成果</label>
+            <textarea id="result" placeholder="売上、継続取引、来場者数など、連携によって生まれた成果をご記入ください。" value={result} onChange={(event) => setResult(event.target.value)} />
+          </div>
+          <div className="field">
+            <label htmlFor="transaction_amount">取引金額（任意・円）</label>
+            <input
+              id="transaction_amount"
+              type="number"
+              min="0"
+              step="1"
+              inputMode="numeric"
+              placeholder="例：500000"
+              value={transactionAmount}
+              onChange={(event) => setTransactionAmount(event.target.value)}
+            />
+          </div>
+        </>
       )}
       <div className="form-actions">
         <button className="button secondary" type="button" onClick={() => router.back()}>キャンセル</button>

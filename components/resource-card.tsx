@@ -20,6 +20,12 @@ export function ResourceCard({
           <span className={`status ${item.approval_status}`}>{item.approval_status === "pending" ? "承認待ち" : "却下"}</span>
         )}
         <span className="tag">{String(item.category || config.label)}</span>
+        {config.table === "collaborations" && item.collaboration_status === "successful" && (
+          <span className="status successful">コラボ成功</span>
+        )}
+        {config.table === "problems" && item.resolved_at && (
+          <span className="status successful">解決済み</span>
+        )}
         <h3>{recordTitle(item)}</h3>
         <div className="meta">
           {item.area && <span><MapPin size={13} /> {String(item.area)}</span>}
@@ -29,6 +35,11 @@ export function ResourceCard({
         <p className="summary">{recordDescription(item).slice(0, 120)}</p>
         {config.table === "successes" && item.result && (
           <p className="notice">成果: {String(item.result)}</p>
+        )}
+        {config.table === "successes" && item.transaction_amount != null && (
+          <p className="transaction-amount">
+            取引金額 {Number(item.transaction_amount).toLocaleString("ja-JP")}円
+          </p>
         )}
         <Link className="text-link" href={`/${config.table}/${item.id}`}>
           詳細を見る <ArrowRight size={14} />

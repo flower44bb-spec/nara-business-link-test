@@ -13,6 +13,9 @@ export type BaseRecord = {
   collaboration_needs?: string | null;
   contact?: string | null;
   result?: string | null;
+  collaboration_status?: "open" | "successful" | null;
+  resolved_at?: string | null;
+  transaction_amount?: number | null;
   approval_status?: "pending" | "approved" | "rejected" | null;
   created_at?: string | null;
   [key: string]: unknown;

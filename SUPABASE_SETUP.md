@@ -3,6 +3,9 @@
 1. Supabase DashboardのSQL Editorで
    `supabase/migrations/202606090001_membership_social_features.sql`
    を実行します。
+   続けて、トップページの実績集計用に
+   `supabase/migrations/202606100001_business_metrics.sql`
+   を実行します。
 2. migration末尾のSQLを使い、最初の管理者を1名設定します。
 
 ```sql
