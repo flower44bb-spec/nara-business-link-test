@@ -34,7 +34,12 @@ export default function MarcheDetailPage() {
       <section className="page-content">
         <div className="container">
           <BackLink href="/marche" />
-          {saved && <p className="notice">保存しました。管理者承認後に一般公開されます。</p>}
+          {saved === "new" && <p className="notice">投稿を受け付けました。管理者承認後に一般公開されます。</p>}
+          {saved === "edit" && (
+            <p className="notice">
+              {isAdmin ? "変更を保存しました。" : "変更を保存しました。管理者の再承認後に一般公開されます。"}
+            </p>
+          )}
           {loading ? <Loading /> : !post ? <Empty text="案件が見つかりません。" /> : (
             <div className="detail-layout">
               <article className="detail-card">

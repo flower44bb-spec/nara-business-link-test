@@ -71,7 +71,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
       setSaving(false);
       return;
     }
-    router.push(`/marche/${data.id}?saved=1`);
+    router.push(`/marche/${data.id}?saved=${post ? "edit" : "new"}`);
   }
 
   return (

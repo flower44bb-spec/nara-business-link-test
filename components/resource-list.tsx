@@ -17,7 +17,7 @@ export function ResourceList({ config }: { config: ResourceConfig }) {
 
   useEffect(() => {
     Promise.all([
-      supabase.from(config.table).select("*").order("created_at", { ascending: false }),
+      supabase.from(config.table).select("*").eq("approval_status", "approved").order("created_at", { ascending: false }),
       supabase.from("likes").select("target_id").eq("target_type", config.table),
     ]).then(([{ data, error: fetchError }, likesResult]) => {
         if (fetchError) setError(fetchError.message);

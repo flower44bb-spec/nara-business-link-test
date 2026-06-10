@@ -19,7 +19,7 @@ export function BusinessList() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from("businesses").select("*").order("created_at", { ascending: false }),
+      supabase.from("businesses").select("*").eq("approval_status", "approved").order("created_at", { ascending: false }),
       supabase.from("likes").select("target_id").eq("target_type", "businesses"),
     ]).then(([{ data, error: fetchError }, likesResult]) => {
         if (fetchError) setError(fetchError.message);

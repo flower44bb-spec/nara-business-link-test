@@ -12,6 +12,9 @@
    プロフィール・マルシェ画像用に
    `supabase/migrations/202606100003_profile_and_marche_images.sql`
    も実行します。
+   編集後の再承認フロー用に
+   `supabase/migrations/202606100004_enforce_content_approval.sql`
+   も実行します。
 2. migration末尾のSQLを使い、最初の管理者を1名設定します。
 
 ```sql

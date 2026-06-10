@@ -79,12 +79,13 @@ export default function AdminPage() {
     setMessage("");
     setError("");
     if (action === "delete" && !window.confirm("この投稿を削除します。よろしいですか？")) return;
-    const query = action === "delete"
-      ? supabase.from(post.sourceTable).delete().eq("id", post.id)
-      : supabase.from(post.sourceTable).update({
-          approval_status: action === "approve" ? "approved" : "rejected",
-        }).eq("id", post.id);
-    const { error: updateError } = await query;
+    const { error: updateError } = action === "delete"
+      ? await supabase.from(post.sourceTable).delete().eq("id", post.id)
+      : await supabase.rpc("admin_set_content_status", {
+          target_table: post.sourceTable,
+          target_id: post.id,
+          next_status: action === "approve" ? "approved" : "rejected",
+        });
     if (updateError) setError(updateError.message);
     else {
       setMessage(`「${postTitle(post)}」を${action === "approve" ? "承認" : action === "reject" ? "却下" : "削除"}しました。`);

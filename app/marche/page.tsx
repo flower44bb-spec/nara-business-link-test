@@ -17,7 +17,7 @@ export default function MarchePage() {
   const [industry, setIndustry] = useState("");
 
   useEffect(() => {
-    supabase.from("marche_posts").select("*").order("event_date").then(({ data, error: fetchError }) => {
+    supabase.from("marche_posts").select("*").eq("approval_status", "approved").order("event_date").then(({ data, error: fetchError }) => {
       if (fetchError) setError(fetchError.message);
       setPosts((data as MarchePost[]) ?? []);
       setLoading(false);
