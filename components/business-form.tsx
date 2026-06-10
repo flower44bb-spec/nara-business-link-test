@@ -58,6 +58,8 @@ export function BusinessForm({
       category,
       area,
       description,
+      detail: description,
+      content: description,
       services,
       collaboration_needs: needs,
       contact,

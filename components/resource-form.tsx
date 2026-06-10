@@ -19,7 +19,9 @@ export function ResourceForm({
   const [title, setTitle] = useState(String(item?.title || ""));
   const [category, setCategory] = useState(String(item?.category || ""));
   const [area, setArea] = useState(String(item?.area || ""));
-  const [description, setDescription] = useState(String(item?.description || item?.detail || ""));
+  const [description, setDescription] = useState(
+    String(item?.description || item?.detail || item?.content || ""),
+  );
   const [result, setResult] = useState(String(item?.result || ""));
   const [transactionAmount, setTransactionAmount] = useState(
     item?.transaction_amount == null ? "" : String(item.transaction_amount),
@@ -40,6 +42,8 @@ export function ResourceForm({
       category,
       area,
       description,
+      detail: description,
+      content: description,
       result: config.table === "successes" ? result : undefined,
       transaction_amount:
         config.table === "successes" && transactionAmount
