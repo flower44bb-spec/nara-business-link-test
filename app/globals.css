@@ -274,6 +274,7 @@ button { cursor: pointer; }
 }
 .pending-count { color: #7b5410; background: #ffedb5; }
 .total-count { color: var(--muted); background: white; border: 1px solid var(--line); }
+.admin-self-label { color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
 .admin-post-group .admin-table-wrap { padding: 0 14px 14px; }
 .admin-table-wrap { overflow-x: auto; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }

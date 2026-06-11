@@ -4,6 +4,7 @@ import { Check, RefreshCw, Shield, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApprovalGate } from "@/components/approval-gate";
 import { HomeLink, Loading, PageHero } from "@/components/ui";
+import { useAuth } from "@/components/auth-provider";
 import { recordTitle } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
 import type { BaseRecord, MarchePost, Profile } from "@/types";
@@ -23,6 +24,7 @@ type PendingContent = BaseRecord & {
 };
 
 export default function AdminPage() {
+  const { user } = useAuth();
   const [users, setUsers] = useState<Profile[]>([]);
   const [posts, setPosts] = useState<PendingContent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,6 +75,27 @@ export default function AdminPage() {
       setMessage(`${profile.full_name || profile.email || "ユーザー"}を${approve ? "承認" : "却下"}しました。`);
       await load();
     }
+  }
+
+  async function deleteUser(profile: Profile) {
+    const displayName = profile.full_name || profile.email || "この会員";
+    const confirmed = window.confirm(
+      `${displayName}の会員アカウントを削除します。\nログイン情報・プロフィール・投稿・DMなども削除され、元に戻せません。よろしいですか？`,
+    );
+    if (!confirmed) return;
+
+    setMessage("");
+    setError("");
+    const { error: deleteError } = await supabase.rpc("admin_delete_user", {
+      target_user_id: profile.id,
+    });
+    if (deleteError) {
+      setError(deleteError.message);
+      return;
+    }
+
+    setMessage(`${displayName}の会員アカウントを削除しました。`);
+    await load();
   }
 
   async function updatePost(post: PendingContent, action: "approve" | "reject" | "delete") {
@@ -136,7 +159,7 @@ export default function AdminPage() {
                   <p>ログイン用メールアドレスを忘れた会員について、本人確認後に氏名・所属・会社名から照会してください。</p>
                   <div className="admin-table-wrap">
                     <table className="admin-table">
-                      <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>権限</th></tr></thead>
+                      <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>権限</th><th>操作</th></tr></thead>
                       <tbody>
                         {users.length ? users.map((profile) => (
                           <tr key={`account-${profile.id}`}>
@@ -144,8 +167,17 @@ export default function AdminPage() {
                             <td>{profile.email || "未設定"}</td>
                             <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
                             <td><span className={`status ${profile.role}`}>{profile.role === "admin" ? "管理者" : profile.role === "member" ? "承認済み" : "承認待ち"}</span></td>
+                            <td className="action-cell">
+                              {profile.id === user?.id ? (
+                                <span className="admin-self-label">ログイン中</span>
+                              ) : (
+                                <button className="icon-action delete" type="button" onClick={() => deleteUser(profile)}>
+                                  <Trash2 size={16} /> 会員削除
+                                </button>
+                              )}
+                            </td>
                           </tr>
-                        )) : <tr><td colSpan={4}>会員情報がありません。</td></tr>}
+                        )) : <tr><td colSpan={5}>会員情報がありません。</td></tr>}
                       </tbody>
                     </table>
                   </div>
