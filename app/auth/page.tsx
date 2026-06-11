@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Pencil } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/auth-provider";
 import { HomeLink } from "@/components/ui";
@@ -60,6 +61,9 @@ export default function AuthPage() {
             {profile?.role === "pending" && (
               <div className="pending-banner">管理者承認待ちです</div>
             )}
+            <Link className="button" href="/members/me/edit">
+              <Pencil size={16} /> 会員情報を編集
+            </Link>
             <button className="button secondary" type="button" onClick={logout}>
               ログアウト
             </button>

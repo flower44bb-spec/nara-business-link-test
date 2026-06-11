@@ -21,6 +21,7 @@ export default function EditMyProfilePage() {
   const [lineEnabled, setLineEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (profile) {
@@ -41,13 +42,14 @@ export default function EditMyProfilePage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!user || !isApproved) return;
+    if (!user) return;
     if (imageProcessing) {
       setError("画像の表示範囲を反映中です。完了してから保存してください。");
       return;
     }
     setSaving(true);
     setError("");
+    setMessage("");
     let avatarUrl = profile?.avatar_url || null;
     if (image) {
       const path = `${user.id}/${crypto.randomUUID()}.jpg`;
@@ -72,7 +74,11 @@ export default function EditMyProfilePage() {
       return;
     }
     await refreshProfile();
-    router.push(`/members/${user.id}`);
+    setSaving(false);
+    setMessage("会員情報を保存しました。");
+    if (isApproved) {
+      router.push(`/members/${user.id}`);
+    }
   }
 
   function field(key: keyof typeof form, value: string) {
@@ -84,11 +90,17 @@ export default function EditMyProfilePage() {
       <PageHero eyebrow="Edit Profile" title="プロフィール編集" description="あなたの経験や相談できることを登録し、青年部内のつながりを広げましょう。" />
       <section className="page-content">
         <div className="container">
-          <BackLink href={user ? `/members/${user.id}` : "/members"} />
+          <BackLink href={user && isApproved ? `/members/${user.id}` : "/auth"} />
           <div className="form-card">
-            <ApprovalGate action="プロフィール編集">
+            <ApprovalGate action="プロフィール編集" allowPending>
               <form onSubmit={submit}>
                 {error && <p className="error">{error}</p>}
+                {message && <p className="notice">{message}</p>}
+                {!isApproved && (
+                  <p className="pending-banner">
+                    管理者承認前でも会員情報を修正できます。保存後も承認状態は変わりません。
+                  </p>
+                )}
                 {[
                   ["full_name", "氏名"], ["local_chapter", "所属単会"], ["position", "役職"],
                   ["company_name", "会社名"], ["industry", "業種"],

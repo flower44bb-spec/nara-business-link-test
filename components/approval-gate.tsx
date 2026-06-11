@@ -9,10 +9,12 @@ export function ApprovalGate({
   children,
   action = "この操作",
   adminOnly = false,
+  allowPending = false,
 }: {
   children: React.ReactNode;
   action?: string;
   adminOnly?: boolean;
+  allowPending?: boolean;
 }) {
   const router = useRouter();
   const { user, profile, isApproved, isAdmin, loading } = useAuth();
@@ -39,7 +41,7 @@ export function ApprovalGate({
       </div>
     );
   }
-  if (!adminOnly && !isApproved) {
+  if (!adminOnly && !allowPending && !isApproved) {
     return (
       <div className="gate-card">
         <Clock3 size={32} />
