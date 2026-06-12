@@ -72,7 +72,7 @@ button { cursor: pointer; }
 .home-hero h1, .page-hero h1 {
   font-family: "Shippori Mincho", serif; margin: 15px 0 22px; line-height: 1.25;
 }
-.home-hero h1 { font-size: clamp(29px, 6.2vw, 78px); }
+.home-hero h1 { font-size: clamp(29px, 5.5vw, 70px); }
 .hero-title-line { display: block; width: max-content; max-width: 100%; color: white; white-space: nowrap; }
 .hero-title-line.accent { color: #e7c97f; }
 .hero-copy > p:not(.eyebrow) { max-width: 600px; font-size: 17px; line-height: 2; }
