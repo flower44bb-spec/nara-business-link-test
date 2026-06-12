@@ -136,6 +136,17 @@ button { cursor: pointer; }
 .instagram-button {
   min-width: 210px; position: relative; z-index: 1; color: #174f8f; background: white; border-color: white; white-space: nowrap;
 }
+.instagram-publish { display: grid; gap: 9px; margin-top: 16px; }
+.side-card .instagram-admin-button { color: white; background: #93476e; border-color: #93476e; }
+.instagram-publish-form { display: grid; gap: 9px; padding-top: 14px; border-top: 1px solid #cddbea; }
+.instagram-publish-form label { font-size: 12px; font-weight: 800; }
+.instagram-publish-form textarea {
+  width: 100%; min-height: 220px; padding: 12px; color: var(--ink); background: white;
+  border: 1px solid var(--line); border-radius: 4px; resize: vertical;
+}
+.instagram-publish-form > span { color: var(--muted); font-size: 10px; text-align: right; }
+.instagram-publish-form .error, .instagram-publish-form .notice { margin: 0; }
+.instagram-publish-form .notice a { display: inline-flex; align-items: center; gap: 4px; margin-left: 5px; font-weight: 800; text-decoration: underline; }
 .cta-band { padding: 65px 0; color: white; background: var(--green); }
 .cta-band .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .cta-band h2 { font-family: "Shippori Mincho", serif; font-size: 32px; margin: 0 0 8px; }

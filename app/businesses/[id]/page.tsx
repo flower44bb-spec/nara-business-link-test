@@ -14,6 +14,7 @@ import type { BaseRecord, PostAuthor } from "@/types";
 import { LikeButton } from "@/components/like-button";
 import { MessageUserButton } from "@/components/message-user-button";
 import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
+import { InstagramPublishButton } from "@/components/instagram-publish-button";
 
 export default function BusinessDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -95,6 +96,7 @@ export default function BusinessDetailPage() {
                   </>
                 )}
                 <MessageUserButton recipientId={business.user_id} />
+                <InstagramPublishButton business={business} />
               </aside>
             </div>
           )}
