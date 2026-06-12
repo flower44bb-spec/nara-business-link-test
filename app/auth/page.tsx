@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Pencil } from "lucide-react";
+import { Eye, EyeOff, Pencil } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/auth-provider";
 import { HomeLink } from "@/components/ui";
@@ -15,6 +15,7 @@ export default function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -26,19 +27,37 @@ export default function AuthPage() {
     setMessage("");
 
     if (mode === "login") {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (authError) setError(authError.message);
-      else router.push("/");
+      const normalizedEmail = email.trim().toLocaleLowerCase("en-US");
+      setEmail(normalizedEmail);
+      try {
+        const result = await withTimeout(
+          supabase.auth.signInWithPassword({
+            email: normalizedEmail,
+            password,
+          }),
+          20000,
+        );
+        if (result.error) {
+          setError(authErrorMessage(result.error.message));
+        } else if (!result.data.session) {
+          setError("ログイン情報を保存できませんでした。ブラウザのプライベートモードを解除して、もう一度お試しください。");
+        } else {
+          setMessage("ログインしました。トップページへ移動します。");
+          router.replace("/");
+          router.refresh();
+        }
+      } catch {
+        setError("通信に時間がかかっています。電波状況を確認し、Wi-Fiとモバイル通信を切り替えて再度お試しください。");
+      }
     } else {
+      const normalizedEmail = email.trim().toLocaleLowerCase("en-US");
+      setEmail(normalizedEmail);
       const { data, error: authError } = await supabase.auth.signUp({
-        email,
+        email: normalizedEmail,
         password,
         options: { data: { name } },
       });
-      if (authError) setError(authError.message);
+      if (authError) setError(authErrorMessage(authError.message));
       else if (data.session) router.push("/");
       else setMessage("確認メールを送信しました。登録完了後は管理者の承認をお待ちください。");
     }
@@ -97,11 +116,41 @@ export default function AuthPage() {
               )}
               <div className="field">
                 <label htmlFor="email">メールアドレス</label>
-                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <input
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  id="email"
+                  inputMode="email"
+                  spellCheck={false}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
               <div className="field">
                 <label htmlFor="password">パスワード</label>
-                <input id="password" type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <div className="password-field">
+                  <input
+                    autoCapitalize="none"
+                    autoComplete={mode === "login" ? "current-password" : "new-password"}
+                    id="password"
+                    minLength={6}
+                    spellCheck={false}
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <button
+                    aria-label={showPassword ? "パスワードを隠す" : "パスワードを表示"}
+                    className="password-toggle"
+                    onClick={() => setShowPassword((current) => !current)}
+                    type="button"
+                  >
+                    {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                  </button>
+                </div>
               </div>
               <button className="button" type="submit" disabled={loading}>
                 {loading ? "送信中..." : mode === "login" ? "ログイン" : "会員登録"}
@@ -117,4 +166,33 @@ export default function AuthPage() {
       </section>
     </main>
   );
+}
+
+function authErrorMessage(message: string) {
+  const normalized = message.toLocaleLowerCase("en-US");
+  if (normalized.includes("invalid login credentials")) {
+    return "メールアドレスまたはパスワードが正しくありません。入力内容をご確認ください。";
+  }
+  if (normalized.includes("email not confirmed")) {
+    return "メールアドレスの確認が完了していません。確認メールをご確認ください。";
+  }
+  if (normalized.includes("user already registered")) {
+    return "このメールアドレスはすでに登録されています。ログインをお試しください。";
+  }
+  if (normalized.includes("rate limit") || normalized.includes("too many requests")) {
+    return "試行回数が多いため一時的に制限されています。しばらく時間をおいてお試しください。";
+  }
+  if (normalized.includes("failed to fetch") || normalized.includes("network")) {
+    return "通信できませんでした。電波状況を確認して、もう一度お試しください。";
+  }
+  return `ログイン処理に失敗しました: ${message}`;
+}
+
+async function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number) {
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise<never>((_, reject) => {
+      window.setTimeout(() => reject(new Error("timeout")), timeoutMs);
+    }),
+  ]);
 }
