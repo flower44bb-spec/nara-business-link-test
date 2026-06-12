@@ -7,6 +7,7 @@ import { ApprovalGate } from "@/components/approval-gate";
 import { ImageCropper } from "@/components/image-cropper";
 import { insertRecord, updateRecord } from "@/lib/mutations";
 import { supabase } from "@/lib/supabase";
+import { useFormDraft } from "@/lib/use-form-draft";
 import type { BaseRecord } from "@/types";
 
 export function BusinessForm({
@@ -29,6 +30,21 @@ export function BusinessForm({
   const [imageProcessing, setImageProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const draft = { name, category, area, description, services, needs, contact };
+  const { clearDraft } = useFormDraft({
+    key: `draft:businesses:${business?.id || "new"}:${user?.id || "guest"}`,
+    value: draft,
+    enabled: Boolean(user),
+    onRestore: (saved) => {
+      setName(saved.name);
+      setCategory(saved.category);
+      setArea(saved.area);
+      setDescription(saved.description);
+      setServices(saved.services);
+      setNeeds(saved.needs);
+      setContact(saved.contact);
+    },
+  });
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -88,6 +104,7 @@ export function BusinessForm({
     }
 
     const saved = result.data as BaseRecord;
+    clearDraft();
     router.push(`/businesses/${saved.id}?saved=${business ? "edit" : "new"}&v=${Date.now()}`);
     router.refresh();
   }
@@ -98,6 +115,7 @@ export function BusinessForm({
   return (
     <form onSubmit={submit}>
       {error && <p className="error">{error}</p>}
+      <p className="draft-note">入力内容はこの端末に一時保存されます。画像は再選択が必要です。</p>
       <div className="field">
         <label htmlFor="name">事業者名 *</label>
         <input id="name" value={name} onChange={(event) => setName(event.target.value)} required />

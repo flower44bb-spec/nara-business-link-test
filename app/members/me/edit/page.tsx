@@ -8,6 +8,7 @@ import { ImageCropper } from "@/components/image-cropper";
 import { BackLink, PageHero } from "@/components/ui";
 import { updateRecord } from "@/lib/mutations";
 import { supabase } from "@/lib/supabase";
+import { useFormDraft } from "@/lib/use-form-draft";
 
 export default function EditMyProfilePage() {
   const router = useRouter();
@@ -39,6 +40,16 @@ export default function EditMyProfilePage() {
       setLineEnabled(Boolean(profile.line_notifications_enabled));
     }
   }, [profile]);
+
+  const { clearDraft } = useFormDraft({
+    key: `draft:profile:${user?.id || "guest"}`,
+    value: { form, lineEnabled },
+    enabled: Boolean(user && profile),
+    onRestore: (saved) => {
+      setForm(saved.form);
+      setLineEnabled(saved.lineEnabled);
+    },
+  });
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -73,6 +84,7 @@ export default function EditMyProfilePage() {
       setSaving(false);
       return;
     }
+    clearDraft();
     await refreshProfile();
     setSaving(false);
     setMessage("会員情報を保存しました。");
@@ -96,6 +108,7 @@ export default function EditMyProfilePage() {
               <form onSubmit={submit}>
                 {error && <p className="error">{error}</p>}
                 {message && <p className="notice">{message}</p>}
+                <p className="draft-note">入力内容はこの端末に一時保存されます。画像は再選択が必要です。</p>
                 {!isApproved && (
                   <p className="pending-banner">
                     管理者承認前でも会員情報を修正できます。保存後も承認状態は変わりません。

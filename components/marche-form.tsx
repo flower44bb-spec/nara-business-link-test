@@ -7,6 +7,7 @@ import { useAuth } from "./auth-provider";
 import { ImageCropper } from "./image-cropper";
 import { insertRecord, updateRecord } from "@/lib/mutations";
 import { supabase } from "@/lib/supabase";
+import { useFormDraft } from "@/lib/use-form-draft";
 import type { MarchePost } from "@/types";
 
 export function MarcheForm({ post }: { post?: MarchePost }) {
@@ -26,6 +27,12 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
   const [imageProcessing, setImageProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const { clearDraft } = useFormDraft({
+    key: `draft:marche:${post?.id || "new"}:${user?.id || "guest"}`,
+    value: form,
+    enabled: Boolean(user),
+    onRestore: setForm,
+  });
 
   function set(key: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -71,6 +78,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
       setSaving(false);
       return;
     }
+    clearDraft();
     router.push(`/marche/${data.id}?saved=${post ? "edit" : "new"}`);
   }
 
@@ -78,6 +86,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
     <ApprovalGate action="マルシェ案件の投稿・編集">
       <form onSubmit={submit}>
         {error && <p className="error">{error}</p>}
+        <p className="draft-note">入力内容はこの端末に一時保存されます。画像は再選択が必要です。</p>
         {[
           ["event_name", "イベント名", "text"], ["event_date", "開催日", "date"],
           ["location", "開催場所", "text"], ["desired_industries", "募集業種", "text"],

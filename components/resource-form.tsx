@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { ApprovalGate } from "@/components/approval-gate";
 import { insertRecord, updateRecord } from "@/lib/mutations";
+import { useFormDraft } from "@/lib/use-form-draft";
 import type { BaseRecord, ResourceConfig } from "@/types";
 
 export function ResourceForm({
@@ -28,6 +29,20 @@ export function ResourceForm({
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const draft = { title, category, area, description, result, transactionAmount };
+  const { clearDraft } = useFormDraft({
+    key: `draft:${config.table}:${item?.id || "new"}:${user?.id || "guest"}`,
+    value: draft,
+    enabled: Boolean(user),
+    onRestore: (saved) => {
+      setTitle(saved.title);
+      setCategory(saved.category);
+      setArea(saved.area);
+      setDescription(saved.description);
+      setResult(saved.result);
+      setTransactionAmount(saved.transactionAmount);
+    },
+  });
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -62,6 +77,7 @@ export function ResourceForm({
       return;
     }
     const saved = data as BaseRecord;
+    clearDraft();
     router.push(`/${config.table}/${saved.id}?saved=${item ? "edit" : "new"}`);
     router.refresh();
   }
@@ -72,6 +88,7 @@ export function ResourceForm({
   return (
     <form onSubmit={submit}>
       {error && <p className="error">{error}</p>}
+      <p className="draft-note">入力内容はこの端末に一時保存されます。</p>
       <div className="field">
         <label htmlFor="title">タイトル *</label>
         <input id="title" placeholder={config.titlePlaceholder} value={title} onChange={(event) => setTitle(event.target.value)} required />
