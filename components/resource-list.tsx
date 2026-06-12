@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import type { BaseRecord, PostAuthor, ResourceConfig } from "@/types";
 import { Empty, Loading } from "./ui";
 import { ResourceCard } from "./resource-card";
+import { paginate, Pagination } from "./pagination";
 
 export function ResourceList({ config }: { config: ResourceConfig }) {
   const [items, setItems] = useState<BaseRecord[]>([]);
@@ -16,6 +17,7 @@ export function ResourceList({ config }: { config: ResourceConfig }) {
   const [error, setError] = useState("");
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [authors, setAuthors] = useState<Record<string, PostAuthor>>({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     Promise.all([
@@ -48,6 +50,15 @@ export function ResourceList({ config }: { config: ResourceConfig }) {
     );
   }, [items, keyword]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword, config.table]);
+
+  const pageItems = useMemo(
+    () => paginate(filtered, currentPage),
+    [currentPage, filtered],
+  );
+
   return (
     <>
       <div className="search-panel">
@@ -63,19 +74,23 @@ export function ResourceList({ config }: { config: ResourceConfig }) {
       </div>
       {error && <p className="error">データを取得できませんでした: {error}</p>}
       {loading ? <Loading /> : (
-        <div className="card-grid">
-          {filtered.length
-            ? filtered.map((item) => (
-                <ResourceCard
-                  author={item.user_id ? authors[item.user_id] : undefined}
-                  config={config}
-                  item={item}
-                  likeCount={likeCounts[String(item.id)] ?? 0}
-                  key={item.id}
-                />
-              ))
-            : <Empty text={`登録されている${config.label}はまだありません。`} />}
-        </div>
+        <>
+          <p className="list-count">{filtered.length}件中 {filtered.length ? (currentPage - 1) * 20 + 1 : 0}〜{Math.min(currentPage * 20, filtered.length)}件を表示</p>
+          <div className="card-grid">
+            {pageItems.length
+              ? pageItems.map((item) => (
+                  <ResourceCard
+                    author={item.user_id ? authors[item.user_id] : undefined}
+                    config={config}
+                    item={item}
+                    likeCount={likeCounts[String(item.id)] ?? 0}
+                    key={item.id}
+                  />
+                ))
+              : <Empty text={`登録されている${config.label}はまだありません。`} />}
+          </div>
+          <Pagination currentPage={currentPage} totalItems={filtered.length} onPageChange={setCurrentPage} />
+        </>
       )}
     </>
   );

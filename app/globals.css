@@ -166,6 +166,19 @@ button { cursor: pointer; }
 .current-business-image span { color: var(--muted); font-size: 12px; }
 .search-grid .button { min-height: 48px; }
 .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.list-count { margin: -10px 0 18px; color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+.pagination {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; margin-top: 36px;
+}
+.pagination button {
+  min-width: 42px; min-height: 42px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  color: var(--green); background: white; border: 1px solid var(--line); border-radius: 5px; font-size: 13px; font-weight: 800;
+}
+.pagination button:hover:not(:disabled), .pagination button.active {
+  color: white; background: var(--green); border-color: var(--green);
+}
+.pagination button:disabled { color: #aab5c1; background: #f2f5f8; cursor: not-allowed; }
+.pagination-ellipsis { min-width: 24px; color: var(--muted); text-align: center; }
 .card { overflow: hidden; }
 .card-image { height: 190px; display: grid; place-items: center; color: white; background: linear-gradient(145deg, var(--green), #5e7d65); overflow: hidden; }
 .card-image img { width: 100%; height: 100%; object-fit: cover; }

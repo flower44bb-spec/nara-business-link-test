@@ -8,6 +8,7 @@ import { fetchPostAuthors } from "@/lib/post-authors";
 import type { BaseRecord, PostAuthor } from "@/types";
 import { BusinessCard } from "./business-card";
 import { Empty, Loading } from "./ui";
+import { paginate, Pagination } from "./pagination";
 
 export function BusinessList() {
   const [businesses, setBusinesses] = useState<BaseRecord[]>([]);
@@ -18,6 +19,7 @@ export function BusinessList() {
   const [area, setArea] = useState("");
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [authors, setAuthors] = useState<Record<string, PostAuthor>>({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     Promise.all([
@@ -60,6 +62,15 @@ export function BusinessList() {
     });
   }, [area, businesses, category, keyword]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [area, category, keyword]);
+
+  const pageBusinesses = useMemo(
+    () => paginate(filtered, currentPage),
+    [currentPage, filtered],
+  );
+
   return (
     <>
       <div className="search-panel">
@@ -85,16 +96,20 @@ export function BusinessList() {
       {loading ? (
         <Loading />
       ) : (
-        <div className="card-grid">
-          {filtered.length ? filtered.map((business) => (
-            <BusinessCard
-              author={business.user_id ? authors[business.user_id] : undefined}
-              business={business}
-              likeCount={likeCounts[String(business.id)] ?? 0}
-              key={business.id}
-            />
-          )) : <Empty text="条件に合う事業者が見つかりませんでした。" />}
-        </div>
+        <>
+          <p className="list-count">{filtered.length}件中 {filtered.length ? (currentPage - 1) * 20 + 1 : 0}〜{Math.min(currentPage * 20, filtered.length)}件を表示</p>
+          <div className="card-grid">
+            {pageBusinesses.length ? pageBusinesses.map((business) => (
+              <BusinessCard
+                author={business.user_id ? authors[business.user_id] : undefined}
+                business={business}
+                likeCount={likeCounts[String(business.id)] ?? 0}
+                key={business.id}
+              />
+            )) : <Empty text="条件に合う事業者が見つかりませんでした。" />}
+          </div>
+          <Pagination currentPage={currentPage} totalItems={filtered.length} onPageChange={setCurrentPage} />
+        </>
       )}
     </>
   );

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { HomeLink, Loading, PageHero } from "@/components/ui";
 import { LikeButton } from "@/components/like-button";
 import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
+import { paginate, Pagination } from "@/components/pagination";
 import { fetchPostAuthors } from "@/lib/post-authors";
 import { supabase } from "@/lib/supabase";
 import type { MarchePost, PostAuthor } from "@/types";
@@ -18,6 +19,7 @@ export default function MarchePage() {
   const [location, setLocation] = useState("");
   const [industry, setIndustry] = useState("");
   const [authors, setAuthors] = useState<Record<string, PostAuthor>>({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     supabase.from("marche_posts").select("*").eq("approval_status", "approved").order("event_date").then(async ({ data, error: fetchError }) => {
@@ -61,6 +63,15 @@ export default function MarchePage() {
     });
   }, [industry, keyword, location, posts]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [industry, keyword, location]);
+
+  const pagePosts = useMemo(
+    () => paginate(filteredPosts, currentPage),
+    [currentPage, filteredPosts],
+  );
+
   return (
     <main>
       <PageHero eyebrow="Marche & Events" title="マルシェ案件掲示板" description="奈良県内のマルシェやイベント出店情報を共有し、地域のにぎわいを一緒につくります。" />
@@ -92,33 +103,37 @@ export default function MarchePage() {
           </div>
           {error && <p className="error">{error}</p>}
           {loading ? <Loading /> : (
-            <div className="card-grid">
-              {filteredPosts.map((post) => (
-                <article className="card" key={post.id}>
-                  <div className="card-image">
-                    {post.image_url ? <img src={post.image_url} alt={post.event_name} /> : <Store size={48} />}
-                  </div>
-                  <div className="card-body">
-                    <span className="tag">{post.desired_industries || "出店者募集"}</span>
-                    <h3>{post.event_name}</h3>
-                    <PostAuthorDisplay author={authors[post.user_id]} compact />
-                    <div className="meta">
-                      <span><CalendarDays size={13} /> {post.event_date}</span>
-                      <span><MapPin size={13} /> {post.location}</span>
-                      <LikeButton targetType="marche_posts" targetId={post.id} ownerId={post.user_id} compact />
+            <>
+              <p className="list-count">{filteredPosts.length}件中 {filteredPosts.length ? (currentPage - 1) * 20 + 1 : 0}〜{Math.min(currentPage * 20, filteredPosts.length)}件を表示</p>
+              <div className="card-grid">
+                {pagePosts.map((post) => (
+                  <article className="card" key={post.id}>
+                    <div className="card-image">
+                      {post.image_url ? <img src={post.image_url} alt={post.event_name} /> : <Store size={48} />}
                     </div>
-                    <p className="summary">{post.description.slice(0, 90)}</p>
-                    <Link className="text-link" href={`/marche/${post.id}`}>詳細を見る</Link>
+                    <div className="card-body">
+                      <span className="tag">{post.desired_industries || "出店者募集"}</span>
+                      <h3>{post.event_name}</h3>
+                      <PostAuthorDisplay author={authors[post.user_id]} compact />
+                      <div className="meta">
+                        <span><CalendarDays size={13} /> {post.event_date}</span>
+                        <span><MapPin size={13} /> {post.location}</span>
+                        <LikeButton targetType="marche_posts" targetId={post.id} ownerId={post.user_id} compact />
+                      </div>
+                      <p className="summary">{post.description.slice(0, 90)}</p>
+                      <Link className="text-link" href={`/marche/${post.id}`}>詳細を見る</Link>
+                    </div>
+                  </article>
+                ))}
+                {!filteredPosts.length && (
+                  <div className="state-box">
+                    <Search />
+                    <p>条件に一致するマルシェ案件はありません。</p>
                   </div>
-                </article>
-              ))}
-              {!filteredPosts.length && (
-                <div className="state-box">
-                  <Search />
-                  <p>条件に一致するマルシェ案件はありません。</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+              <Pagination currentPage={currentPage} totalItems={filteredPosts.length} onPageChange={setCurrentPage} />
+            </>
           )}
         </div>
       </section>
