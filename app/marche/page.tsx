@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { HomeLink, Loading, PageHero } from "@/components/ui";
 import { LikeButton } from "@/components/like-button";
+import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
+import { fetchPostAuthors } from "@/lib/post-authors";
 import { supabase } from "@/lib/supabase";
-import type { MarchePost } from "@/types";
+import type { MarchePost, PostAuthor } from "@/types";
 
 export default function MarchePage() {
   const [posts, setPosts] = useState<MarchePost[]>([]);
@@ -15,11 +17,19 @@ export default function MarchePage() {
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
   const [industry, setIndustry] = useState("");
+  const [authors, setAuthors] = useState<Record<string, PostAuthor>>({});
 
   useEffect(() => {
-    supabase.from("marche_posts").select("*").eq("approval_status", "approved").order("event_date").then(({ data, error: fetchError }) => {
+    supabase.from("marche_posts").select("*").eq("approval_status", "approved").order("event_date").then(async ({ data, error: fetchError }) => {
       if (fetchError) setError(fetchError.message);
-      setPosts((data as MarchePost[]) ?? []);
+      const loadedPosts = (data as MarchePost[]) ?? [];
+      setPosts(loadedPosts);
+      try {
+        const authorMap = await fetchPostAuthors(loadedPosts.map((post) => post.user_id));
+        setAuthors(Object.fromEntries(authorMap));
+      } catch {
+        setAuthors({});
+      }
       setLoading(false);
     });
   }, []);
@@ -91,6 +101,7 @@ export default function MarchePage() {
                   <div className="card-body">
                     <span className="tag">{post.desired_industries || "出店者募集"}</span>
                     <h3>{post.event_name}</h3>
+                    <PostAuthorDisplay author={authors[post.user_id]} compact />
                     <div className="meta">
                       <span><CalendarDays size={13} /> {post.event_date}</span>
                       <span><MapPin size={13} /> {post.location}</span>

@@ -175,6 +175,13 @@ button { cursor: pointer; }
 .card h3 { margin: 13px 0 10px; font-size: 19px; line-height: 1.55; }
 .meta { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; }
 .meta span { display: inline-flex; align-items: center; gap: 5px; }
+.post-author.compact {
+  display: flex; flex-wrap: wrap; gap: 7px 12px; margin: -2px 0 12px; padding: 10px 12px;
+  color: var(--muted); background: #f2f6fb; border-radius: 5px; font-size: 11px; font-weight: 700;
+}
+.post-author.compact span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+.detail-subheading { margin: 28px 0 10px; font-family: "Shippori Mincho", serif; font-size: 20px; }
+.post-author-detail { margin-top: 0; }
 .summary { color: var(--muted); font-size: 14px; line-height: 1.8; }
 .card .text-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; }
 .form-card, .detail-card { padding: clamp(24px, 5vw, 46px); }

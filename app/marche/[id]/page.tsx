@@ -8,20 +8,32 @@ import { useAuth } from "@/components/auth-provider";
 import { DeleteButton } from "@/components/delete-button";
 import { LikeButton } from "@/components/like-button";
 import { MessageUserButton } from "@/components/message-user-button";
+import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
 import { BackLink, Empty, Loading, PageHero } from "@/components/ui";
+import { fetchPostAuthors } from "@/lib/post-authors";
 import { supabase } from "@/lib/supabase";
-import type { MarchePost } from "@/types";
+import type { MarchePost, PostAuthor } from "@/types";
 
 export default function MarcheDetailPage() {
   const { id } = useParams<{ id: string }>();
   const saved = useSearchParams().get("saved");
   const { user, isApproved, isAdmin } = useAuth();
   const [post, setPost] = useState<MarchePost | null>(null);
+  const [author, setAuthor] = useState<PostAuthor>();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.from("marche_posts").select("*").eq("id", id).single().then(({ data }) => {
-      setPost(data as MarchePost | null);
+    supabase.from("marche_posts").select("*").eq("id", id).single().then(async ({ data }) => {
+      const loadedPost = data as MarchePost | null;
+      setPost(loadedPost);
+      if (loadedPost?.user_id) {
+        try {
+          const authorMap = await fetchPostAuthors([loadedPost.user_id]);
+          setAuthor(authorMap.get(loadedPost.user_id));
+        } catch {
+          setAuthor(undefined);
+        }
+      }
       setLoading(false);
     });
   }, [id]);
@@ -47,6 +59,8 @@ export default function MarcheDetailPage() {
                 {post.approval_status !== "approved" && <span className="status pending">承認待ち</span>}
                 <h1>{post.event_name}</h1>
                 <p className="detail-description">{post.description}</p>
+                <h2 className="detail-subheading">投稿者情報</h2>
+                <PostAuthorDisplay author={author} />
                 <LikeButton targetType="marche_posts" targetId={id} ownerId={post.user_id} />
                 <dl className="detail-list">
                   <div className="detail-row"><dt>開催日</dt><dd>{post.event_date}</dd></div>

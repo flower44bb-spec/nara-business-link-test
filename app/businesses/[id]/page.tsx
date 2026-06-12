@@ -8,23 +8,35 @@ import { BackLink, Empty, Loading, PageHero } from "@/components/ui";
 import { DeleteButton } from "@/components/delete-button";
 import { useAuth } from "@/components/auth-provider";
 import { formatDate, recordDescription, recordTitle } from "@/lib/records";
+import { fetchPostAuthors } from "@/lib/post-authors";
 import { supabase } from "@/lib/supabase";
-import type { BaseRecord } from "@/types";
+import type { BaseRecord, PostAuthor } from "@/types";
 import { LikeButton } from "@/components/like-button";
 import { MessageUserButton } from "@/components/message-user-button";
+import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
 
 export default function BusinessDetailPage() {
   const { id } = useParams<{ id: string }>();
   const saved = useSearchParams().get("saved");
   const { user, isApproved, isAdmin } = useAuth();
   const [business, setBusiness] = useState<BaseRecord | null>(null);
+  const [author, setAuthor] = useState<PostAuthor>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    supabase.from("businesses").select("*").eq("id", id).single().then(({ data, error: fetchError }) => {
+    supabase.from("businesses").select("*").eq("id", id).single().then(async ({ data, error: fetchError }) => {
       if (fetchError) setError(fetchError.message);
-      setBusiness(data as BaseRecord | null);
+      const loadedBusiness = data as BaseRecord | null;
+      setBusiness(loadedBusiness);
+      if (loadedBusiness?.user_id) {
+        try {
+          const authorMap = await fetchPostAuthors([loadedBusiness.user_id]);
+          setAuthor(authorMap.get(loadedBusiness.user_id));
+        } catch {
+          setAuthor(undefined);
+        }
+      }
       setLoading(false);
     });
   }, [id]);
@@ -63,6 +75,8 @@ export default function BusinessDetailPage() {
                   {business.created_at && <span><CalendarDays size={14} /> {formatDate(business.created_at)}</span>}
                 </div>
                 <p className="detail-description">{recordDescription(business)}</p>
+                <h2 className="detail-subheading">投稿者情報</h2>
+                <PostAuthorDisplay author={author} />
                 <LikeButton targetType="businesses" targetId={id} ownerId={business.user_id} />
                 <dl className="detail-list">
                   <div className="detail-row"><dt>商品・サービス</dt><dd>{String(business.services || "未登録")}</dd></div>

@@ -1,10 +1,19 @@
 import { ArrowRight, Building2, MapPin } from "lucide-react";
 import Link from "next/link";
 import { recordDescription, recordTitle } from "@/lib/records";
-import type { BaseRecord } from "@/types";
+import type { BaseRecord, PostAuthor } from "@/types";
 import { LikeButton } from "./like-button";
+import { PostAuthor as PostAuthorDisplay } from "./post-author";
 
-export function BusinessCard({ business, likeCount }: { business: BaseRecord; likeCount?: number }) {
+export function BusinessCard({
+  business,
+  likeCount,
+  author,
+}: {
+  business: BaseRecord;
+  likeCount?: number;
+  author?: PostAuthor;
+}) {
   return (
     <article className="card">
       <div className="card-image">
@@ -20,6 +29,7 @@ export function BusinessCard({ business, likeCount }: { business: BaseRecord; li
         )}
         <span className="tag">{String(business.category || "業種未設定")}</span>
         <h3>{recordTitle(business)}</h3>
+        <PostAuthorDisplay author={author} compact />
         <div className="meta">
           <span><MapPin size={13} /> {String(business.area || "奈良県")}</span>
           <LikeButton targetType="businesses" targetId={String(business.id)} ownerId={business.user_id} initialCount={likeCount} compact />

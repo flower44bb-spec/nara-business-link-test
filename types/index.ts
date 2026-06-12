@@ -47,6 +47,11 @@ export type Profile = {
   updated_at?: string | null;
 };
 
+export type PostAuthor = Pick<
+  Profile,
+  "id" | "full_name" | "local_chapter" | "company_name"
+>;
+
 export type Conversation = {
   id: string;
   participant_one: string;

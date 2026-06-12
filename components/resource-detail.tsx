@@ -8,10 +8,12 @@ import { useAuth } from "@/components/auth-provider";
 import { DeleteButton } from "@/components/delete-button";
 import { BackLink, Empty, Loading, PageHero } from "@/components/ui";
 import { formatDate, recordDescription, recordTitle } from "@/lib/records";
+import { fetchPostAuthors } from "@/lib/post-authors";
 import { supabase } from "@/lib/supabase";
-import type { BaseRecord, ResourceConfig } from "@/types";
+import type { BaseRecord, PostAuthor, ResourceConfig } from "@/types";
 import { LikeButton } from "./like-button";
 import { MessageUserButton } from "./message-user-button";
+import { PostAuthor as PostAuthorDisplay } from "./post-author";
 
 export function ResourceDetail({ config }: { config: ResourceConfig }) {
   const { id } = useParams<{ id: string }>();
@@ -19,13 +21,23 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
   const { user, isApproved, isAdmin } = useAuth();
   const [item, setItem] = useState<BaseRecord | null>(null);
   const [loading, setLoading] = useState(true);
+  const [author, setAuthor] = useState<PostAuthor>();
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    supabase.from(config.table).select("*").eq("id", id).single().then(({ data, error: fetchError }) => {
+    supabase.from(config.table).select("*").eq("id", id).single().then(async ({ data, error: fetchError }) => {
       if (fetchError) setError(fetchError.message);
-      setItem(data as BaseRecord | null);
+      const loadedItem = data as BaseRecord | null;
+      setItem(loadedItem);
+      if (loadedItem?.user_id) {
+        try {
+          const authorMap = await fetchPostAuthors([loadedItem.user_id]);
+          setAuthor(authorMap.get(loadedItem.user_id));
+        } catch {
+          setAuthor(undefined);
+        }
+      }
       setLoading(false);
     });
   }, [config.table, id]);
@@ -89,6 +101,8 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
                   {item.created_at && <span><CalendarDays size={14} /> {formatDate(item.created_at)}</span>}
                 </div>
                 <p className="detail-description">{recordDescription(item)}</p>
+                <h2 className="detail-subheading">投稿者情報</h2>
+                <PostAuthorDisplay author={author} />
                 <LikeButton targetType={config.table} targetId={id} ownerId={item.user_id} />
                 {config.table === "successes" && item.result && (
                   <dl className="detail-list">

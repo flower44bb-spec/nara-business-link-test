@@ -4,7 +4,8 @@ import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { recordDescription, recordTitle } from "@/lib/records";
-import type { BaseRecord } from "@/types";
+import { fetchPostAuthors } from "@/lib/post-authors";
+import type { BaseRecord, PostAuthor } from "@/types";
 import { BusinessCard } from "./business-card";
 import { Empty, Loading } from "./ui";
 
@@ -16,17 +17,25 @@ export function BusinessList() {
   const [category, setCategory] = useState("");
   const [area, setArea] = useState("");
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
+  const [authors, setAuthors] = useState<Record<string, PostAuthor>>({});
 
   useEffect(() => {
     Promise.all([
       supabase.from("businesses").select("*").eq("approval_status", "approved").order("created_at", { ascending: false }),
       supabase.from("likes").select("target_id").eq("target_type", "businesses"),
-    ]).then(([{ data, error: fetchError }, likesResult]) => {
+    ]).then(async ([{ data, error: fetchError }, likesResult]) => {
         if (fetchError) setError(fetchError.message);
-        setBusinesses((data as BaseRecord[]) ?? []);
+        const loadedBusinesses = (data as BaseRecord[]) ?? [];
+        setBusinesses(loadedBusinesses);
         const counts: Record<string, number> = {};
         for (const like of likesResult.data ?? []) counts[like.target_id] = (counts[like.target_id] ?? 0) + 1;
         setLikeCounts(counts);
+        try {
+          const authorMap = await fetchPostAuthors(loadedBusinesses.map((item) => item.user_id));
+          setAuthors(Object.fromEntries(authorMap));
+        } catch {
+          setAuthors({});
+        }
         setLoading(false);
       });
   }, []);
@@ -78,7 +87,12 @@ export function BusinessList() {
       ) : (
         <div className="card-grid">
           {filtered.length ? filtered.map((business) => (
-            <BusinessCard business={business} likeCount={likeCounts[String(business.id)] ?? 0} key={business.id} />
+            <BusinessCard
+              author={business.user_id ? authors[business.user_id] : undefined}
+              business={business}
+              likeCount={likeCounts[String(business.id)] ?? 0}
+              key={business.id}
+            />
           )) : <Empty text="条件に合う事業者が見つかりませんでした。" />}
         </div>
       )}
