@@ -20,20 +20,28 @@ export default function AuthPage() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  async function submit(event: FormEvent) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError("");
     setMessage("");
 
+    // Safari may visually autofill inputs without firing React's change event.
+    // Read the submitted DOM values so password-manager entries are always used.
+    const formData = new FormData(event.currentTarget);
+    const submittedEmail = String(formData.get("email") ?? email);
+    const submittedPassword = String(formData.get("password") ?? password);
+    const submittedName = String(formData.get("name") ?? name);
+
     if (mode === "login") {
-      const normalizedEmail = email.trim().toLocaleLowerCase("en-US");
+      const normalizedEmail = submittedEmail.trim().toLocaleLowerCase("en-US");
       setEmail(normalizedEmail);
+      setPassword(submittedPassword);
       try {
         const result = await withTimeout(
           supabase.auth.signInWithPassword({
             email: normalizedEmail,
-            password,
+            password: submittedPassword,
           }),
           20000,
         );
@@ -50,12 +58,14 @@ export default function AuthPage() {
         setError("通信に時間がかかっています。電波状況を確認し、Wi-Fiとモバイル通信を切り替えて再度お試しください。");
       }
     } else {
-      const normalizedEmail = email.trim().toLocaleLowerCase("en-US");
+      const normalizedEmail = submittedEmail.trim().toLocaleLowerCase("en-US");
       setEmail(normalizedEmail);
+      setPassword(submittedPassword);
+      setName(submittedName);
       const { data, error: authError } = await supabase.auth.signUp({
         email: normalizedEmail,
-        password,
-        options: { data: { name } },
+        password: submittedPassword,
+        options: { data: { name: submittedName } },
       });
       if (authError) setError(authErrorMessage(authError.message));
       else if (data.session) router.push("/");
@@ -111,7 +121,14 @@ export default function AuthPage() {
               {mode === "signup" && (
                 <div className="field">
                   <label htmlFor="name">お名前</label>
-                  <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                  <input
+                    autoComplete="name"
+                    id="name"
+                    name="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
                 </div>
               )}
               <div className="field">
@@ -121,6 +138,7 @@ export default function AuthPage() {
                   autoComplete="email"
                   id="email"
                   inputMode="email"
+                  name="email"
                   spellCheck={false}
                   type="email"
                   value={email}
@@ -136,6 +154,7 @@ export default function AuthPage() {
                     autoComplete={mode === "login" ? "current-password" : "new-password"}
                     id="password"
                     minLength={6}
+                    name="password"
                     spellCheck={false}
                     type={showPassword ? "text" : "password"}
                     value={password}
