@@ -72,8 +72,9 @@ button { cursor: pointer; }
 .home-hero h1, .page-hero h1 {
   font-family: "Shippori Mincho", serif; margin: 15px 0 22px; line-height: 1.25;
 }
-.home-hero h1 { font-size: clamp(42px, 6.2vw, 78px); }
-.home-hero h1 span { display: block; color: #e7c97f; }
+.home-hero h1 { font-size: clamp(29px, 6.2vw, 78px); }
+.hero-title-line { display: block; width: max-content; max-width: 100%; color: white; white-space: nowrap; }
+.hero-title-line.accent { color: #e7c97f; }
 .hero-copy > p:not(.eyebrow) { max-width: 600px; font-size: 17px; line-height: 2; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
 .hero-actions .button { background: var(--persimmon); border-color: var(--persimmon); }
@@ -86,7 +87,14 @@ button { cursor: pointer; }
   background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow);
 }
 .stat-icon { width: 46px; height: 46px; flex: 0 0 auto; display: grid; place-items: center; color: white; background: var(--green); border-radius: 50%; }
+.stat-content { min-width: 0; flex: 1; }
 .stat-card strong { display: block; color: var(--green); font-family: "Shippori Mincho", serif; font-size: clamp(24px, 3vw, 34px); line-height: 1.2; }
+.stat-card strong.stat-amount {
+  font-size: clamp(20px, 2vw, 28px); letter-spacing: -.04em; white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.stat-card strong.stat-amount.compact { font-size: clamp(17px, 1.7vw, 24px); }
+.stat-card strong.stat-amount.extra-compact { font-size: clamp(14px, 1.4vw, 20px); }
 .stat-card span:last-child { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .stats-note { margin: 12px 3px 0; color: var(--muted); font-size: 11px; text-align: right; }
 

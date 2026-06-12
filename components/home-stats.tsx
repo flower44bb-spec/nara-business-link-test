@@ -65,18 +65,32 @@ export function HomeStats() {
     { label: "登録事業者数", value: `${stats.businesses.toLocaleString("ja-JP")}社`, icon: Building2 },
     { label: "コラボ成功件数", value: `${stats.collaborations.toLocaleString("ja-JP")}件`, icon: Handshake },
     { label: "困りごと解決件数", value: `${stats.resolvedProblems.toLocaleString("ja-JP")}件`, icon: CircleCheckBig },
-    { label: "総取引金額", value: `${stats.transactionAmount.toLocaleString("ja-JP")}円`, icon: JapaneseYen },
+    {
+      label: "総取引金額",
+      value: `${stats.transactionAmount.toLocaleString("ja-JP")}円`,
+      icon: JapaneseYen,
+      isAmount: true,
+    },
   ];
 
   return (
     <section className="stats-section" aria-label="活動実績">
       <div className="container">
         <div className="stats-grid">
-          {items.map(({ label, value, icon: Icon }) => (
+          {items.map(({ label, value, icon: Icon, isAmount }) => (
             <div className="stat-card" key={label}>
               <span className="stat-icon"><Icon size={22} /></span>
-              <div>
-                <strong>{value}</strong>
+              <div className="stat-content">
+                <strong
+                  className={[
+                    isAmount ? "stat-amount" : "",
+                    isAmount && value.length >= 14 ? "extra-compact" : "",
+                    isAmount && value.length >= 11 ? "compact" : "",
+                  ].filter(Boolean).join(" ")}
+                  title={value}
+                >
+                  {value}
+                </strong>
                 <span>{label}</span>
               </div>
             </div>

@@ -64,8 +64,8 @@ export default function HomePage() {
           <div className="hero-copy">
             <p className="eyebrow">Nara Federation of Youth Leagues</p>
             <h1>
-              奈良のつながりを、
-              <span>次の商いへ。</span>
+              <span className="hero-title-line">奈良のつながりを、</span>
+              <span className="hero-title-line accent">次の商いへ。</span>
             </h1>
             <p>
               NARA BUSINESS LINKは、奈良県商工会青年部員同士の強みと課題を結び、
