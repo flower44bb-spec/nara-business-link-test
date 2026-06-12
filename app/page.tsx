@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   Building2,
+  Camera,
   CalendarDays,
   Handshake,
   Lightbulb,
@@ -117,6 +118,34 @@ export default function HomePage() {
               事業の規模や業種を越えて、顔の見える関係だからこそ相談できることがあります。
               奈良で働く青年部員の経験と専門性を、地域の未来に役立てます。
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="instagram-section">
+        <div className="container">
+          <div className="instagram-card">
+            <div className="instagram-mark" aria-hidden="true">
+              <Camera size={34} />
+            </div>
+            <div className="instagram-copy">
+              <p className="eyebrow">Official Instagram</p>
+              <h2>奈良県青連の活動をInstagramで発信中</h2>
+              <p>
+                青年部の活動や地域の取り組み、イベント情報などをお届けしています。
+              </p>
+              <strong>@narakenseiren</strong>
+            </div>
+            <a
+              className="button instagram-button"
+              href="https://www.instagram.com/narakenseiren/"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Camera size={18} />
+              Instagramを見る
+              <ArrowRight size={17} />
+            </a>
           </div>
         </div>
       </section>

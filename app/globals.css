@@ -113,6 +113,29 @@ button { cursor: pointer; }
 .feature-card h3 { margin: 22px 0 9px; }
 .feature-card p { min-height: 52px; color: var(--muted); font-size: 14px; line-height: 1.8; }
 .text-link { color: var(--persimmon); font-weight: 800; font-size: 13px; }
+.instagram-section { padding: 70px 0; background: white; }
+.instagram-card {
+  padding: clamp(28px, 5vw, 52px); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 28px;
+  color: white; background: linear-gradient(120deg, #174f8f 0%, #315c96 58%, #93476e 100%);
+  border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; position: relative;
+}
+.instagram-card::after {
+  content: ""; width: 250px; height: 250px; position: absolute; right: -110px; top: -145px;
+  border: 1px solid rgba(255,255,255,.2); border-radius: 50%;
+  box-shadow: 0 0 0 38px rgba(255,255,255,.04), 0 0 0 76px rgba(255,255,255,.03);
+}
+.instagram-mark {
+  width: 72px; height: 72px; display: grid; place-items: center; position: relative; z-index: 1;
+  color: white; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); border-radius: 20px;
+}
+.instagram-copy { position: relative; z-index: 1; }
+.instagram-copy .eyebrow { margin: 0 0 7px; color: #f0cf8a; }
+.instagram-copy h2 { margin: 0 0 9px; font-family: "Shippori Mincho", serif; font-size: clamp(24px, 3vw, 34px); }
+.instagram-copy p:not(.eyebrow) { margin: 0 0 10px; color: rgba(255,255,255,.82); line-height: 1.8; }
+.instagram-copy strong { font-size: 14px; letter-spacing: .04em; }
+.instagram-button {
+  min-width: 210px; position: relative; z-index: 1; color: #174f8f; background: white; border-color: white; white-space: nowrap;
+}
 .cta-band { padding: 65px 0; color: white; background: var(--green); }
 .cta-band .container { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .cta-band h2 { font-family: "Shippori Mincho", serif; font-size: 32px; margin: 0 0 8px; }
@@ -323,6 +346,8 @@ button { cursor: pointer; }
 @media (max-width: 900px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .feature-grid, .card-grid, .member-grid { grid-template-columns: repeat(2, 1fr); }
+  .instagram-card { grid-template-columns: auto 1fr; }
+  .instagram-button { grid-column: 2; width: fit-content; }
   .search-grid { grid-template-columns: 1fr 1fr; }
   .detail-layout { grid-template-columns: 1fr; }
   .menu-toggle { display: block; }
@@ -346,6 +371,10 @@ button { cursor: pointer; }
   .hero-actions, .form-actions { flex-direction: column; }
   .hero-actions .button, .form-actions .button { width: 100%; }
   .home-section { padding: 60px 0; }
+  .instagram-section { padding: 50px 0; }
+  .instagram-card { grid-template-columns: 1fr; gap: 20px; text-align: center; }
+  .instagram-mark { margin: 0 auto; }
+  .instagram-button { width: 100%; min-width: 0; grid-column: 1; }
   .stats-section { margin-top: -20px; }
   .stats-grid { grid-template-columns: 1fr; }
   .stat-card { min-height: 96px; }
