@@ -10,7 +10,7 @@ const SESSION_KEY = "nara-business-link-session";
 
 export function PageViewTracker() {
   const pathname = usePathname();
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   useEffect(() => {
     if (loading || !pathname || pathname.startsWith("/admin")) return;
@@ -20,18 +20,17 @@ export function PageViewTracker() {
       const sessionId = storedId(window.sessionStorage, SESSION_KEY);
       const referrerHost = safeHost(document.referrer);
 
-      void supabase.from("page_views").insert({
-        path: pathname,
-        visitor_id: visitorId,
-        session_id: sessionId,
-        user_id: user?.id || null,
-        referrer_host: referrerHost,
-        device_type: deviceType(),
+      void supabase.rpc("record_page_view", {
+        page_path: pathname,
+        anonymous_visitor_id: visitorId,
+        browser_session_id: sessionId,
+        source_host: referrerHost,
+        client_device_type: deviceType(),
       });
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [loading, pathname, user?.id]);
+  }, [loading, pathname]);
 
   return null;
 }

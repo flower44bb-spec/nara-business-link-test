@@ -39,6 +39,52 @@ create policy "Admins can read page views"
   to authenticated
   using (public.is_admin());
 
+create or replace function public.record_page_view(
+  page_path text,
+  anonymous_visitor_id uuid,
+  browser_session_id uuid,
+  source_host text default null,
+  client_device_type text default 'desktop'
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if page_path is null
+    or char_length(page_path) not between 1 and 500
+    or page_path like '/admin%' then
+    return;
+  end if;
+
+  insert into public.page_views (
+    path,
+    visitor_id,
+    session_id,
+    user_id,
+    referrer_host,
+    device_type
+  )
+  values (
+    page_path,
+    anonymous_visitor_id,
+    browser_session_id,
+    auth.uid(),
+    nullif(left(source_host, 255), ''),
+    case
+      when client_device_type in ('mobile', 'tablet', 'desktop')
+        then client_device_type
+      else 'desktop'
+    end
+  );
+end;
+$$;
+
+revoke all on function public.record_page_view(text, uuid, uuid, text, text) from public;
+grant execute on function public.record_page_view(text, uuid, uuid, text, text)
+  to anon, authenticated;
+
 create or replace function public.admin_analytics_summary(period_days integer default 30)
 returns jsonb
 language plpgsql
