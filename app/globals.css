@@ -390,7 +390,7 @@ button { cursor: pointer; }
 .upgrade-checklist { margin-top: 28px; padding: 20px; background: #fff8e8; border: 1px solid #ead49c; border-radius: 7px; }
 .upgrade-checklist h3 { display: flex; align-items: center; gap: 7px; color: #6e5319; }
 .upgrade-check-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.upgrade-check-grid a { padding: 14px; display: flex; align-items: center; gap: 10px; background: white; border: 1px solid #e7d8b2; border-radius: 6px; }
+.upgrade-check-grid > div { padding: 14px; display: flex; align-items: center; gap: 10px; background: white; border: 1px solid #e7d8b2; border-radius: 6px; }
 .upgrade-check-grid span { color: var(--muted); font-size: 11px; line-height: 1.6; }
 .upgrade-check-grid strong { display: block; color: var(--ink); font-size: 12px; }
 .upgrade-checklist > p { margin: 14px 0 0; color: #735d2c; font-size: 12px; line-height: 1.8; }

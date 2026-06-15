@@ -58,6 +58,11 @@ begin
     'period_views', (select count(*) from public.page_views where viewed_on >= start_date),
     'unique_visitors', (select count(distinct visitor_id) from public.page_views where viewed_on >= start_date),
     'logged_in_visitors', (select count(distinct user_id) from public.page_views where viewed_on >= start_date and user_id is not null),
+    'monthly_active_auth_users', (
+      select count(*)
+      from auth.users
+      where last_sign_in_at >= start_date::timestamptz
+    ),
     'registered_members', (select count(*) from public.profiles),
     'approved_members', (select count(*) from public.profiles where role in ('admin', 'member')),
     'pending_members', (select count(*) from public.profiles where role = 'pending' and rejected_at is null),

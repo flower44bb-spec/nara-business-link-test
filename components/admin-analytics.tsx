@@ -21,6 +21,7 @@ type Summary = {
   period_views: number;
   unique_visitors: number;
   logged_in_visitors: number;
+  monthly_active_auth_users: number;
   registered_members: number;
   approved_members: number;
   pending_members: number;
@@ -52,6 +53,7 @@ const emptySummary: Summary = {
   period_views: 0,
   unique_visitors: 0,
   logged_in_visitors: 0,
+  monthly_active_auth_users: 0,
   registered_members: 0,
   approved_members: 0,
   pending_members: 0,
@@ -121,6 +123,11 @@ export function AdminAnalytics() {
     { label: "直近30日閲覧数", value: summary.period_views, icon: Activity },
     { label: "30日ユニーク訪問者", value: summary.unique_visitors, icon: Users },
     { label: "30日ログイン利用者", value: summary.logged_in_visitors, icon: TrendingUp },
+    {
+      label: "Supabase月間利用者",
+      value: summary.monthly_active_auth_users,
+      icon: Activity,
+    },
     { label: "登録会員総数", value: summary.registered_members, icon: Users },
     { label: "承認済み会員", value: summary.approved_members, icon: Users },
     { label: "承認待ち会員", value: summary.pending_members, icon: UserPlus },
@@ -225,21 +232,27 @@ export function AdminAnalytics() {
       )}
 
       <div className="upgrade-checklist">
-        <h3><Database size={19} /> 有料化前に外部管理画面で確認する項目</h3>
+        <h3><Database size={19} /> 有料化判断の確認項目</h3>
         <p className="plan-purpose-note">
           <strong>利用目的も確認：</strong>
           Vercel Hobbyは個人・非商用向けです。青年部の公式業務として継続運用する場合は、
           アクセス数が少なくてもProプランを検討してください。
         </p>
         <div className="upgrade-check-grid">
-          <a href="https://supabase.com/dashboard" rel="noopener noreferrer" target="_blank">
+          <div>
             <HardDrive size={18} />
-            <span><strong>Supabase Usage</strong>DB容量、画像容量、転送量、月間利用者数</span>
-          </a>
-          <a href="https://vercel.com/dashboard" rel="noopener noreferrer" target="_blank">
+            <span>
+              <strong>この画面で自動確認</strong>
+              DB容量、画像容量、月間利用者、閲覧・会員・投稿・交流状況
+            </span>
+          </div>
+          <div>
             <Activity size={18} />
-            <span><strong>Vercel Usage</strong>データ転送量、リクエスト数、Functions使用量</span>
-          </a>
+            <span>
+              <strong>外部API設定後に取得可能</strong>
+              Vercel転送量・Functions使用量、Supabase実転送量
+            </span>
+          </div>
         </div>
         <p>
           どれかが無料枠の70〜80%に達した時、業務利用の継続性が重要になった時、
