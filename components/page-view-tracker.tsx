@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { useAuth } from "@/components/auth-provider";
 import { supabase } from "@/lib/supabase";
 
 const VISITOR_KEY = "nara-business-link-visitor";
@@ -10,10 +9,9 @@ const SESSION_KEY = "nara-business-link-session";
 
 export function PageViewTracker() {
   const pathname = usePathname();
-  const { loading } = useAuth();
 
   useEffect(() => {
-    if (loading || !pathname || pathname.startsWith("/admin")) return;
+    if (!pathname || pathname.startsWith("/admin")) return;
 
     const timer = window.setTimeout(() => {
       const visitorId = storedId(window.localStorage, VISITOR_KEY);
@@ -30,7 +28,7 @@ export function PageViewTracker() {
     }, 600);
 
     return () => window.clearTimeout(timer);
-  }, [loading, pathname]);
+  }, [pathname]);
 
   return null;
 }
