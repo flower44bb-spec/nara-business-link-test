@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 
 const VISITOR_KEY = "nara-business-link-visitor";
 const SESSION_KEY = "nara-business-link-session";
@@ -18,12 +17,17 @@ export function PageViewTracker() {
       const sessionId = storedId(window.sessionStorage, SESSION_KEY);
       const referrerHost = safeHost(document.referrer);
 
-      void supabase.rpc("record_page_view", {
-        page_path: pathname,
-        anonymous_visitor_id: visitorId,
-        browser_session_id: sessionId,
-        source_host: referrerHost,
-        client_device_type: deviceType(),
+      void fetch("/api/analytics/page-view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          path: pathname,
+          visitorId,
+          sessionId,
+          referrerHost,
+          deviceType: deviceType(),
+        }),
+        keepalive: true,
       });
     }, 600);
 
