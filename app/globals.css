@@ -19,7 +19,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--cream);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
 }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; }
@@ -345,6 +345,9 @@ button { cursor: pointer; }
 .total-count { color: var(--muted); background: white; border: 1px solid var(--line); }
 .admin-self-label { color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
 .admin-post-group .admin-table-wrap { padding: 0 14px 14px; }
+.admin-post-group .admin-panel-help { margin: 16px 14px 4px; }
+.admin-list-range { margin: 12px 14px 4px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.admin-post-group .pagination { margin: 4px 14px 16px; }
 .admin-table-wrap { overflow-x: auto; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .admin-table th, .admin-table td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }

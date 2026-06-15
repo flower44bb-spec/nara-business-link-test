@@ -2,28 +2,34 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
-export function paginate<T>(items: T[], page: number) {
-  const start = (page - 1) * PAGE_SIZE;
-  return items.slice(start, start + PAGE_SIZE);
+export function paginate<T>(items: T[], page: number, pageSize = PAGE_SIZE) {
+  const start = (page - 1) * pageSize;
+  return items.slice(start, start + pageSize);
 }
 
 export function Pagination({
   currentPage,
   totalItems,
   onPageChange,
+  pageSize = PAGE_SIZE,
+  scrollToTop = true,
 }: {
   currentPage: number;
   totalItems: number;
   onPageChange: (page: number) => void;
+  pageSize?: number;
+  scrollToTop?: boolean;
 }) {
-  const totalPages = Math.ceil(totalItems / PAGE_SIZE);
+  const totalPages = Math.ceil(totalItems / pageSize);
   if (totalPages <= 1) return null;
 
   const pages = pageNumbers(currentPage, totalPages);
 
   function changePage(page: number) {
     onPageChange(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (scrollToTop) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   }
 
   return (

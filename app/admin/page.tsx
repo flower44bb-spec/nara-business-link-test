@@ -3,6 +3,7 @@
 import { Check, RefreshCw, Shield, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApprovalGate } from "@/components/approval-gate";
+import { Pagination, paginate } from "@/components/pagination";
 import { HomeLink, Loading, PageHero } from "@/components/ui";
 import { useAuth } from "@/components/auth-provider";
 import { recordTitle } from "@/lib/records";
@@ -24,6 +25,8 @@ type PendingContent = BaseRecord & {
   author?: Profile;
 };
 
+const ADMIN_PAGE_SIZE = 10;
+
 export default function AdminPage() {
   const { user } = useAuth();
   const [users, setUsers] = useState<Profile[]>([]);
@@ -31,6 +34,15 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [pendingPage, setPendingPage] = useState(1);
+  const [accountPage, setAccountPage] = useState(1);
+
+  const pendingUsers = users.filter((profile) => profile.role === "pending");
+  const activePendingCount = pendingUsers.filter((profile) => !profile.rejected_at).length;
+  const pendingTotalPages = Math.max(1, Math.ceil(pendingUsers.length / ADMIN_PAGE_SIZE));
+  const accountTotalPages = Math.max(1, Math.ceil(users.length / ADMIN_PAGE_SIZE));
+  const visiblePendingUsers = paginate(pendingUsers, pendingPage, ADMIN_PAGE_SIZE);
+  const visibleAccountUsers = paginate(users, accountPage, ADMIN_PAGE_SIZE);
 
   async function load() {
     setLoading(true);
@@ -41,7 +53,10 @@ export default function AdminPage() {
         supabase.from(table).select("*").order("created_at", { ascending: false }),
       ),
     ]);
-    if (profileResult.error) setError(profileResult.error.message);
+    if (profileResult.error) {
+      console.error("Failed to load admin profiles:", profileResult.error);
+      setError("会員情報を読み込めませんでした。時間をおいて再度お試しください。");
+    }
     const loadedUsers = (profileResult.data as Profile[]) ?? [];
     const profileMap = new Map(loadedUsers.map((profile) => [profile.id, profile]));
     setUsers(loadedUsers);
@@ -62,6 +77,12 @@ export default function AdminPage() {
   }
 
   useEffect(() => { load(); }, []);
+  useEffect(() => {
+    setPendingPage((page) => Math.min(page, pendingTotalPages));
+  }, [pendingTotalPages]);
+  useEffect(() => {
+    setAccountPage((page) => Math.min(page, accountTotalPages));
+  }, [accountTotalPages]);
 
   async function updateUser(profile: Profile, approve: boolean) {
     setMessage("");
@@ -71,7 +92,10 @@ export default function AdminPage() {
         ? { role: "member", rejected_at: null, updated_at: new Date().toISOString() }
         : { role: "pending", rejected_at: new Date().toISOString(), updated_at: new Date().toISOString() },
     ).eq("id", profile.id);
-    if (updateError) setError(updateError.message);
+    if (updateError) {
+      console.error("Failed to update member approval:", updateError);
+      setError("会員の承認状態を更新できませんでした。時間をおいて再度お試しください。");
+    }
     else {
       setMessage(`${profile.full_name || profile.email || "ユーザー"}を${approve ? "承認" : "却下"}しました。`);
       await load();
@@ -91,7 +115,8 @@ export default function AdminPage() {
       target_user_id: profile.id,
     });
     if (deleteError) {
-      setError(deleteError.message);
+      console.error("Failed to delete member:", deleteError);
+      setError("会員アカウントを削除できませんでした。権限とデータベース設定を確認してください。");
       return;
     }
 
@@ -110,7 +135,10 @@ export default function AdminPage() {
           target_id: post.id,
           next_status: action === "approve" ? "approved" : "rejected",
         });
-    if (updateError) setError(updateError.message);
+    if (updateError) {
+      console.error("Failed to update post status:", updateError);
+      setError("投稿の状態を更新できませんでした。時間をおいて再度お試しください。");
+    }
     else {
       setMessage(`「${postTitle(post)}」を${action === "approve" ? "承認" : action === "reject" ? "却下" : "削除"}しました。`);
       await load();
@@ -134,54 +162,89 @@ export default function AdminPage() {
               <div className="admin-sections">
                 <AdminAnalytics />
                 <section className="admin-panel">
-                  <h2>未承認ユーザー <span>{users.filter((user) => user.role === "pending" && !user.rejected_at).length}</span></h2>
-                  <div className="admin-table-wrap">
-                    <table className="admin-table">
-                      <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>状態</th><th>操作</th></tr></thead>
-                      <tbody>
-                        {users.filter((profile) => profile.role === "pending").length ? users.filter((profile) => profile.role === "pending").map((profile) => (
-                          <tr key={profile.id}>
-                            <td>{profile.full_name || "未設定"}</td>
-                            <td>{profile.email}</td>
-                            <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
-                            <td><span className={profile.rejected_at ? "status rejected" : "status pending"}>{profile.rejected_at ? "却下済み" : "承認待ち"}</span></td>
-                            <td className="action-cell">
-                              <button className="icon-action approve" type="button" onClick={() => updateUser(profile, true)}><Check size={16} /> 承認</button>
-                              {!profile.rejected_at && <button className="icon-action reject" type="button" onClick={() => updateUser(profile, false)}><X size={16} /> 却下</button>}
-                            </td>
-                          </tr>
-                        )) : <tr><td colSpan={5}>未承認ユーザーはいません。</td></tr>}
-                      </tbody>
-                    </table>
+                  <div className="admin-post-groups">
+                    <details className="admin-post-group" open={activePendingCount > 0 || undefined}>
+                      <summary>
+                        <span>未承認ユーザー</span>
+                        <span className="admin-summary-meta">
+                          {activePendingCount > 0 && <span className="pending-count">{activePendingCount}件 承認待ち</span>}
+                          <span className="total-count">全{pendingUsers.length}件</span>
+                        </span>
+                      </summary>
+                      <p className="admin-list-range">{itemRange(pendingUsers.length, pendingPage)}</p>
+                      <div className="admin-table-wrap">
+                        <table className="admin-table">
+                          <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>状態</th><th>操作</th></tr></thead>
+                          <tbody>
+                            {visiblePendingUsers.length ? visiblePendingUsers.map((profile) => (
+                              <tr key={profile.id}>
+                                <td>{profile.full_name || "未設定"}</td>
+                                <td>{profile.email || "未設定"}</td>
+                                <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
+                                <td><span className={profile.rejected_at ? "status rejected" : "status pending"}>{profile.rejected_at ? "却下済み" : "承認待ち"}</span></td>
+                                <td className="action-cell">
+                                  <button className="icon-action approve" type="button" onClick={() => updateUser(profile, true)}><Check size={16} /> 承認</button>
+                                  {!profile.rejected_at && <button className="icon-action reject" type="button" onClick={() => updateUser(profile, false)}><X size={16} /> 却下</button>}
+                                </td>
+                              </tr>
+                            )) : <tr><td colSpan={5}>未承認ユーザーはいません。</td></tr>}
+                          </tbody>
+                        </table>
+                      </div>
+                      <Pagination
+                        currentPage={pendingPage}
+                        onPageChange={setPendingPage}
+                        pageSize={ADMIN_PAGE_SIZE}
+                        scrollToTop={false}
+                        totalItems={pendingUsers.length}
+                      />
+                    </details>
                   </div>
                 </section>
 
                 <section className="admin-panel">
-                  <h2>会員アカウント照会 <span>{users.length}</span></h2>
-                  <p>ログイン用メールアドレスを忘れた会員について、本人確認後に氏名・所属・会社名から照会してください。</p>
-                  <div className="admin-table-wrap">
-                    <table className="admin-table">
-                      <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>権限</th><th>操作</th></tr></thead>
-                      <tbody>
-                        {users.length ? users.map((profile) => (
-                          <tr key={`account-${profile.id}`}>
-                            <td>{profile.full_name || "未設定"}</td>
-                            <td>{profile.email || "未設定"}</td>
-                            <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
-                            <td><span className={`status ${profile.role}`}>{profile.role === "admin" ? "管理者" : profile.role === "member" ? "承認済み" : "承認待ち"}</span></td>
-                            <td className="action-cell">
-                              {profile.id === user?.id ? (
-                                <span className="admin-self-label">ログイン中</span>
-                              ) : (
-                                <button className="icon-action delete" type="button" onClick={() => deleteUser(profile)}>
-                                  <Trash2 size={16} /> 会員削除
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        )) : <tr><td colSpan={5}>会員情報がありません。</td></tr>}
-                      </tbody>
-                    </table>
+                  <div className="admin-post-groups">
+                    <details className="admin-post-group">
+                      <summary>
+                        <span>会員アカウント照会</span>
+                        <span className="admin-summary-meta">
+                          <span className="total-count">全{users.length}件</span>
+                        </span>
+                      </summary>
+                      <p className="admin-panel-help">ログイン用メールアドレスを忘れた会員について、本人確認後に氏名・所属・会社名から照会してください。</p>
+                      <p className="admin-list-range">{itemRange(users.length, accountPage)}</p>
+                      <div className="admin-table-wrap">
+                        <table className="admin-table">
+                          <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>権限</th><th>操作</th></tr></thead>
+                          <tbody>
+                            {visibleAccountUsers.length ? visibleAccountUsers.map((profile) => (
+                              <tr key={`account-${profile.id}`}>
+                                <td>{profile.full_name || "未設定"}</td>
+                                <td>{profile.email || "未設定"}</td>
+                                <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
+                                <td><span className={`status ${profile.role}`}>{profile.role === "admin" ? "管理者" : profile.role === "member" ? "承認済み" : "承認待ち"}</span></td>
+                                <td className="action-cell">
+                                  {profile.id === user?.id ? (
+                                    <span className="admin-self-label">ログイン中</span>
+                                  ) : (
+                                    <button className="icon-action delete" type="button" onClick={() => deleteUser(profile)}>
+                                      <Trash2 size={16} /> 会員削除
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            )) : <tr><td colSpan={5}>会員情報がありません。</td></tr>}
+                          </tbody>
+                        </table>
+                      </div>
+                      <Pagination
+                        currentPage={accountPage}
+                        onPageChange={setAccountPage}
+                        pageSize={ADMIN_PAGE_SIZE}
+                        scrollToTop={false}
+                        totalItems={users.length}
+                      />
+                    </details>
                   </div>
                 </section>
 
@@ -280,4 +343,11 @@ function postTitle(post: PendingContent) {
     return String((post as unknown as MarchePost).event_name || "名称未設定");
   }
   return recordTitle(post);
+}
+
+function itemRange(totalItems: number, currentPage: number) {
+  if (totalItems === 0) return "0件";
+  const start = (currentPage - 1) * ADMIN_PAGE_SIZE + 1;
+  const end = Math.min(currentPage * ADMIN_PAGE_SIZE, totalItems);
+  return `全${totalItems}件中 ${start}〜${end}件を表示`;
 }

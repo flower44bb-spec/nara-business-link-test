@@ -14,6 +14,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja">
+      <head>
+        <meta charSet="utf-8" />
+      </head>
       <body>
         <AuthProvider>
           <Header />
