@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { Header } from "@/components/header";
+import { PageViewTracker } from "@/components/page-view-tracker";
 
 export const metadata: Metadata = {
   title: "NARA BUSINESS LINK",
@@ -16,6 +17,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <Header />
+          <PageViewTracker />
           {children}
           <footer className="site-footer">
             <div>

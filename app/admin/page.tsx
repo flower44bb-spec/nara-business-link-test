@@ -8,6 +8,7 @@ import { useAuth } from "@/components/auth-provider";
 import { recordTitle } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
 import type { BaseRecord, MarchePost, Profile } from "@/types";
+import { AdminAnalytics } from "@/components/admin-analytics";
 
 const contentTables = [
   { table: "businesses", label: "事業者" },
@@ -131,6 +132,7 @@ export default function AdminPage() {
             {error && <p className="error">{error}</p>}
             {loading ? <Loading /> : (
               <div className="admin-sections">
+                <AdminAnalytics />
                 <section className="admin-panel">
                   <h2>未承認ユーザー <span>{users.filter((user) => user.role === "pending" && !user.rejected_at).length}</span></h2>
                   <div className="admin-table-wrap">
