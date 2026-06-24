@@ -69,7 +69,7 @@ export default function AuthPage() {
       });
       if (authError) setError(authErrorMessage(authError.message));
       else if (data.session) router.push("/");
-      else setMessage("確認メールを送信しました。登録完了後は管理者の承認をお待ちください。");
+      else setMessage("確認メールを送信しました。登録完了後はすぐに会員機能をご利用いただけます。");
     }
     setLoading(false);
   }
@@ -83,7 +83,7 @@ export default function AuthPage() {
       <section className="auth-card">
         <HomeLink />
         <h1>{user ? "ログイン中です" : "会員メニュー"}</h1>
-        <p>奈良県商工会青年部員のアカウントでご利用ください。</p>
+        <p>奈良県商工会青年部員のアカウントでご利用ください。現在は登録後すぐに会員機能をご利用いただけます。</p>
         {user ? (
           <>
             <div className="notice">{user.email}</div>
