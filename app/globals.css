@@ -113,6 +113,7 @@ button { cursor: pointer; }
 .feature-card h3 { margin: 22px 0 9px; }
 .feature-card p { min-height: 52px; color: var(--muted); font-size: 14px; line-height: 1.8; }
 .text-link { color: var(--persimmon); font-weight: 800; font-size: 13px; }
+.text-link.inline-link { display: inline-flex; align-items: center; gap: 6px; word-break: break-all; }
 .instagram-section { padding: 70px 0; background: white; }
 .instagram-card {
   padding: clamp(28px, 5vw, 52px); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 28px;

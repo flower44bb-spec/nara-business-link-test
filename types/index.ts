@@ -37,6 +37,8 @@ export type Profile = {
   bio?: string | null;
   can_help_with?: string | null;
   wants_to_connect_with?: string | null;
+  website_url?: string | null;
+  sns_url?: string | null;
   avatar_url?: string | null;
   line_user_id?: string | null;
   line_notify_target?: string | null;

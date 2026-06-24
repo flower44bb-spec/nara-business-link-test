@@ -23,7 +23,7 @@ export default function MembersPage() {
   const filtered = useMemo(() => {
     const query = keyword.toLocaleLowerCase();
     return members.filter((member) =>
-      `${member.full_name || ""} ${member.company_name || ""} ${member.industry || ""} ${member.local_chapter || ""}`
+      `${member.full_name || ""} ${member.company_name || ""} ${member.industry || ""} ${member.local_chapter || ""} ${member.website_url || ""} ${member.sns_url || ""}`
         .toLocaleLowerCase().includes(query),
     );
   }, [keyword, members]);

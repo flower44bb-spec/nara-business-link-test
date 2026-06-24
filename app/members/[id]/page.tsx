@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, UserRound } from "lucide-react";
+import { ExternalLink, Pencil, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -48,6 +48,8 @@ export default function MemberDetailPage() {
                   <div className="detail-row"><dt>自己紹介</dt><dd>{member.bio || "未設定"}</dd></div>
                   <div className="detail-row"><dt>相談できること</dt><dd>{member.can_help_with || "未設定"}</dd></div>
                   <div className="detail-row"><dt>つながりたい業種</dt><dd>{member.wants_to_connect_with || "未設定"}</dd></div>
+                  <div className="detail-row"><dt>Webサイト</dt><dd><ProfileLink url={member.website_url} label="Webサイトを開く" /></dd></div>
+                  <div className="detail-row"><dt>SNS</dt><dd><ProfileLink url={member.sns_url} label="SNSを開く" /></dd></div>
                 </dl>
               </article>
               <aside className="side-card">
@@ -64,4 +66,28 @@ export default function MemberDetailPage() {
       </section>
     </main>
   );
+}
+
+function ProfileLink({ url, label }: { url?: string | null; label: string }) {
+  const safeUrl = normalizeExternalUrl(url);
+  if (!url) return "未設定";
+  if (!safeUrl) return <span>{url}</span>;
+
+  return (
+    <a className="text-link inline-link" href={safeUrl} rel="noreferrer" target="_blank">
+      <ExternalLink size={15} /> {label}
+    </a>
+  );
+}
+
+function normalizeExternalUrl(url?: string | null) {
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
 }

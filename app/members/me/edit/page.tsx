@@ -15,7 +15,7 @@ export default function EditMyProfilePage() {
   const { user, profile, isApproved, refreshProfile } = useAuth();
   const [form, setForm] = useState({
     full_name: "", local_chapter: "", position: "", company_name: "", industry: "",
-    bio: "", can_help_with: "", wants_to_connect_with: "", line_notify_target: "",
+    bio: "", can_help_with: "", wants_to_connect_with: "", website_url: "", sns_url: "", line_notify_target: "",
   });
   const [image, setImage] = useState<File | null>(null);
   const [imageProcessing, setImageProcessing] = useState(false);
@@ -35,6 +35,8 @@ export default function EditMyProfilePage() {
       bio: profile.bio || "",
       can_help_with: profile.can_help_with || "",
       wants_to_connect_with: profile.wants_to_connect_with || "",
+      website_url: profile.website_url || "",
+      sns_url: profile.sns_url || "",
       line_notify_target: profile.line_notify_target || "",
       });
       setLineEnabled(Boolean(profile.line_notifications_enabled));
@@ -132,6 +134,28 @@ export default function EditMyProfilePage() {
                     <textarea id={key} value={form[key as keyof typeof form]} onChange={(e) => field(key as keyof typeof form, e.target.value)} />
                   </div>
                 ))}
+                <div className="field">
+                  <label htmlFor="website_url">WebサイトURL</label>
+                  <input
+                    id="website_url"
+                    inputMode="url"
+                    placeholder="https://example.com"
+                    type="url"
+                    value={form.website_url}
+                    onChange={(e) => field("website_url", e.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="sns_url">SNSリンク先URL</label>
+                  <input
+                    id="sns_url"
+                    inputMode="url"
+                    placeholder="https://www.instagram.com/..."
+                    type="url"
+                    value={form.sns_url}
+                    onChange={(e) => field("sns_url", e.target.value)}
+                  />
+                </div>
                 <div className="field">
                   <label>プロフィール画像</label>
                   <ImageCropper
