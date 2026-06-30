@@ -10,8 +10,14 @@ export function PageHero({
   title: string;
   description: string;
 }) {
+  const manualLines = description
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
   const descriptionLines =
-    description.match(/[^、。！？!?]+[、。！？!?]?/g) ?? [description];
+    manualLines.length > 1
+      ? manualLines
+      : description.match(/[^、。！？!?]+[、。！？!?]?/g) ?? [description];
 
   return (
     <section className="page-hero">

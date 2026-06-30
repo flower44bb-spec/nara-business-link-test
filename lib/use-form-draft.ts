@@ -16,10 +16,23 @@ export function useFormDraft<T>({
   const [restored, setRestored] = useState(false);
   const restoreRef = useRef(onRestore);
   const timerRef = useRef<number | null>(null);
+  const valueRef = useRef(value);
+  const clearedRef = useRef(false);
   restoreRef.current = onRestore;
+  valueRef.current = value;
+
+  function saveDraft() {
+    if (clearedRef.current) return;
+    try {
+      window.localStorage.setItem(key, JSON.stringify(valueRef.current));
+    } catch {
+      // The form remains usable when storage is unavailable or full.
+    }
+  }
 
   useEffect(() => {
     setRestored(false);
+    clearedRef.current = false;
     if (!enabled) return;
 
     try {
@@ -34,18 +47,32 @@ export function useFormDraft<T>({
   useEffect(() => {
     if (!enabled || !restored) return;
     timerRef.current = window.setTimeout(() => {
-      try {
-        window.localStorage.setItem(key, JSON.stringify(value));
-      } catch {
-        // The form remains usable when storage is unavailable or full.
-      }
+      saveDraft();
     }, 300);
     return () => {
       if (timerRef.current !== null) window.clearTimeout(timerRef.current);
     };
   }, [enabled, key, restored, value]);
 
+  useEffect(() => {
+    if (!enabled || !restored) return;
+
+    const saveOnHidden = () => {
+      if (document.visibilityState === "hidden") saveDraft();
+    };
+
+    window.addEventListener("pagehide", saveDraft);
+    document.addEventListener("visibilitychange", saveOnHidden);
+
+    return () => {
+      saveDraft();
+      window.removeEventListener("pagehide", saveDraft);
+      document.removeEventListener("visibilitychange", saveOnHidden);
+    };
+  }, [enabled, key, restored]);
+
   function clearDraft() {
+    clearedRef.current = true;
     if (timerRef.current !== null) {
       window.clearTimeout(timerRef.current);
       timerRef.current = null;

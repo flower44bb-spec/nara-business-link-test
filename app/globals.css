@@ -230,7 +230,7 @@ button { cursor: pointer; }
 .post-author.compact span { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
 .detail-subheading { margin: 28px 0 10px; font-family: "Shippori Mincho", serif; font-size: 20px; }
 .post-author-detail { margin-top: 0; }
-.summary { color: var(--muted); font-size: 14px; line-height: 1.8; }
+.summary { color: var(--muted); font-size: 14px; line-height: 1.8; white-space: pre-line; }
 .card .text-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; }
 .form-card, .detail-card { padding: clamp(24px, 5vw, 46px); }
 .form-card { max-width: 760px; margin: 0 auto; }
@@ -247,7 +247,7 @@ button { cursor: pointer; }
 .detail-list { display: grid; gap: 0; margin-top: 28px; border-top: 1px solid var(--line); }
 .detail-row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 17px 0; border-bottom: 1px solid var(--line); }
 .detail-row dt { color: var(--muted); font-size: 13px; font-weight: 700; }
-.detail-row dd { margin: 0; }
+.detail-row dd { margin: 0; white-space: pre-wrap; line-height: 1.9; overflow-wrap: anywhere; }
 .side-card { align-self: start; padding: 25px; background: #e7eff8; border-radius: 8px; }
 .side-card h3 { margin-top: 0; }
 .side-card .button { width: 100%; margin-top: 8px; }
