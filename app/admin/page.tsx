@@ -16,7 +16,7 @@ const contentTables = [
   { table: "problems", label: "困りごと" },
   { table: "collaborations", label: "コラボ募集" },
   { table: "successes", label: "成功事例" },
-  { table: "marche_posts", label: "マルシェ" },
+  { table: "marche_posts", label: "イベント" },
 ] as const;
 
 type PendingContent = BaseRecord & {

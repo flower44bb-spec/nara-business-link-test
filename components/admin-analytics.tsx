@@ -280,7 +280,7 @@ function pageLabel(path: string) {
     "/problems": "困りごと相談",
     "/collaborations": "コラボ募集",
     "/successes": "成功事例",
-    "/marche": "マルシェ",
+    "/marche": "イベント",
     "/members": "青年部員",
     "/messages": "DM",
     "/auth": "ログイン・会員登録",

@@ -40,8 +40,8 @@ const features = [
   {
     href: "/marche",
     icon: CalendarDays,
-    title: "マルシェ掲示板",
-    text: "イベントやマルシェの出店案件を共有し、地域のにぎわいをつくります。",
+    title: "イベントPR",
+    text: "各地域のイベントやマルシェ、出店募集を共有し、地域のにぎわいをつくります。",
   },
   {
     href: "/members",

@@ -17,7 +17,7 @@ export default function MarchePage() {
   const [error, setError] = useState("");
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
-  const [industry, setIndustry] = useState("");
+  const [eventType, setEventType] = useState("");
   const [authors, setAuthors] = useState<Record<string, PostAuthor>>({});
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -40,8 +40,8 @@ export default function MarchePage() {
     () => [...new Set(posts.map((post) => post.location).filter(Boolean))],
     [posts],
   );
-  const industries = useMemo(
-    () => [...new Set(posts.flatMap((post) => post.desired_industries ? [post.desired_industries] : []))],
+  const eventTypes = useMemo(
+    () => [...new Set(posts.map((post) => post.event_type || "マルシェ").filter(Boolean))],
     [posts],
   );
   const filteredPosts = useMemo(() => {
@@ -51,6 +51,9 @@ export default function MarchePage() {
         post.event_name,
         post.description,
         post.location,
+        post.event_type,
+        post.organizer_type,
+        post.target_audience,
         post.desired_industries,
         post.organizer,
         post.event_date,
@@ -58,14 +61,14 @@ export default function MarchePage() {
       return (
         (!query || searchable.includes(query))
         && (!location || post.location === location)
-        && (!industry || post.desired_industries === industry)
+        && (!eventType || (post.event_type || "マルシェ") === eventType)
       );
     });
-  }, [industry, keyword, location, posts]);
+  }, [eventType, keyword, location, posts]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [industry, keyword, location]);
+  }, [eventType, keyword, location]);
 
   const pagePosts = useMemo(
     () => paginate(filteredPosts, currentPage),
@@ -74,19 +77,19 @@ export default function MarchePage() {
 
   return (
     <main>
-      <PageHero eyebrow="Marche & Events" title="マルシェ案件掲示板" description="奈良県内のマルシェやイベント出店情報を共有し、地域のにぎわいを一緒につくります。" />
+      <PageHero eyebrow="Marche & Events" title="マルシェ・地域イベントPR" description="奈良県内のマルシェや地域イベント、出店募集や各青年部・企業主催イベントを共有し、地域のにぎわいを一緒につくります。" />
       <section className="page-content">
         <div className="container">
           <HomeLink />
           <div className="toolbar">
-            <h2>出店募集案件</h2>
-            <Link className="button" href="/marche/new"><Plus size={17} /> 案件を投稿</Link>
+            <h2>イベント・出店募集一覧</h2>
+            <Link className="button" href="/marche/new"><Plus size={17} /> イベントを投稿</Link>
           </div>
           <div className="search-panel">
             <div className="search-grid">
               <input
-                aria-label="マルシェ案件を検索"
-                placeholder="イベント名・募集内容・主催者で検索"
+                aria-label="イベント情報を検索"
+                placeholder="イベント名・PR内容・主催者で検索"
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
               />
@@ -94,9 +97,9 @@ export default function MarchePage() {
                 <option value="">すべての開催場所</option>
                 {locations.map((item) => <option value={item} key={item}>{item}</option>)}
               </select>
-              <select aria-label="募集業種で絞り込み" value={industry} onChange={(event) => setIndustry(event.target.value)}>
-                <option value="">すべての募集業種</option>
-                {industries.map((item) => <option value={item} key={item}>{item}</option>)}
+              <select aria-label="掲載種別で絞り込み" value={eventType} onChange={(event) => setEventType(event.target.value)}>
+                <option value="">すべての掲載種別</option>
+                {eventTypes.map((item) => <option value={item} key={item}>{item}</option>)}
               </select>
               <button className="button" type="button"><Search size={18} /> 検索</button>
             </div>
@@ -112,12 +115,13 @@ export default function MarchePage() {
                       {post.image_url ? <img src={post.image_url} alt={post.event_name} /> : <Store size={48} />}
                     </div>
                     <div className="card-body">
-                      <span className="tag">{post.desired_industries || "出店者募集"}</span>
+                      <span className="tag">{post.event_type || "マルシェ"}</span>
                       <h3>{post.event_name}</h3>
                       <PostAuthorDisplay author={authors[post.user_id]} compact />
                       <div className="meta">
                         <span><CalendarDays size={13} /> {post.event_date}</span>
                         <span><MapPin size={13} /> {post.location}</span>
+                        <span>{post.organizer_type || "主催区分未設定"}</span>
                         <LikeButton targetType="marche_posts" targetId={post.id} ownerId={post.user_id} compact />
                       </div>
                       <p className="summary">{post.description.slice(0, 90)}</p>
@@ -128,7 +132,7 @@ export default function MarchePage() {
                 {!filteredPosts.length && (
                   <div className="state-box">
                     <Search />
-                    <p>条件に一致するマルシェ案件はありません。</p>
+                    <p>条件に一致するイベント情報はありません。</p>
                   </div>
                 )}
               </div>

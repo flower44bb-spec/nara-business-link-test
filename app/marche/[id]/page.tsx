@@ -42,7 +42,7 @@ export default function MarcheDetailPage() {
 
   return (
     <main>
-      <PageHero eyebrow="Marche Detail" title="マルシェ案件詳細" description="開催概要、出店条件、募集締切をご確認ください。" />
+      <PageHero eyebrow="Marche & Event Detail" title="イベント情報詳細" description="開催概要、PR内容、募集情報をご確認ください。" />
       <section className="page-content">
         <div className="container">
           <BackLink href="/marche" />
@@ -65,14 +65,17 @@ export default function MarcheDetailPage() {
                 <dl className="detail-list">
                   <div className="detail-row"><dt>開催日</dt><dd>{post.event_date}</dd></div>
                   <div className="detail-row"><dt>開催場所</dt><dd>{post.location}</dd></div>
-                  <div className="detail-row"><dt>募集業種</dt><dd>{post.desired_industries || "指定なし"}</dd></div>
-                  <div className="detail-row"><dt>募集締切</dt><dd>{post.application_deadline || "定員まで"}</dd></div>
-                  <div className="detail-row"><dt>出店料</dt><dd>{post.booth_fee || "主催者へ確認"}</dd></div>
-                  <div className="detail-row"><dt>主催者</dt><dd>{post.organizer}</dd></div>
+                  <div className="detail-row"><dt>掲載種別</dt><dd>{post.event_type || "マルシェ"}</dd></div>
+                  <div className="detail-row"><dt>主催区分</dt><dd>{post.organizer_type || "未設定"}</dd></div>
+                  <div className="detail-row"><dt>主催者名</dt><dd>{post.organizer}</dd></div>
+                  <div className="detail-row"><dt>対象者</dt><dd>{post.target_audience || "指定なし"}</dd></div>
+                  <div className="detail-row"><dt>募集内容・業種</dt><dd>{post.desired_industries || "募集情報なし"}</dd></div>
+                  <div className="detail-row"><dt>申込・募集締切</dt><dd>{post.application_deadline || "主催者へ確認"}</dd></div>
+                  <div className="detail-row"><dt>出店料・参加費</dt><dd>{post.booth_fee || "主催者へ確認"}</dd></div>
                 </dl>
               </article>
               <aside className="side-card">
-                <h3>出店について相談</h3>
+                <h3>イベントについて相談</h3>
                 <MessageUserButton recipientId={post.user_id} />
                 {canManage && (
                   <>

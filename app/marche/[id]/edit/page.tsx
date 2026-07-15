@@ -22,7 +22,7 @@ export default function EditMarchePage() {
   }, [id]);
   return (
     <main>
-      <PageHero eyebrow="Edit Marche" title="マルシェ案件を編集" description="編集後は再度管理者の承認が必要です。" />
+      <PageHero eyebrow="Edit Event" title="イベント情報を編集" description="編集後は再度管理者の承認が必要です。" />
       <section className="page-content">
         <div className="container">
           <BackLink href={`/marche/${id}`} />

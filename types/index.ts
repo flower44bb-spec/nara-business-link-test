@@ -74,9 +74,12 @@ export type DirectMessage = {
 export type MarchePost = {
   id: string;
   user_id: string;
+  event_type?: string | null;
   event_name: string;
   event_date: string;
   location: string;
+  organizer_type?: string | null;
+  target_audience?: string | null;
   desired_industries?: string | null;
   description: string;
   application_deadline?: string | null;

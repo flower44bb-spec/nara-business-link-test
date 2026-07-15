@@ -14,9 +14,12 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
   const router = useRouter();
   const { user, isApproved, isAdmin } = useAuth();
   const [form, setForm] = useState({
+    event_type: post?.event_type || "地域イベントPR",
     event_name: post?.event_name || "",
     event_date: post?.event_date || "",
     location: post?.location || "",
+    organizer_type: post?.organizer_type || "青年部主催",
+    target_audience: post?.target_audience || "",
     desired_industries: post?.desired_industries || "",
     description: post?.description || "",
     application_deadline: post?.application_deadline || "",
@@ -32,7 +35,9 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
     fallbackKeys: [`draft:marche:${post?.id || "new"}:${user?.id || "guest"}`],
     value: form,
     enabled: Boolean(user),
-    onRestore: setForm,
+    onRestore: (saved) => {
+      setForm((current) => ({ ...current, ...saved }));
+    },
   });
 
   function set(key: keyof typeof form, value: string) {
@@ -71,9 +76,25 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
       approval_status: isAdmin ? post?.approval_status || "approved" : "pending",
       updated_at: new Date().toISOString(),
     };
-    const { data, error: saveError } = post
+    let { data, error: saveError } = post
       ? await updateRecord("marche_posts", post.id, payload)
       : await insertRecord("marche_posts", payload);
+    if (saveError && /event_type|organizer_type|target_audience|schema cache|column/i.test(saveError.message)) {
+      const { event_type, organizer_type, target_audience, ...legacyPayload } = payload;
+      const fallbackDescription = [
+        form.description,
+        "",
+        `【掲載種別】${event_type || "未設定"}`,
+        `【主催区分】${organizer_type || "未設定"}`,
+        `【対象者】${target_audience || "指定なし"}`,
+      ].join("\n");
+      const fallbackPayload = { ...legacyPayload, description: fallbackDescription };
+      const fallbackResult = post
+        ? await updateRecord("marche_posts", post.id, fallbackPayload)
+        : await insertRecord("marche_posts", fallbackPayload);
+      data = fallbackResult.data;
+      saveError = fallbackResult.error;
+    }
     if (saveError) {
       setError(saveError.message);
       setSaving(false);
@@ -84,7 +105,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
   }
 
   return (
-    <ApprovalGate action="マルシェ案件の投稿・編集">
+    <ApprovalGate action="イベント情報の投稿・編集">
       <form onSubmit={submit}>
         {error && <p className="error">{error}</p>}
         <p className="draft-note">入力内容はこの端末に一時保存されます。画像は再選択が必要です。</p>
@@ -93,20 +114,62 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
             別のウインドウでも同じフォームを編集中です。このウインドウの入力内容は個別に一時保存されます。
           </p>
         )}
-        {[
-          ["event_name", "イベント名", "text"], ["event_date", "開催日", "date"],
-          ["location", "開催場所", "text"], ["desired_industries", "募集業種", "text"],
-          ["application_deadline", "募集締切", "date"], ["booth_fee", "出店料", "text"],
-          ["organizer", "主催者", "text"],
-        ].map(([key, label, type]) => (
-          <div className="field" key={key}>
-            <label htmlFor={key}>{label}{["event_name", "event_date", "location", "organizer"].includes(key) ? " *" : ""}</label>
-            <input id={key} type={type} value={form[key as keyof typeof form]} onChange={(e) => set(key as keyof typeof form, e.target.value)} required={["event_name", "event_date", "location", "organizer"].includes(key)} />
-          </div>
-        ))}
         <div className="field">
-          <label htmlFor="description">募集内容 *</label>
+          <label htmlFor="event_type">掲載種別 *</label>
+          <select id="event_type" value={form.event_type} onChange={(e) => set("event_type", e.target.value)} required>
+            <option value="地域イベントPR">地域イベントPR</option>
+            <option value="マルシェ">マルシェ</option>
+            <option value="出店募集">出店募集</option>
+            <option value="青年部事業">青年部事業</option>
+            <option value="企業主催イベント">企業主催イベント</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="event_name">イベント名 *</label>
+          <input id="event_name" type="text" value={form.event_name} onChange={(e) => set("event_name", e.target.value)} required />
+        </div>
+        <div className="field">
+          <label htmlFor="event_date">開催日 *</label>
+          <input id="event_date" type="date" value={form.event_date} onChange={(e) => set("event_date", e.target.value)} required />
+        </div>
+        <div className="field">
+          <label htmlFor="location">開催場所 *</label>
+          <input id="location" type="text" placeholder="例：奈良市、橿原市、会場名など" value={form.location} onChange={(e) => set("location", e.target.value)} required />
+        </div>
+        <div className="field">
+          <label htmlFor="organizer_type">主催区分 *</label>
+          <select id="organizer_type" value={form.organizer_type} onChange={(e) => set("organizer_type", e.target.value)} required>
+            <option value="青年部主催">青年部主催</option>
+            <option value="企業主催">企業主催</option>
+            <option value="行政・団体主催">行政・団体主催</option>
+            <option value="共同主催">共同主催</option>
+            <option value="その他">その他</option>
+          </select>
+        </div>
+        <div className="field">
+          <label htmlFor="organizer">主催者名 *</label>
+          <input id="organizer" type="text" placeholder="例：奈良県商工会青年部連合会、〇〇商工会青年部、株式会社〇〇" value={form.organizer} onChange={(e) => set("organizer", e.target.value)} required />
+        </div>
+        <div className="field">
+          <label htmlFor="target_audience">対象者</label>
+          <input id="target_audience" type="text" placeholder="例：地域住民、親子連れ、観光客、事業者、出店希望者" value={form.target_audience} onChange={(e) => set("target_audience", e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="desired_industries">募集内容・募集業種</label>
+          <textarea id="desired_industries" placeholder="出店募集がある場合は、募集業種や募集内容を記入してください。PRのみの場合は空欄でも構いません。" value={form.desired_industries} onChange={(e) => set("desired_industries", e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="description">イベント内容・PR文 *</label>
           <textarea id="description" value={form.description} onChange={(e) => set("description", e.target.value)} required />
+        </div>
+        <div className="field">
+          <label htmlFor="application_deadline">申込・募集締切</label>
+          <input id="application_deadline" type="date" value={form.application_deadline} onChange={(e) => set("application_deadline", e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="booth_fee">出店料・参加費</label>
+          <input id="booth_fee" type="text" placeholder="例：無料、1区画3,000円、参加費500円" value={form.booth_fee} onChange={(e) => set("booth_fee", e.target.value)} />
         </div>
         <div className="field">
           <label>画像</label>
@@ -114,7 +177,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
             currentImageUrl={post?.image_url}
             onChange={setImage}
             onProcessingChange={setImageProcessing}
-            imageLabel="マルシェ画像"
+            imageLabel="イベント画像"
           />
         </div>
         <div className="form-actions">
