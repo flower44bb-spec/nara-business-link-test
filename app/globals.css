@@ -97,6 +97,16 @@ button { cursor: pointer; }
 .stat-card strong.stat-amount.extra-compact { font-size: clamp(14px, 1.4vw, 20px); }
 .stat-card span:last-child { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .stats-note { margin: 12px 3px 0; color: var(--muted); font-size: 11px; text-align: right; }
+.home-post-panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 22px; }
+.home-post-panel {
+  padding: 20px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow);
+}
+.home-post-panel h3 { margin: 0 0 12px; font-size: 17px; }
+.home-post-panel a {
+  padding: 12px 0; display: grid; gap: 6px; border-top: 1px solid var(--line);
+}
+.home-post-panel strong { font-size: 13px; line-height: 1.6; }
+.home-post-panel small, .home-post-panel p { color: var(--muted); font-size: 12px; }
 
 .home-section { padding: 82px 0; }
 .home-section.alt { background: #e7eff8; }
@@ -298,9 +308,15 @@ button { cursor: pointer; }
 .status.rejected { color: #8a302a; background: #fbe1de; }
 .status.approved { color: #176c53; background: #dff2ea; }
 .status.successful { margin-left: 7px; color: #175f8c; background: #dceefa; }
+.status.started { color: #174f8f; background: #dceefa; }
+.status.in_progress { color: #7b5b16; background: #fff0c7; }
+.status.quoted { color: #5b4388; background: #eee7ff; }
+.status.contracted, .status.ongoing { color: #176c53; background: #dff2ea; }
+.status.closed { color: #526274; background: #e9eef4; }
 .status + .tag { margin-left: 7px; }
 .transaction-amount { color: var(--green); font-size: 14px; font-weight: 800; }
 .two-columns { grid-template-columns: 1fr auto !important; }
+.members-search-grid { grid-template-columns: minmax(220px, 1.6fr) repeat(4, minmax(140px, 1fr)) auto; }
 .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .member-card { padding: 22px; display: flex; align-items: center; gap: 17px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
 .member-card h3 { margin: 9px 0 5px; }
@@ -311,6 +327,13 @@ button { cursor: pointer; }
 .avatar.small { width: 44px; height: 44px; }
 .profile-heading { display: flex; align-items: center; gap: 25px; }
 .profile-heading h1 { margin-bottom: 5px; }
+.chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.detail-row .chip-list { margin-top: 0; }
+.chip {
+  display: inline-flex; align-items: center; min-height: 26px; padding: 4px 9px;
+  color: var(--green); background: #e7eff8; border: 1px solid #cddbea; border-radius: 999px;
+  font-size: 11px; font-weight: 800;
+}
 .check-field { display: flex; align-items: center; gap: 10px; margin: 15px 0 24px; font-size: 13px; font-weight: 700; }
 .check-field input { width: 18px; height: 18px; }
 .messages-shell, .chat-panel, .admin-panel { background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
@@ -327,6 +350,9 @@ button { cursor: pointer; }
 .message-bubble time { display: block; margin-top: 6px; opacity: .7; font-size: 10px; }
 .message-form { padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 12px; }
 .message-form textarea { min-height: 55px; padding: 12px; resize: vertical; border: 1px solid var(--line); border-radius: 5px; }
+.deal-from-message { padding: 16px; border-bottom: 1px solid var(--line); background: white; }
+.compact-form .field { margin-bottom: 14px; }
+.compact-form textarea { min-height: 110px; }
 .admin-toolbar { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
 .admin-toolbar div { display: flex; align-items: center; gap: 9px; font-size: 20px; color: var(--green); }
 .admin-sections { display: grid; gap: 28px; }
@@ -362,6 +388,14 @@ button { cursor: pointer; }
 .icon-action.approve { color: #176c53; border-color: #9acdbc; }
 .icon-action.reject, .icon-action.delete { color: #9a3932; border-color: #e4b3af; }
 .icon-action.featured { color: #7b5410; border-color: #e6c66a; background: #fff8dd; }
+.ranking-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 18px; }
+.ranking-box { padding: 17px; background: #f5f8fc; border: 1px solid var(--line); border-radius: 7px; }
+.ranking-box h3 { margin: 0 0 10px; font-size: 15px; }
+.ranking-box ol { margin: 0; padding-left: 20px; }
+.ranking-box li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.ranking-box li span { display: inline-block; max-width: calc(100% - 42px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle; }
+.ranking-box li strong { float: right; color: var(--green); }
+.ranking-box p { margin: 0; color: var(--muted); font-size: 12px; }
 .analytics-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .analytics-heading h2 { margin-bottom: 8px; }
 .analytics-period {
@@ -409,10 +443,11 @@ button { cursor: pointer; }
   .analytics-grid { grid-template-columns: repeat(2, 1fr); }
   .analytics-columns { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-post-panels, .ranking-grid { grid-template-columns: 1fr; }
   .feature-grid, .card-grid, .member-grid { grid-template-columns: repeat(2, 1fr); }
   .instagram-card { grid-template-columns: auto 1fr; }
   .instagram-button { grid-column: 2; width: fit-content; }
-  .search-grid { grid-template-columns: 1fr 1fr; }
+  .search-grid, .members-search-grid { grid-template-columns: 1fr 1fr; }
   .detail-layout { grid-template-columns: 1fr; }
   .menu-toggle { display: block; }
   .main-nav {
@@ -442,7 +477,7 @@ button { cursor: pointer; }
   .stats-section { margin-top: -20px; }
   .stats-grid { grid-template-columns: 1fr; }
   .stat-card { min-height: 96px; }
-  .feature-grid, .card-grid, .search-grid, .member-grid { grid-template-columns: 1fr; }
+  .feature-grid, .card-grid, .search-grid, .members-search-grid, .member-grid { grid-template-columns: 1fr; }
   .feature-card p { min-height: auto; }
   .page-hero { padding: 55px 0; }
   .page-content { padding: 38px 0 65px; }

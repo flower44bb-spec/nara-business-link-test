@@ -16,6 +16,8 @@ export default function EditMyProfilePage() {
   const [form, setForm] = useState({
     full_name: "", local_chapter: "", position: "", company_name: "", industry: "",
     bio: "", can_help_with: "", wants_to_connect_with: "", website_url: "", sns_url: "", line_notify_target: "",
+    qualifications: "", specialties: "", available_work: "", service_areas: "", experience_years: "",
+    portfolio_url: "", homepage_url: "", instagram_url: "", facebook_url: "", x_url: "", other_sns_url: "",
   });
   const [image, setImage] = useState<File | null>(null);
   const [imageProcessing, setImageProcessing] = useState(false);
@@ -49,6 +51,17 @@ export default function EditMyProfilePage() {
       website_url: profile.website_url || "",
       sns_url: profile.sns_url || "",
       line_notify_target: profile.line_notify_target || "",
+      qualifications: (profile.qualifications || []).join("、"),
+      specialties: (profile.specialties || []).join("、"),
+      available_work: profile.available_work || "",
+      service_areas: (profile.service_areas || []).join("、"),
+      experience_years: profile.experience_years || "",
+      portfolio_url: profile.portfolio_url || "",
+      homepage_url: profile.homepage_url || "",
+      instagram_url: profile.instagram_url || "",
+      facebook_url: profile.facebook_url || "",
+      x_url: profile.x_url || "",
+      other_sns_url: profile.other_sns_url || "",
     });
     setLineEnabled(Boolean(profile.line_notifications_enabled));
     setProfileApplied(true);
@@ -80,7 +93,13 @@ export default function EditMyProfilePage() {
       avatarUrl = supabase.storage.from("profile-images").getPublicUrl(path).data.publicUrl;
     }
     const { error: updateError } = await updateRecord("profiles", user.id, {
-      ...form, avatar_url: avatarUrl, line_notifications_enabled: lineEnabled, updated_at: new Date().toISOString(),
+      ...form,
+      qualifications: splitTags(form.qualifications),
+      specialties: splitTags(form.specialties),
+      service_areas: splitTags(form.service_areas),
+      avatar_url: avatarUrl,
+      line_notifications_enabled: lineEnabled,
+      updated_at: new Date().toISOString(),
     });
     if (updateError) {
       setError(updateError.message);
@@ -141,6 +160,33 @@ export default function EditMyProfilePage() {
                   </div>
                 ))}
                 <div className="field">
+                  <label htmlFor="qualifications">保有資格</label>
+                  <textarea id="qualifications" value={form.qualifications} onChange={(e) => field("qualifications", e.target.value)} placeholder="FP、宅建士、建築士 など。複数ある場合は「、」や改行で区切ってください。" />
+                </div>
+                <div className="field">
+                  <label htmlFor="specialties">得意分野</label>
+                  <textarea id="specialties" value={form.specialties} onChange={(e) => field("specialties", e.target.value)} placeholder="SNS運用、補助金申請、動画制作 など。複数登録できます。" />
+                </div>
+                <div className="field">
+                  <label htmlFor="available_work">対応可能業務</label>
+                  <textarea id="available_work" value={form.available_work} onChange={(e) => field("available_work", e.target.value)} placeholder="ホームページ制作、店舗設計、広告デザイン など" />
+                </div>
+                <div className="field">
+                  <label htmlFor="service_areas">対応エリア</label>
+                  <textarea id="service_areas" value={form.service_areas} onChange={(e) => field("service_areas", e.target.value)} placeholder="奈良県全域、奈良市、橿原市 など" />
+                </div>
+                <div className="field">
+                  <label htmlFor="experience_years">経験年数</label>
+                  <select id="experience_years" value={form.experience_years} onChange={(e) => field("experience_years", e.target.value)}>
+                    <option value="">未設定</option>
+                    <option value="1年未満">1年未満</option>
+                    <option value="1〜3年">1〜3年</option>
+                    <option value="3〜5年">3〜5年</option>
+                    <option value="5〜10年">5〜10年</option>
+                    <option value="10年以上">10年以上</option>
+                  </select>
+                </div>
+                <div className="field">
                   <label htmlFor="website_url">WebサイトURL</label>
                   <input
                     id="website_url"
@@ -150,6 +196,30 @@ export default function EditMyProfilePage() {
                     value={form.website_url}
                     onChange={(e) => field("website_url", e.target.value)}
                   />
+                </div>
+                <div className="field">
+                  <label htmlFor="homepage_url">ホームページURL</label>
+                  <input id="homepage_url" inputMode="url" placeholder="https://example.com" type="url" value={form.homepage_url} onChange={(e) => field("homepage_url", e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="portfolio_url">ポートフォリオURL</label>
+                  <input id="portfolio_url" inputMode="url" placeholder="https://example.com/works" type="url" value={form.portfolio_url} onChange={(e) => field("portfolio_url", e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="instagram_url">Instagram</label>
+                  <input id="instagram_url" inputMode="url" placeholder="https://www.instagram.com/..." type="url" value={form.instagram_url} onChange={(e) => field("instagram_url", e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="facebook_url">Facebook</label>
+                  <input id="facebook_url" inputMode="url" placeholder="https://www.facebook.com/..." type="url" value={form.facebook_url} onChange={(e) => field("facebook_url", e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="x_url">X</label>
+                  <input id="x_url" inputMode="url" placeholder="https://x.com/..." type="url" value={form.x_url} onChange={(e) => field("x_url", e.target.value)} />
+                </div>
+                <div className="field">
+                  <label htmlFor="other_sns_url">その他SNS</label>
+                  <input id="other_sns_url" inputMode="url" placeholder="https://..." type="url" value={form.other_sns_url} onChange={(e) => field("other_sns_url", e.target.value)} />
                 </div>
                 <div className="field">
                   <label htmlFor="sns_url">SNSリンク先URL</label>
@@ -191,4 +261,11 @@ export default function EditMyProfilePage() {
       </section>
     </main>
   );
+}
+
+function splitTags(value: string) {
+  return value
+    .split(/[\n,、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
 }

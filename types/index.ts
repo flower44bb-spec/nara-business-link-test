@@ -16,6 +16,11 @@ export type BaseRecord = {
   collaboration_status?: "open" | "successful" | null;
   resolved_at?: string | null;
   transaction_amount?: number | null;
+  deal_id?: string | null;
+  counterpart_name?: string | null;
+  introducer_name?: string | null;
+  related_post_type?: string | null;
+  related_post_id?: string | null;
   is_featured?: boolean | null;
   featured_at?: string | null;
   approval_status?: "pending" | "approved" | "rejected" | null;
@@ -41,6 +46,17 @@ export type Profile = {
   wants_to_connect_with?: string | null;
   website_url?: string | null;
   sns_url?: string | null;
+  qualifications?: string[] | null;
+  specialties?: string[] | null;
+  available_work?: string | null;
+  service_areas?: string[] | null;
+  experience_years?: string | null;
+  portfolio_url?: string | null;
+  homepage_url?: string | null;
+  instagram_url?: string | null;
+  facebook_url?: string | null;
+  x_url?: string | null;
+  other_sns_url?: string | null;
   avatar_url?: string | null;
   line_user_id?: string | null;
   line_notify_target?: string | null;
@@ -71,6 +87,35 @@ export type DirectMessage = {
   body: string;
   read_at?: string | null;
   created_at: string;
+};
+
+export type DealStatus =
+  | "started"
+  | "in_progress"
+  | "quoted"
+  | "contracted"
+  | "ongoing"
+  | "closed";
+
+export type BusinessDeal = {
+  id: string;
+  created_by: string;
+  introducer_id?: string | null;
+  requester_id: string;
+  contractor_id: string;
+  source_type?: string | null;
+  source_id?: string | null;
+  title: string;
+  category?: string | null;
+  area?: string | null;
+  description?: string | null;
+  amount?: number | null;
+  status: DealStatus;
+  comment?: string | null;
+  success_id?: string | null;
+  success_created_at?: string | null;
+  created_at: string;
+  updated_at?: string | null;
 };
 
 export type MarchePost = {

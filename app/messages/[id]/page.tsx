@@ -5,6 +5,7 @@ import { Send } from "lucide-react";
 import { useParams } from "next/navigation";
 import { ApprovalGate } from "@/components/approval-gate";
 import { useAuth } from "@/components/auth-provider";
+import { DealStartButton } from "@/components/deal-start-button";
 import { BackLink, Loading, PageHero } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import type { Conversation, DirectMessage, Profile } from "@/types";
@@ -68,6 +69,16 @@ export default function MessageDetailPage() {
             {loading ? <Loading /> : (
               <div className="chat-panel">
                 {error && <p className="error">{error}</p>}
+                {partner && (
+                  <div className="deal-from-message">
+                    <DealStartButton
+                      contractorId={partner.id}
+                      title={`DMからの商談：${partner.full_name || partner.company_name || "青年部員"}`}
+                      description="DMでの相談から開始した商談です。"
+                      buttonLabel="このDMから商談開始"
+                    />
+                  </div>
+                )}
                 <div className="message-list">
                   {messages.map((message) => (
                     <div className={message.sender_id === user?.id ? "message-bubble mine" : "message-bubble"} key={message.id}>

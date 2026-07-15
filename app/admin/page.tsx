@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Eye, RefreshCw, Shield, Star, Trash2, X } from "lucide-react";
+import { Check, Download, Eye, RefreshCw, Shield, Star, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ApprovalGate } from "@/components/approval-gate";
@@ -9,7 +9,8 @@ import { HomeLink, Loading, PageHero } from "@/components/ui";
 import { useAuth } from "@/components/auth-provider";
 import { recordTitle } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
-import type { BaseRecord, MarchePost, Profile } from "@/types";
+import { dealStatusLabels, formatDealAmount } from "@/lib/deals";
+import type { BaseRecord, BusinessDeal, MarchePost, Profile } from "@/types";
 import { AdminAnalytics } from "@/components/admin-analytics";
 
 const contentTables = [
@@ -26,12 +27,22 @@ type PendingContent = BaseRecord & {
   author?: Profile;
 };
 
+type RankingItem = { name: string; count: number };
+type SkillRankings = {
+  qualifications?: RankingItem[];
+  specialties?: RankingItem[];
+  searches?: RankingItem[];
+  consultations?: RankingItem[];
+};
+
 const ADMIN_PAGE_SIZE = 10;
 
 export default function AdminPage() {
   const { user } = useAuth();
   const [users, setUsers] = useState<Profile[]>([]);
   const [posts, setPosts] = useState<PendingContent[]>([]);
+  const [deals, setDeals] = useState<BusinessDeal[]>([]);
+  const [skillRankings, setSkillRankings] = useState<SkillRankings>({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -48,8 +59,10 @@ export default function AdminPage() {
   async function load() {
     setLoading(true);
     setError("");
-    const [profileResult, ...postResults] = await Promise.all([
+    const [profileResult, dealResult, rankingResult, ...postResults] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at"),
+      supabase.from("business_deals").select("*").order("updated_at", { ascending: false }),
+      supabase.rpc("admin_skill_rankings"),
       ...contentTables.map(({ table }) =>
         supabase.from(table).select("*").order("created_at", { ascending: false }),
       ),
@@ -61,6 +74,8 @@ export default function AdminPage() {
     const loadedUsers = (profileResult.data as Profile[]) ?? [];
     const profileMap = new Map(loadedUsers.map((profile) => [profile.id, profile]));
     setUsers(loadedUsers);
+    setDeals((dealResult.data as BusinessDeal[]) ?? []);
+    if (!rankingResult.error) setSkillRankings((rankingResult.data as SkillRankings) ?? {});
     const combined: PendingContent[] = [];
     postResults.forEach((result, index) => {
       if (result.error) return;
@@ -182,6 +197,50 @@ export default function AdminPage() {
             {loading ? <Loading /> : (
               <div className="admin-sections">
                 <AdminAnalytics />
+                <section className="admin-panel">
+                  <h2>商談管理 <span>{deals.length}</span></h2>
+                  <p className="admin-panel-help">投稿やDMから始まった商談の進捗、金額、成功事例への変換状況を確認できます。</p>
+                  <button className="icon-action" type="button" onClick={() => exportDealsCsv(deals, users)}>
+                    <Download size={16} /> 商談CSV出力
+                  </button>
+                  <div className="admin-table-wrap">
+                    <table className="admin-table">
+                      <thead><tr><th>商談名</th><th>状態</th><th>依頼者</th><th>受注者</th><th>金額</th><th>成功事例</th><th>操作</th></tr></thead>
+                      <tbody>
+                        {deals.length ? deals.map((deal) => {
+                          const requester = users.find((profile) => profile.id === deal.requester_id);
+                          const contractor = users.find((profile) => profile.id === deal.contractor_id);
+                          return (
+                            <tr key={deal.id}>
+                              <td>{deal.title}</td>
+                              <td><span className={`status ${deal.status}`}>{dealStatusLabels[deal.status]}</span></td>
+                              <td>{requester?.full_name || requester?.company_name || "未設定"}</td>
+                              <td>{contractor?.full_name || contractor?.company_name || "未設定"}</td>
+                              <td>{formatDealAmount(deal.amount)}</td>
+                              <td>{deal.success_id ? <Link className="text-link" href={`/successes/${deal.success_id}`}>登録済み</Link> : "未登録"}</td>
+                              <td><Link className="icon-action" href={`/deals/${deal.id}`}><Eye size={16} /> 詳細</Link></td>
+                            </tr>
+                          );
+                        }) : <tr><td colSpan={7}>商談はまだありません。</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
+                <section className="admin-panel">
+                  <h2>スキル分析</h2>
+                  <p className="admin-panel-help">会員の資格・得意分野・検索回数・相談件数をランキングで確認できます。</p>
+                  <button className="icon-action" type="button" onClick={() => exportSkillsCsv(skillRankings)}>
+                    <Download size={16} /> スキルCSV出力
+                  </button>
+                  <div className="ranking-grid">
+                    <RankingBox title="資格一覧" items={skillRankings.qualifications || []} />
+                    <RankingBox title="得意分野一覧" items={skillRankings.specialties || []} />
+                    <RankingBox title="検索回数ランキング" items={skillRankings.searches || []} />
+                    <RankingBox title="相談件数ランキング" items={skillRankings.consultations || []} />
+                  </div>
+                </section>
+
                 <section className="admin-panel">
                   <div className="admin-post-groups">
                     <details className="admin-post-group" open={activePendingCount > 0 || undefined}>
@@ -387,4 +446,68 @@ function itemRange(totalItems: number, currentPage: number) {
   const start = (currentPage - 1) * ADMIN_PAGE_SIZE + 1;
   const end = Math.min(currentPage * ADMIN_PAGE_SIZE, totalItems);
   return `全${totalItems}件中 ${start}〜${end}件を表示`;
+}
+
+function RankingBox({ title, items }: { title: string; items: RankingItem[] }) {
+  return (
+    <div className="ranking-box">
+      <h3>{title}</h3>
+      {items.length ? (
+        <ol>
+          {items.map((item) => (
+            <li key={`${title}-${item.name}`}>
+              <span>{item.name}</span>
+              <strong>{item.count}</strong>
+            </li>
+          ))}
+        </ol>
+      ) : <p>データがありません。</p>}
+    </div>
+  );
+}
+
+function exportDealsCsv(deals: BusinessDeal[], users: Profile[]) {
+  const profileMap = new Map(users.map((profile) => [profile.id, profile]));
+  const rows = [
+    ["商談名", "状態", "依頼者", "受注者", "紹介者", "金額", "コメント", "作成日"],
+    ...deals.map((deal) => [
+      deal.title,
+      dealStatusLabels[deal.status],
+      profileName(profileMap.get(deal.requester_id)),
+      profileName(profileMap.get(deal.contractor_id)),
+      profileName(deal.introducer_id ? profileMap.get(deal.introducer_id) : undefined),
+      String(deal.amount || ""),
+      deal.comment || "",
+      deal.created_at || "",
+    ]),
+  ];
+  downloadCsv("business-deals.csv", rows);
+}
+
+function exportSkillsCsv(rankings: SkillRankings) {
+  const rows = [["種別", "名称", "件数"]];
+  for (const [label, items] of [
+    ["資格", rankings.qualifications || []],
+    ["得意分野", rankings.specialties || []],
+    ["検索", rankings.searches || []],
+    ["相談", rankings.consultations || []],
+  ] as const) {
+    for (const item of items) rows.push([label, item.name, String(item.count)]);
+  }
+  downloadCsv("skill-rankings.csv", rows);
+}
+
+function downloadCsv(filename: string, rows: string[][]) {
+  const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
+  const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function profileName(profile?: Profile) {
+  return profile?.full_name || profile?.company_name || profile?.email || "";
 }

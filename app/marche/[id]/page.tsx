@@ -6,6 +6,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { DeleteButton } from "@/components/delete-button";
+import { DealStartButton } from "@/components/deal-start-button";
 import { LikeButton } from "@/components/like-button";
 import { MessageUserButton } from "@/components/message-user-button";
 import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
@@ -76,6 +77,15 @@ export default function MarcheDetailPage() {
               </article>
               <aside className="side-card">
                 <h3>イベントについて相談</h3>
+                <DealStartButton
+                  contractorId={post.user_id}
+                  sourceType="marche_posts"
+                  sourceId={id}
+                  title={post.event_name}
+                  category={post.event_type || "イベント"}
+                  area={post.location}
+                  description={post.description}
+                />
                 <MessageUserButton recipientId={post.user_id} />
                 {canManage && (
                   <>

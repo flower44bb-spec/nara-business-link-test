@@ -48,13 +48,25 @@ export default function MemberDetailPage() {
                   <div className="detail-row"><dt>自己紹介</dt><dd>{member.bio || "未設定"}</dd></div>
                   <div className="detail-row"><dt>相談できること</dt><dd>{member.can_help_with || "未設定"}</dd></div>
                   <div className="detail-row"><dt>つながりたい業種</dt><dd>{member.wants_to_connect_with || "未設定"}</dd></div>
+                  <div className="detail-row"><dt>保有資格</dt><dd><ChipList values={member.qualifications || []} /></dd></div>
+                  <div className="detail-row"><dt>得意分野</dt><dd><ChipList values={member.specialties || []} /></dd></div>
+                  <div className="detail-row"><dt>対応可能業務</dt><dd>{member.available_work || "未設定"}</dd></div>
+                  <div className="detail-row"><dt>対応エリア</dt><dd><ChipList values={member.service_areas || []} /></dd></div>
+                  <div className="detail-row"><dt>経験年数</dt><dd>{member.experience_years || "未設定"}</dd></div>
                   <div className="detail-row"><dt>Webサイト</dt><dd><ProfileLink url={member.website_url} label="Webサイトを開く" /></dd></div>
                   <div className="detail-row"><dt>SNS</dt><dd><ProfileLink url={member.sns_url} label="SNSを開く" /></dd></div>
+                  <div className="detail-row"><dt>ポートフォリオ</dt><dd><ProfileLink url={member.portfolio_url} label="ポートフォリオを開く" /></dd></div>
+                  <div className="detail-row"><dt>ホームページ</dt><dd><ProfileLink url={member.homepage_url} label="ホームページを開く" /></dd></div>
+                  <div className="detail-row"><dt>Instagram</dt><dd><ProfileLink url={member.instagram_url} label="Instagramを開く" /></dd></div>
+                  <div className="detail-row"><dt>Facebook</dt><dd><ProfileLink url={member.facebook_url} label="Facebookを開く" /></dd></div>
+                  <div className="detail-row"><dt>X</dt><dd><ProfileLink url={member.x_url} label="Xを開く" /></dd></div>
+                  <div className="detail-row"><dt>その他SNS</dt><dd><ProfileLink url={member.other_sns_url} label="SNSを開く" /></dd></div>
                 </dl>
               </article>
               <aside className="side-card">
                 <h3>この会員とつながる</h3>
                 <p className="summary">仕事や連携について、サイト内DMで直接相談できます。</p>
+                <p className="summary"><strong>この会員に相談する</strong></p>
                 <MessageUserButton recipientId={member.id} />
                 {user?.id === member.id && (
                   <Link className="button secondary" href="/members/me/edit"><Pencil size={16} /> プロフィール編集</Link>
@@ -90,4 +102,9 @@ function normalizeExternalUrl(url?: string | null) {
   } catch {
     return null;
   }
+}
+
+function ChipList({ values }: { values: string[] }) {
+  if (!values.length) return "未設定";
+  return <div className="chip-list">{values.map((value) => <span className="chip" key={value}>{value}</span>)}</div>;
 }

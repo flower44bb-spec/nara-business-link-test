@@ -15,6 +15,7 @@ import { LikeButton } from "@/components/like-button";
 import { MessageUserButton } from "@/components/message-user-button";
 import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
 import { InstagramPublishButton } from "@/components/instagram-publish-button";
+import { DealStartButton } from "@/components/deal-start-button";
 
 export default function BusinessDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -95,6 +96,15 @@ export default function BusinessDetailPage() {
                     <DeleteButton table="businesses" id={id} redirect="/businesses" />
                   </>
                 )}
+                <DealStartButton
+                  contractorId={business.user_id}
+                  sourceType="businesses"
+                  sourceId={id}
+                  title={recordTitle(business)}
+                  category={String(business.category || "")}
+                  area={String(business.area || "")}
+                  description={recordDescription(business)}
+                />
                 <MessageUserButton recipientId={business.user_id} />
                 <InstagramPublishButton business={business} />
               </aside>

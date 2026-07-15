@@ -14,6 +14,7 @@ const links = [
   ["/marche", "イベント"],
   ["/members", "青年部員"],
   ["/messages", "DM"],
+  ["/deals", "商談"],
 ];
 
 export function Header() {

@@ -14,6 +14,7 @@ import type { BaseRecord, PostAuthor, ResourceConfig } from "@/types";
 import { LikeButton } from "./like-button";
 import { MessageUserButton } from "./message-user-button";
 import { PostAuthor as PostAuthorDisplay } from "./post-author";
+import { DealStartButton } from "./deal-start-button";
 
 export function ResourceDetail({ config }: { config: ResourceConfig }) {
   const { id } = useParams<{ id: string }>();
@@ -95,6 +96,9 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
                 {config.table === "problems" && item.resolved_at && (
                   <span className="status successful">解決済み</span>
                 )}
+                {item.image_url && (
+                  <img className="detail-image" src={String(item.image_url)} alt={recordTitle(item)} />
+                )}
                 <h1>{recordTitle(item)}</h1>
                 <div className="meta">
                   {item.area && <span><MapPin size={14} /> {String(item.area)}</span>}
@@ -113,6 +117,12 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
                         <dd>{Number(item.transaction_amount).toLocaleString("ja-JP")}円</dd>
                       </div>
                     )}
+                    {item.deal_id && (
+                      <div className="detail-row">
+                        <dt>元になった商談</dt>
+                        <dd><Link href={`/deals/${item.deal_id}`}>商談履歴を見る</Link></dd>
+                      </div>
+                    )}
                   </dl>
                 )}
                 {config.table === "successes" && !item.result && item.transaction_amount != null && (
@@ -121,6 +131,12 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
                       <dt>取引金額</dt>
                       <dd>{Number(item.transaction_amount).toLocaleString("ja-JP")}円</dd>
                     </div>
+                    {item.deal_id && (
+                      <div className="detail-row">
+                        <dt>元になった商談</dt>
+                        <dd><Link href={`/deals/${item.deal_id}`}>商談履歴を見る</Link></dd>
+                      </div>
+                    )}
                   </dl>
                 )}
               </article>
@@ -149,6 +165,17 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
                   </Link>
                 )}
                 {canDelete && <DeleteButton table={config.table} id={id} redirect={`/${config.table}`} />}
+                {config.table !== "successes" && (
+                  <DealStartButton
+                    contractorId={item.user_id}
+                    sourceType={config.table}
+                    sourceId={id}
+                    title={recordTitle(item)}
+                    category={String(item.category || "")}
+                    area={String(item.area || "")}
+                    description={recordDescription(item)}
+                  />
+                )}
                 <MessageUserButton recipientId={item.user_id} />
               </aside>
             </div>
