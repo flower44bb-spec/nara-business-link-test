@@ -150,17 +150,15 @@ export default function AdminPage() {
     setMessage("");
     setError("");
     const nextFeatured = !post.is_featured;
-    const { error: updateError } = await supabase
-      .from(post.sourceTable)
-      .update({
-        is_featured: nextFeatured,
-        featured_at: nextFeatured ? new Date().toISOString() : null,
-      })
-      .eq("id", post.id);
+    const { error: updateError } = await supabase.rpc("admin_set_featured_status", {
+      target_table: post.sourceTable,
+      target_id: post.id,
+      next_featured: nextFeatured,
+    });
 
     if (updateError) {
       console.error("Failed to update featured status:", updateError);
-      setError("優先表示を更新できませんでした。Supabaseで優先表示用SQLが実行済みか確認してください。");
+      setError("優先表示を更新できませんでした。Supabaseで最新の優先表示用SQLが実行済みか確認してください。");
       return;
     }
 
