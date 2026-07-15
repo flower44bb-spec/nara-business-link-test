@@ -7,6 +7,7 @@ import { HomeLink, Loading, PageHero } from "@/components/ui";
 import { LikeButton } from "@/components/like-button";
 import { PostAuthor as PostAuthorDisplay } from "@/components/post-author";
 import { paginate, Pagination } from "@/components/pagination";
+import { sortFeaturedFirst } from "@/lib/featured-sort";
 import { fetchPostAuthors } from "@/lib/post-authors";
 import { supabase } from "@/lib/supabase";
 import type { MarchePost, PostAuthor } from "@/types";
@@ -24,7 +25,7 @@ export default function MarchePage() {
   useEffect(() => {
     supabase.from("marche_posts").select("*").eq("approval_status", "approved").order("event_date").then(async ({ data, error: fetchError }) => {
       if (fetchError) setError(fetchError.message);
-      const loadedPosts = (data as MarchePost[]) ?? [];
+      const loadedPosts = sortFeaturedFirst((data as MarchePost[]) ?? [], "event_date");
       setPosts(loadedPosts);
       try {
         const authorMap = await fetchPostAuthors(loadedPosts.map((post) => post.user_id));
@@ -115,6 +116,7 @@ export default function MarchePage() {
                       {post.image_url ? <img src={post.image_url} alt={post.event_name} /> : <Store size={48} />}
                     </div>
                     <div className="card-body">
+                      {post.is_featured && <span className="featured-badge">注目</span>}
                       <span className="tag">{post.event_type || "マルシェ"}</span>
                       <h3>{post.event_name}</h3>
                       <PostAuthorDisplay author={authors[post.user_id]} compact />

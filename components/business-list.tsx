@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { recordDescription, recordTitle } from "@/lib/records";
 import { fetchPostAuthors } from "@/lib/post-authors";
+import { sortFeaturedFirst } from "@/lib/featured-sort";
 import type { BaseRecord, PostAuthor } from "@/types";
 import { BusinessCard } from "./business-card";
 import { Empty, Loading } from "./ui";
@@ -27,7 +28,7 @@ export function BusinessList() {
       supabase.from("likes").select("target_id").eq("target_type", "businesses"),
     ]).then(async ([{ data, error: fetchError }, likesResult]) => {
         if (fetchError) setError(fetchError.message);
-        const loadedBusinesses = (data as BaseRecord[]) ?? [];
+        const loadedBusinesses = sortFeaturedFirst((data as BaseRecord[]) ?? []);
         setBusinesses(loadedBusinesses);
         const counts: Record<string, number> = {};
         for (const like of likesResult.data ?? []) counts[like.target_id] = (counts[like.target_id] ?? 0) + 1;

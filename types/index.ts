@@ -16,6 +16,8 @@ export type BaseRecord = {
   collaboration_status?: "open" | "successful" | null;
   resolved_at?: string | null;
   transaction_amount?: number | null;
+  is_featured?: boolean | null;
+  featured_at?: string | null;
   approval_status?: "pending" | "approved" | "rejected" | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -86,6 +88,8 @@ export type MarchePost = {
   booth_fee?: string | null;
   organizer: string;
   image_url?: string | null;
+  is_featured?: boolean | null;
+  featured_at?: string | null;
   approval_status: "pending" | "approved" | "rejected";
   created_at: string;
   updated_at?: string | null;

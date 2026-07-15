@@ -22,6 +22,7 @@ export function ResourceCard({
         {item.approval_status && item.approval_status !== "approved" && (
           <span className={`status ${item.approval_status}`}>{item.approval_status === "pending" ? "承認待ち" : "却下"}</span>
         )}
+        {item.is_featured && <span className="featured-badge">注目</span>}
         <span className="tag">{String(item.category || config.label)}</span>
         {config.table === "collaborations" && item.collaboration_status === "successful" && (
           <span className="status successful">コラボ成功</span>

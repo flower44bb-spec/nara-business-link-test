@@ -27,6 +27,7 @@ export function BusinessCard({
         {business.approval_status && business.approval_status !== "approved" && (
           <span className={`status ${business.approval_status}`}>{business.approval_status === "pending" ? "承認待ち" : "却下"}</span>
         )}
+        {business.is_featured && <span className="featured-badge">注目</span>}
         <span className="tag">{String(business.category || "業種未設定")}</span>
         <h3>{recordTitle(business)}</h3>
         <PostAuthorDisplay author={author} compact />

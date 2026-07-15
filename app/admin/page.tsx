@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Eye, RefreshCw, Shield, Trash2, X } from "lucide-react";
+import { Check, Eye, RefreshCw, Shield, Star, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ApprovalGate } from "@/components/approval-gate";
@@ -144,6 +144,28 @@ export default function AdminPage() {
       setMessage(`「${postTitle(post)}」を${action === "approve" ? "承認" : action === "reject" ? "却下" : "削除"}しました。`);
       await load();
     }
+  }
+
+  async function toggleFeatured(post: PendingContent) {
+    setMessage("");
+    setError("");
+    const nextFeatured = !post.is_featured;
+    const { error: updateError } = await supabase
+      .from(post.sourceTable)
+      .update({
+        is_featured: nextFeatured,
+        featured_at: nextFeatured ? new Date().toISOString() : null,
+      })
+      .eq("id", post.id);
+
+    if (updateError) {
+      console.error("Failed to update featured status:", updateError);
+      setError("優先表示を更新できませんでした。Supabaseで優先表示用SQLが実行済みか確認してください。");
+      return;
+    }
+
+    setMessage(`「${postTitle(post)}」を${nextFeatured ? "優先表示に設定" : "優先表示から解除"}しました。`);
+    await load();
   }
 
   return (
@@ -290,7 +312,10 @@ export default function AdminPage() {
                               <tbody>
                                 {tablePosts.length ? tablePosts.map((post) => (
                                   <tr key={`${post.sourceTable}-${post.id}`}>
-                                    <td>{postTitle(post)}</td>
+                                    <td>
+                                      {post.is_featured && <span className="featured-badge">優先</span>}
+                                      {postTitle(post)}
+                                    </td>
                                     <td>{post.author?.full_name || "未設定"}</td>
                                     <td>{post.author?.local_chapter || "-"} / {post.author?.company_name || "-"}</td>
                                     <td>
@@ -307,6 +332,11 @@ export default function AdminPage() {
                                       <Link className="icon-action" href={postHref(post)}>
                                         <Eye size={16} /> 詳細
                                       </Link>
+                                      {post.approval_status === "approved" && (
+                                        <button className={post.is_featured ? "icon-action featured" : "icon-action"} type="button" onClick={() => toggleFeatured(post)}>
+                                          <Star size={16} /> {post.is_featured ? "優先解除" : "優先表示"}
+                                        </button>
+                                      )}
                                       {post.approval_status !== "approved" && (
                                         <button className="icon-action approve" type="button" onClick={() => updatePost(post, "approve")}>
                                           <Check size={16} /> 承認

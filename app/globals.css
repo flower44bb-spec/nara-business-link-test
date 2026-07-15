@@ -220,6 +220,10 @@ button { cursor: pointer; }
 .card-image svg { opacity: .7; }
 .card-body { padding: 23px; }
 .tag { display: inline-flex; padding: 5px 9px; color: var(--persimmon); background: #f5e5dd; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.featured-badge {
+  display: inline-flex; padding: 5px 9px; margin-right: 7px; color: #7b5410;
+  background: #ffedb5; border: 1px solid #e6c66a; border-radius: 999px; font-size: 11px; font-weight: 800;
+}
 .card h3 { margin: 13px 0 10px; font-size: 19px; line-height: 1.55; }
 .meta { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; }
 .meta span { display: inline-flex; align-items: center; gap: 5px; }
@@ -357,6 +361,7 @@ button { cursor: pointer; }
 .icon-action { padding: 7px 10px; display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--line); border-radius: 4px; background: white; font-size: 11px; font-weight: 800; }
 .icon-action.approve { color: #176c53; border-color: #9acdbc; }
 .icon-action.reject, .icon-action.delete { color: #9a3932; border-color: #e4b3af; }
+.icon-action.featured { color: #7b5410; border-color: #e6c66a; background: #fff8dd; }
 .analytics-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
 .analytics-heading h2 { margin-bottom: 8px; }
 .analytics-period {

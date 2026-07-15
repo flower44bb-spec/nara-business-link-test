@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { recordDescription, recordTitle } from "@/lib/records";
 import { fetchPostAuthors } from "@/lib/post-authors";
+import { sortFeaturedFirst } from "@/lib/featured-sort";
 import { supabase } from "@/lib/supabase";
 import type { BaseRecord, PostAuthor, ResourceConfig } from "@/types";
 import { Empty, Loading } from "./ui";
@@ -25,7 +26,7 @@ export function ResourceList({ config }: { config: ResourceConfig }) {
       supabase.from("likes").select("target_id").eq("target_type", config.table),
     ]).then(async ([{ data, error: fetchError }, likesResult]) => {
         if (fetchError) setError(fetchError.message);
-        const loadedItems = (data as BaseRecord[]) ?? [];
+        const loadedItems = sortFeaturedFirst((data as BaseRecord[]) ?? []);
         setItems(loadedItems);
         const counts: Record<string, number> = {};
         for (const like of likesResult.data ?? []) counts[like.target_id] = (counts[like.target_id] ?? 0) + 1;
