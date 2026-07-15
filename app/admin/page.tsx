@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, RefreshCw, Shield, Trash2, X } from "lucide-react";
+import { Check, Eye, RefreshCw, Shield, Trash2, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ApprovalGate } from "@/components/approval-gate";
 import { Pagination, paginate } from "@/components/pagination";
@@ -303,6 +304,9 @@ export default function AdminPage() {
                                     </td>
                                     <td>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : "-"}</td>
                                     <td className="action-cell">
+                                      <Link className="icon-action" href={postHref(post)}>
+                                        <Eye size={16} /> 詳細
+                                      </Link>
                                       {post.approval_status !== "approved" && (
                                         <button className="icon-action approve" type="button" onClick={() => updatePost(post, "approve")}>
                                           <Check size={16} /> 承認
@@ -343,6 +347,11 @@ function postTitle(post: PendingContent) {
     return String((post as unknown as MarchePost).event_name || "名称未設定");
   }
   return recordTitle(post);
+}
+
+function postHref(post: PendingContent) {
+  const path = post.sourceTable === "marche_posts" ? "marche" : post.sourceTable;
+  return `/${path}/${post.id}`;
 }
 
 function itemRange(totalItems: number, currentPage: number) {
