@@ -25,7 +25,7 @@ export default function EditMyProfilePage() {
   const [message, setMessage] = useState("");
   const [profileApplied, setProfileApplied] = useState(false);
 
-  const { clearDraft, hasDraft, restored } = useFormDraft({
+  const { clearDraft, hasDraft, isEditingElsewhere, restored } = useFormDraft({
     key: `draft:profile:${user?.id || "guest"}`,
     value: { form, lineEnabled },
     enabled: Boolean(user && profile),
@@ -112,6 +112,11 @@ export default function EditMyProfilePage() {
                 {error && <p className="error">{error}</p>}
                 {message && <p className="notice">{message}</p>}
                 <p className="draft-note">入力内容はこの端末に一時保存されます。画像は再選択が必要です。</p>
+                {isEditingElsewhere && (
+                  <p className="pending-banner">
+                    別のウインドウでもプロフィールを編集中です。このウインドウの入力内容は個別に一時保存されます。
+                  </p>
+                )}
                 {!isApproved && (
                   <p className="pending-banner">
                     管理者承認前でも会員情報を修正できます。保存後も承認状態は変わりません。

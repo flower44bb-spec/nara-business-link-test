@@ -31,7 +31,7 @@ export function BusinessForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const draft = { name, category, area, description, services, needs, contact };
-  const { clearDraft } = useFormDraft({
+  const { clearDraft, isEditingElsewhere } = useFormDraft({
     key: `draft:businesses:${business?.id || "new"}`,
     fallbackKeys: [`draft:businesses:${business?.id || "new"}:${user?.id || "guest"}`],
     value: draft,
@@ -117,6 +117,11 @@ export function BusinessForm({
     <form onSubmit={submit}>
       {error && <p className="error">{error}</p>}
       <p className="draft-note">入力内容はこの端末に一時保存されます。画像は再選択が必要です。</p>
+      {isEditingElsewhere && (
+        <p className="pending-banner">
+          別のウインドウでも同じフォームを編集中です。このウインドウの入力内容は個別に一時保存されます。
+        </p>
+      )}
       <div className="field">
         <label htmlFor="name">事業者名 *</label>
         <input id="name" value={name} onChange={(event) => setName(event.target.value)} required />

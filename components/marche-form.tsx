@@ -27,7 +27,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
   const [imageProcessing, setImageProcessing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const { clearDraft } = useFormDraft({
+  const { clearDraft, isEditingElsewhere } = useFormDraft({
     key: `draft:marche:${post?.id || "new"}`,
     fallbackKeys: [`draft:marche:${post?.id || "new"}:${user?.id || "guest"}`],
     value: form,
@@ -88,6 +88,11 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
       <form onSubmit={submit}>
         {error && <p className="error">{error}</p>}
         <p className="draft-note">入力内容はこの端末に一時保存されます。画像は再選択が必要です。</p>
+        {isEditingElsewhere && (
+          <p className="pending-banner">
+            別のウインドウでも同じフォームを編集中です。このウインドウの入力内容は個別に一時保存されます。
+          </p>
+        )}
         {[
           ["event_name", "イベント名", "text"], ["event_date", "開催日", "date"],
           ["location", "開催場所", "text"], ["desired_industries", "募集業種", "text"],

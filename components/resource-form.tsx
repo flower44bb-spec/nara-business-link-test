@@ -30,7 +30,7 @@ export function ResourceForm({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const draft = { title, category, area, description, result, transactionAmount };
-  const { clearDraft } = useFormDraft({
+  const { clearDraft, isEditingElsewhere } = useFormDraft({
     key: `draft:${config.table}:${item?.id || "new"}`,
     fallbackKeys: [`draft:${config.table}:${item?.id || "new"}:${user?.id || "guest"}`],
     value: draft,
@@ -90,6 +90,11 @@ export function ResourceForm({
     <form onSubmit={submit}>
       {error && <p className="error">{error}</p>}
       <p className="draft-note">入力内容はこの端末に一時保存されます。</p>
+      {isEditingElsewhere && (
+        <p className="pending-banner">
+          別のウインドウでも同じフォームを編集中です。このウインドウの入力内容は個別に一時保存されます。
+        </p>
+      )}
       <div className="field">
         <label htmlFor="title">タイトル *</label>
         <input id="title" placeholder={config.titlePlaceholder} value={title} onChange={(event) => setTitle(event.target.value)} required />
