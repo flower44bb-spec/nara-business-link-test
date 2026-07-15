@@ -23,10 +23,21 @@ export default function EditMyProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [profileApplied, setProfileApplied] = useState(false);
+
+  const { clearDraft, hasDraft, restored } = useFormDraft({
+    key: `draft:profile:${user?.id || "guest"}`,
+    value: { form, lineEnabled },
+    enabled: Boolean(user && profile),
+    onRestore: (saved) => {
+      setForm(saved.form);
+      setLineEnabled(saved.lineEnabled);
+    },
+  });
 
   useEffect(() => {
-    if (profile) {
-      setForm({
+    if (!profile || !restored || hasDraft || profileApplied) return;
+    setForm({
       full_name: profile.full_name || "",
       local_chapter: profile.local_chapter || "",
       position: profile.position || "",
@@ -38,20 +49,10 @@ export default function EditMyProfilePage() {
       website_url: profile.website_url || "",
       sns_url: profile.sns_url || "",
       line_notify_target: profile.line_notify_target || "",
-      });
-      setLineEnabled(Boolean(profile.line_notifications_enabled));
-    }
-  }, [profile]);
-
-  const { clearDraft } = useFormDraft({
-    key: `draft:profile:${user?.id || "guest"}`,
-    value: { form, lineEnabled },
-    enabled: Boolean(user && profile),
-    onRestore: (saved) => {
-      setForm(saved.form);
-      setLineEnabled(saved.lineEnabled);
-    },
-  });
+    });
+    setLineEnabled(Boolean(profile.line_notifications_enabled));
+    setProfileApplied(true);
+  }, [hasDraft, profile, profileApplied, restored]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();

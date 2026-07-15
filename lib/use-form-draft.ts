@@ -4,54 +4,63 @@ import { useEffect, useRef, useState } from "react";
 
 export function useFormDraft<T>({
   enabled = true,
+  fallbackKeys = [],
   key,
   onRestore,
   value,
 }: {
   enabled?: boolean;
+  fallbackKeys?: string[];
   key: string;
   onRestore: (draft: T) => void;
   value: T;
 }) {
   const [restored, setRestored] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
   const restoreRef = useRef(onRestore);
-  const timerRef = useRef<number | null>(null);
   const valueRef = useRef(value);
   const clearedRef = useRef(false);
   restoreRef.current = onRestore;
   valueRef.current = value;
+  const storageKeys = [key, ...fallbackKeys].filter(
+    (item, index, array) => item && array.indexOf(item) === index,
+  );
 
   function saveDraft() {
     if (clearedRef.current) return;
-    try {
-      window.localStorage.setItem(key, JSON.stringify(valueRef.current));
-    } catch {
-      // The form remains usable when storage is unavailable or full.
+    for (const storageKey of storageKeys) {
+      try {
+        window.localStorage.setItem(storageKey, JSON.stringify(valueRef.current));
+      } catch {
+        // The form remains usable when storage is unavailable or full.
+      }
     }
   }
 
   useEffect(() => {
     setRestored(false);
+    setHasDraft(false);
     clearedRef.current = false;
     if (!enabled) return;
 
-    try {
-      const stored = window.localStorage.getItem(key);
-      if (stored) restoreRef.current(JSON.parse(stored) as T);
-    } catch {
-      window.localStorage.removeItem(key);
+    for (const storageKey of storageKeys) {
+      try {
+        const stored = window.localStorage.getItem(storageKey);
+        if (stored) {
+          restoreRef.current(JSON.parse(stored) as T);
+          setHasDraft(true);
+          break;
+        }
+      } catch {
+        window.localStorage.removeItem(storageKey);
+      }
     }
     setRestored(true);
-  }, [enabled, key]);
+  }, [enabled, key, fallbackKeys.join("|")]);
 
   useEffect(() => {
     if (!enabled || !restored) return;
-    timerRef.current = window.setTimeout(() => {
-      saveDraft();
-    }, 300);
-    return () => {
-      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    };
+    saveDraft();
   }, [enabled, key, restored, value]);
 
   useEffect(() => {
@@ -73,16 +82,14 @@ export function useFormDraft<T>({
 
   function clearDraft() {
     clearedRef.current = true;
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    try {
-      window.localStorage.removeItem(key);
-    } catch {
-      // Storage may be unavailable in private browsing.
+    for (const storageKey of storageKeys) {
+      try {
+        window.localStorage.removeItem(storageKey);
+      } catch {
+        // Storage may be unavailable in private browsing.
+      }
     }
   }
 
-  return { clearDraft, restored };
+  return { clearDraft, hasDraft, restored };
 }

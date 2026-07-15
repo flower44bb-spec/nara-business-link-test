@@ -28,7 +28,8 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const { clearDraft } = useFormDraft({
-    key: `draft:marche:${post?.id || "new"}:${user?.id || "guest"}`,
+    key: `draft:marche:${post?.id || "new"}`,
+    fallbackKeys: [`draft:marche:${post?.id || "new"}:${user?.id || "guest"}`],
     value: form,
     enabled: Boolean(user),
     onRestore: setForm,

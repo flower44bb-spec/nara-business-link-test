@@ -32,7 +32,8 @@ export function BusinessForm({
   const [error, setError] = useState("");
   const draft = { name, category, area, description, services, needs, contact };
   const { clearDraft } = useFormDraft({
-    key: `draft:businesses:${business?.id || "new"}:${user?.id || "guest"}`,
+    key: `draft:businesses:${business?.id || "new"}`,
+    fallbackKeys: [`draft:businesses:${business?.id || "new"}:${user?.id || "guest"}`],
     value: draft,
     enabled: Boolean(user),
     onRestore: (saved) => {

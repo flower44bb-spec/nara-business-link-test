@@ -31,7 +31,8 @@ export function ResourceForm({
   const [error, setError] = useState("");
   const draft = { title, category, area, description, result, transactionAmount };
   const { clearDraft } = useFormDraft({
-    key: `draft:${config.table}:${item?.id || "new"}:${user?.id || "guest"}`,
+    key: `draft:${config.table}:${item?.id || "new"}`,
+    fallbackKeys: [`draft:${config.table}:${item?.id || "new"}:${user?.id || "guest"}`],
     value: draft,
     enabled: Boolean(user),
     onRestore: (saved) => {
