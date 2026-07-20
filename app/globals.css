@@ -97,6 +97,41 @@ button { cursor: pointer; }
 .stat-card strong.stat-amount.extra-compact { font-size: clamp(14px, 1.4vw, 20px); }
 .stat-card span:last-child { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .stats-note { margin: 12px 3px 0; color: var(--muted); font-size: 11px; text-align: right; }
+.featured-showcase {
+  margin-top: 24px; padding: clamp(22px, 4vw, 34px); position: relative; overflow: hidden;
+  color: white; background:
+    radial-gradient(circle at 90% 20%, rgba(231, 201, 127, .32), transparent 30%),
+    linear-gradient(135deg, #143f72 0%, #174f8f 58%, #245f99 100%);
+  border: 1px solid rgba(231, 201, 127, .42); border-radius: 12px; box-shadow: var(--shadow);
+}
+.featured-showcase::after {
+  content: ""; width: 260px; height: 260px; position: absolute; right: -90px; bottom: -155px;
+  border: 1px solid rgba(255,255,255,.18); border-radius: 50%;
+  box-shadow: 0 0 0 42px rgba(255,255,255,.04), 0 0 0 86px rgba(255,255,255,.025);
+}
+.featured-showcase-heading { max-width: 760px; position: relative; z-index: 1; }
+.featured-showcase-heading > span {
+  display: inline-flex; align-items: center; gap: 7px; color: #f5d889;
+  font-size: 12px; font-weight: 900; letter-spacing: .16em;
+}
+.featured-showcase h2 { margin: 9px 0 8px; font-family: "Shippori Mincho", serif; font-size: clamp(25px, 4vw, 38px); }
+.featured-showcase p { margin: 0; color: rgba(255,255,255,.82); line-height: 1.8; }
+.featured-showcase-grid {
+  margin-top: 22px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; position: relative; z-index: 1;
+}
+.featured-showcase-card {
+  min-height: 190px; padding: 20px; display: flex; flex-direction: column; gap: 10px;
+  background: rgba(255,255,255,.96); color: var(--ink); border: 1px solid rgba(245,216,137,.72);
+  border-radius: 9px; box-shadow: 0 18px 42px rgba(3, 23, 48, .22); transition: transform .18s, box-shadow .18s;
+}
+.featured-showcase-card:hover { transform: translateY(-4px); box-shadow: 0 22px 52px rgba(3, 23, 48, .3); }
+.featured-showcase-card strong { font-family: "Shippori Mincho", serif; font-size: 20px; line-height: 1.45; }
+.featured-showcase-card p { color: var(--muted); font-size: 13px; }
+.featured-showcase-empty {
+  grid-column: 1 / -1; padding: 22px; display: grid; gap: 6px; color: var(--ink);
+  background: rgba(255,255,255,.92); border: 1px dashed rgba(245,216,137,.95); border-radius: 8px;
+}
+.featured-showcase-empty span { color: var(--muted); font-size: 13px; }
 .home-post-panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 22px; }
 .home-post-panel {
   padding: 20px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow);
@@ -224,16 +259,33 @@ button { cursor: pointer; }
 }
 .pagination button:disabled { color: #aab5c1; background: #f2f5f8; cursor: not-allowed; }
 .pagination-ellipsis { min-width: 24px; color: var(--muted); text-align: center; }
-.card { overflow: hidden; }
+.card { overflow: hidden; position: relative; }
+.card.featured-card {
+  border-color: #d9b35d; box-shadow: 0 18px 48px rgba(197, 154, 66, .26), var(--shadow);
+  transform: translateY(-2px);
+}
+.card.featured-card::before {
+  content: ""; height: 5px; position: absolute; inset: 0 0 auto;
+  background: linear-gradient(90deg, #c59a42, #f0d98b, #bf5a35);
+  z-index: 2;
+}
+.featured-ribbon {
+  position: absolute; top: 15px; right: -37px; z-index: 3; width: 150px; padding: 7px 0;
+  color: #17365f; background: linear-gradient(90deg, #f7d77c, #fff1b8);
+  box-shadow: 0 8px 18px rgba(22,43,70,.18); font-size: 10px; font-weight: 900; letter-spacing: .08em;
+  text-align: center; transform: rotate(35deg);
+}
 .card-image { height: 190px; display: grid; place-items: center; color: white; background: linear-gradient(145deg, var(--green), #5e7d65); overflow: hidden; }
 .card-image img { width: 100%; height: 100%; object-fit: cover; }
 .card-image svg { opacity: .7; }
 .card-body { padding: 23px; }
 .tag { display: inline-flex; padding: 5px 9px; color: var(--persimmon); background: #f5e5dd; border-radius: 3px; font-size: 11px; font-weight: 800; }
 .featured-badge {
-  display: inline-flex; padding: 5px 9px; margin-right: 7px; color: #7b5410;
-  background: #ffedb5; border: 1px solid #e6c66a; border-radius: 999px; font-size: 11px; font-weight: 800;
+  display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; margin-right: 7px; color: #17365f;
+  background: linear-gradient(90deg, #ffedb5, #fff8da); border: 1px solid #e6c66a; border-radius: 999px;
+  box-shadow: 0 5px 14px rgba(197,154,66,.18); font-size: 11px; font-weight: 900;
 }
+.featured-badge::before { content: "★"; color: #bf5a35; font-size: 10px; }
 .card h3 { margin: 13px 0 10px; font-size: 19px; line-height: 1.55; }
 .meta { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; }
 .meta span { display: inline-flex; align-items: center; gap: 5px; }
@@ -443,7 +495,7 @@ button { cursor: pointer; }
   .analytics-grid { grid-template-columns: repeat(2, 1fr); }
   .analytics-columns { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .home-post-panels, .ranking-grid { grid-template-columns: 1fr; }
+  .featured-showcase-grid, .home-post-panels, .ranking-grid { grid-template-columns: 1fr; }
   .feature-grid, .card-grid, .member-grid { grid-template-columns: repeat(2, 1fr); }
   .instagram-card { grid-template-columns: auto 1fr; }
   .instagram-button { grid-column: 2; width: fit-content; }

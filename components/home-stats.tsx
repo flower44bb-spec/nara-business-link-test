@@ -39,6 +39,7 @@ const sources = [
 
 export function HomeStats() {
   const [stats, setStats] = useState(initialStats);
+  const [featuredPosts, setFeaturedPosts] = useState<HomePost[]>([]);
   const [latestPosts, setLatestPosts] = useState<HomePost[]>([]);
   const [urgentPosts, setUrgentPosts] = useState<HomePost[]>([]);
   const [popularPosts, setPopularPosts] = useState<HomePost[]>([]);
@@ -105,7 +106,26 @@ export function HomeStats() {
           return ((data as BaseRecord[]) ?? []).map((item) => ({ ...item, sourceTable: source.href, sourceLabel: source.label }));
         }),
       );
+      const featuredResults = await Promise.all(
+        sources.map(async (source) => {
+          const { data, error } = await supabase
+            .from(source.table)
+            .select("*")
+            .eq("approval_status", "approved")
+            .eq("is_featured", true)
+            .order("featured_at", { ascending: false })
+            .limit(4);
+          if (error) return [];
+          return ((data as BaseRecord[]) ?? []).map((item) => ({ ...item, sourceTable: source.href, sourceLabel: source.label }));
+        }),
+      );
       const combined = results.flat().sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
+      setFeaturedPosts(
+        featuredResults
+          .flat()
+          .sort((a, b) => String(b.featured_at || b.created_at || "").localeCompare(String(a.featured_at || a.created_at || "")))
+          .slice(0, 6),
+      );
       setLatestPosts(combined.slice(0, 5));
       setUrgentPosts(combined.filter((item) => `${recordTitle(item)} ${recordDescription(item)} ${item.category || ""}`.includes("急募")).slice(0, 5));
 
@@ -166,6 +186,28 @@ export function HomeStats() {
           ))}
         </div>
         <p className="stats-note">管理者承認済みの登録・実績を集計しています。</p>
+        <section className="featured-showcase" aria-label="注目ピックアップ">
+          <div className="featured-showcase-heading">
+            <span><Flame size={18} /> 管理者おすすめ</span>
+            <h2>いま見てほしい注目情報</h2>
+            <p>青年部内の仕事づくりにつながりやすい投稿を、管理者が優先表示しています。</p>
+          </div>
+          <div className="featured-showcase-grid">
+            {featuredPosts.length ? featuredPosts.map((post) => (
+              <Link className="featured-showcase-card" href={`/${post.sourceTable}/${post.id}`} key={`featured-${post.sourceTable}-${post.id}`}>
+                <span className="featured-badge">注目ピックアップ</span>
+                <span className="tag">{post.sourceLabel}</span>
+                <strong>{recordTitle(post)}</strong>
+                <p>{recordDescription(post).slice(0, 90)}</p>
+              </Link>
+            )) : (
+              <div className="featured-showcase-empty">
+                <strong>注目投稿はまだ設定されていません。</strong>
+                <span>管理画面で優先表示をONにすると、ここに大きく表示されます。</span>
+              </div>
+            )}
+          </div>
+        </section>
         <div className="home-post-panels">
           <HomePostPanel title="新着投稿" posts={latestPosts} />
           <HomePostPanel title="急募案件" posts={urgentPosts} emptyText="急募の投稿はまだありません。" />
