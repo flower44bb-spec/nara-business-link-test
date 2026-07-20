@@ -112,12 +112,12 @@ export default function MarchePage() {
               <div className="card-grid">
                 {pagePosts.map((post) => (
                   <article className={post.is_featured ? "card featured-card" : "card"} key={post.id}>
-                    {post.is_featured && <div className="featured-ribbon">管理者おすすめ</div>}
+                    {post.is_featured && <div className="featured-ribbon">注目情報</div>}
                     <div className="card-image">
                       {post.image_url ? <img src={post.image_url} alt={post.event_name} /> : <Store size={48} />}
                     </div>
                     <div className="card-body">
-                      {post.is_featured && <span className="featured-badge">注目ピックアップ</span>}
+                      {post.is_featured && <span className="featured-badge">ピックアップ</span>}
                       <span className="tag">{post.event_type || "マルシェ"}</span>
                       <h3>{post.event_name}</h3>
                       <PostAuthorDisplay author={authors[post.user_id]} compact />

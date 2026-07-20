@@ -186,16 +186,16 @@ export function HomeStats() {
           ))}
         </div>
         <p className="stats-note">管理者承認済みの登録・実績を集計しています。</p>
-        <section className="featured-showcase" aria-label="注目ピックアップ">
+        <section className="featured-showcase" aria-label="注目情報">
           <div className="featured-showcase-heading">
-            <span><Flame size={18} /> 管理者おすすめ</span>
-            <h2>いま見てほしい注目情報</h2>
-            <p>青年部内の仕事づくりにつながりやすい投稿を、管理者が優先表示しています。</p>
+            <span><Flame size={18} /> Pickup Topics</span>
+            <h2>今、注目の情報</h2>
+            <p>青年部内の仕事づくりや地域のにぎわいにつながる情報を、見つけやすく表示しています。</p>
           </div>
           <div className="featured-showcase-grid">
             {featuredPosts.length ? featuredPosts.map((post) => (
               <Link className="featured-showcase-card" href={`/${post.sourceTable}/${post.id}`} key={`featured-${post.sourceTable}-${post.id}`}>
-                <span className="featured-badge">注目ピックアップ</span>
+                <span className="featured-badge">ピックアップ</span>
                 <span className="tag">{post.sourceLabel}</span>
                 <strong>{recordTitle(post)}</strong>
                 <p>{recordDescription(post).slice(0, 90)}</p>
