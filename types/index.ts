@@ -89,6 +89,14 @@ export type DirectMessage = {
   created_at: string;
 };
 
+export type LoginEvent = {
+  id: string;
+  user_id?: string | null;
+  email?: string | null;
+  user_agent?: string | null;
+  created_at: string;
+};
+
 export type DealStatus =
   | "started"
   | "in_progress"

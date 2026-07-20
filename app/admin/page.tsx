@@ -10,7 +10,7 @@ import { useAuth } from "@/components/auth-provider";
 import { recordTitle } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
 import { dealStatusLabels, formatDealAmount } from "@/lib/deals";
-import type { BaseRecord, BusinessDeal, MarchePost, Profile } from "@/types";
+import type { BaseRecord, BusinessDeal, LoginEvent, MarchePost, Profile } from "@/types";
 import { AdminAnalytics } from "@/components/admin-analytics";
 
 const contentTables = [
@@ -42,6 +42,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<Profile[]>([]);
   const [posts, setPosts] = useState<PendingContent[]>([]);
   const [deals, setDeals] = useState<BusinessDeal[]>([]);
+  const [loginEvents, setLoginEvents] = useState<LoginEvent[]>([]);
   const [skillRankings, setSkillRankings] = useState<SkillRankings>({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -59,9 +60,10 @@ export default function AdminPage() {
   async function load() {
     setLoading(true);
     setError("");
-    const [profileResult, dealResult, rankingResult, ...postResults] = await Promise.all([
+    const [profileResult, dealResult, loginResult, rankingResult, ...postResults] = await Promise.all([
       supabase.from("profiles").select("*").order("created_at"),
       supabase.from("business_deals").select("*").order("updated_at", { ascending: false }),
+      supabase.from("login_events").select("*").order("created_at", { ascending: false }).limit(100),
       supabase.rpc("admin_skill_rankings"),
       ...contentTables.map(({ table }) =>
         supabase.from(table).select("*").order("created_at", { ascending: false }),
@@ -75,6 +77,7 @@ export default function AdminPage() {
     const profileMap = new Map(loadedUsers.map((profile) => [profile.id, profile]));
     setUsers(loadedUsers);
     setDeals((dealResult.data as BusinessDeal[]) ?? []);
+    setLoginEvents((loginResult.data as LoginEvent[]) ?? []);
     if (!rankingResult.error) setSkillRankings((rankingResult.data as SkillRankings) ?? {});
     const combined: PendingContent[] = [];
     postResults.forEach((result, index) => {
@@ -197,6 +200,33 @@ export default function AdminPage() {
             {loading ? <Loading /> : (
               <div className="admin-sections">
                 <AdminAnalytics />
+                <section className="admin-panel">
+                  <h2>ログイン履歴 <span>{loginEvents.length}</span></h2>
+                  <p className="admin-panel-help">直近100件のログイン成功履歴です。誰がいつログインしたかを確認できます。</p>
+                  <button className="icon-action" type="button" onClick={() => exportLoginEventsCsv(loginEvents, users)}>
+                    <Download size={16} /> ログイン履歴CSV出力
+                  </button>
+                  <div className="admin-table-wrap">
+                    <table className="admin-table">
+                      <thead><tr><th>ログイン日時</th><th>氏名</th><th>メール</th><th>所属・会社</th><th>利用環境</th></tr></thead>
+                      <tbody>
+                        {loginEvents.length ? loginEvents.map((event) => {
+                          const profile = event.user_id ? users.find((item) => item.id === event.user_id) : undefined;
+                          return (
+                            <tr key={event.id}>
+                              <td>{new Date(event.created_at).toLocaleString("ja-JP")}</td>
+                              <td>{profile?.full_name || "未設定"}</td>
+                              <td>{event.email || profile?.email || "未設定"}</td>
+                              <td>{profile?.local_chapter || "-"} / {profile?.company_name || "-"}</td>
+                              <td>{shortUserAgent(event.user_agent)}</td>
+                            </tr>
+                          );
+                        }) : <tr><td colSpan={5}>ログイン履歴はまだありません。Supabaseでログイン履歴SQLが実行済みか確認してください。</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </section>
+
                 <section className="admin-panel">
                   <h2>商談管理 <span>{deals.length}</span></h2>
                   <p className="admin-panel-help">投稿やDMから始まった商談の進捗、金額、成功事例への変換状況を確認できます。</p>
@@ -497,6 +527,25 @@ function exportSkillsCsv(rankings: SkillRankings) {
   downloadCsv("skill-rankings.csv", rows);
 }
 
+function exportLoginEventsCsv(events: LoginEvent[], users: Profile[]) {
+  const profileMap = new Map(users.map((profile) => [profile.id, profile]));
+  const rows = [
+    ["ログイン日時", "氏名", "メール", "所属単会", "会社名", "利用環境"],
+    ...events.map((event) => {
+      const profile = event.user_id ? profileMap.get(event.user_id) : undefined;
+      return [
+        event.created_at ? new Date(event.created_at).toLocaleString("ja-JP") : "",
+        profile?.full_name || "",
+        event.email || profile?.email || "",
+        profile?.local_chapter || "",
+        profile?.company_name || "",
+        event.user_agent || "",
+      ];
+    }),
+  ];
+  downloadCsv("login-events.csv", rows);
+}
+
 function downloadCsv(filename: string, rows: string[][]) {
   const csv = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")).join("\n");
   const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
@@ -510,4 +559,13 @@ function downloadCsv(filename: string, rows: string[][]) {
 
 function profileName(profile?: Profile) {
   return profile?.full_name || profile?.company_name || profile?.email || "";
+}
+
+function shortUserAgent(userAgent?: string | null) {
+  if (!userAgent) return "未取得";
+  if (userAgent.includes("iPhone")) return "iPhone / Safari等";
+  if (userAgent.includes("Android")) return "Android / Chrome等";
+  if (userAgent.includes("Macintosh")) return "Mac / Safari・Chrome等";
+  if (userAgent.includes("Windows")) return "Windows / Edge・Chrome等";
+  return userAgent.slice(0, 80);
 }

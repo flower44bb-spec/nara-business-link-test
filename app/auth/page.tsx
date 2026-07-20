@@ -50,6 +50,11 @@ export default function AuthPage() {
         } else if (!result.data.session) {
           setError("ログイン情報を保存できませんでした。ブラウザのプライベートモードを解除して、もう一度お試しください。");
         } else {
+          await supabase.from("login_events").insert({
+            user_id: result.data.user?.id,
+            email: normalizedEmail,
+            user_agent: typeof navigator === "undefined" ? null : navigator.userAgent,
+          });
           setMessage("ログインしました。トップページへ移動します。");
           router.replace("/");
           router.refresh();
