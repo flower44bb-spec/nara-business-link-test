@@ -6,7 +6,7 @@ import { ApprovalGate } from "@/components/approval-gate";
 import { useAuth } from "@/components/auth-provider";
 import { ImageCropper } from "@/components/image-cropper";
 import { BackLink, PageHero } from "@/components/ui";
-import { updateRecord } from "@/lib/mutations";
+import { isMissingColumnError, missingColumn } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
 import { useFormDraft } from "@/lib/use-form-draft";
 
@@ -92,7 +92,7 @@ export default function EditMyProfilePage() {
       }
       avatarUrl = supabase.storage.from("profile-images").getPublicUrl(path).data.publicUrl;
     }
-    const { error: updateError } = await updateRecord("profiles", user.id, {
+    const payload = {
       ...form,
       qualifications: splitTags(form.qualifications),
       specialties: splitTags(form.specialties),
@@ -100,9 +100,20 @@ export default function EditMyProfilePage() {
       avatar_url: avatarUrl,
       line_notifications_enabled: lineEnabled,
       updated_at: new Date().toISOString(),
-    });
+    };
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update(payload)
+      .eq("id", user.id)
+      .select("id")
+      .single();
     if (updateError) {
-      setError(updateError.message);
+      const column = missingColumn(updateError.message);
+      setError(
+        column && isMissingColumnError(updateError.message)
+          ? `会員情報の追加項目「${column}」がSupabaseにまだ作成されていません。Version2のプロフィール拡張SQLを実行してから、もう一度保存してください。`
+          : updateError.message,
+      );
       setSaving(false);
       return;
     }
