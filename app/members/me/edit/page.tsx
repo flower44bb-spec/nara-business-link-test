@@ -6,6 +6,7 @@ import { ApprovalGate } from "@/components/approval-gate";
 import { useAuth } from "@/components/auth-provider";
 import { ImageCropper } from "@/components/image-cropper";
 import { BackLink, PageHero } from "@/components/ui";
+import { hasProfileItemMarkers, normalizeProfileItems } from "@/lib/profile-text";
 import { isMissingColumnError, missingColumn } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
 import { useFormDraft } from "@/lib/use-form-draft";
@@ -270,33 +271,7 @@ function splitTags(value: string) {
 }
 
 function splitBulletItems(value: string) {
-  if (!/[○⚪◯〇]/.test(value)) return splitTags(value);
-
-  const normalized = value
-    .replace(/\r\n/g, "\n")
-    .replace(/[⚪◯〇]/g, "○")
-    .replace(/[\uFE0E\uFE0F]/g, "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const items: string[] = [];
-
-  for (const line of normalized) {
-    const segments = line
-      .replace(/(?!^)(○)/g, "\n$1")
-      .split("\n")
-      .map((segment) => segment.trim())
-      .filter(Boolean);
-
-    for (const segment of segments) {
-      if (/^○/.test(segment) || !items.length) {
-        items.push(segment);
-      } else {
-        items[items.length - 1] = `${items[items.length - 1]}${segment}`;
-      }
-    }
-  }
-
+  if (!hasProfileItemMarkers([value])) return splitTags(value);
+  const items = normalizeProfileItems([value]);
   return items.length ? items : splitTags(value);
 }

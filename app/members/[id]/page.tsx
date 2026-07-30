@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { MessageUserButton } from "@/components/message-user-button";
 import { BackLink, Empty, Loading, PageHero } from "@/components/ui";
+import { hasProfileItemMarkers, normalizeProfileItems } from "@/lib/profile-text";
 import { supabase } from "@/lib/supabase";
 import type { Profile } from "@/types";
 
@@ -109,7 +110,7 @@ function ChipList({ values }: { values: string[] }) {
 
 function SpecialtyList({ values }: { values: string[] }) {
   if (!values.length) return "未設定";
-  const hasBulletItems = values.some((value) => /[○⚪◯〇]/.test(value));
+  const hasBulletItems = hasProfileItemMarkers(values);
   if (!hasBulletItems) return <ChipList values={values} />;
 
   const lines = normalizeProfileItems(values);
@@ -126,35 +127,4 @@ function ProfileText({ value }: { value?: string | null }) {
 function normalizeProfileText(value?: string | null) {
   if (!value) return [];
   return normalizeProfileItems([value]);
-}
-
-function normalizeProfileItems(values: string[]) {
-  const normalized = values
-    .join("\n")
-    .replace(/\r\n/g, "\n")
-    .replace(/[⚪◯〇]/g, "○")
-    .replace(/[\uFE0E\uFE0F]/g, "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  const items: string[] = [];
-
-  for (const line of normalized) {
-    const segments = line
-      .replace(/(?!^)(○)/g, "\n$1")
-      .split("\n")
-      .map((segment) => segment.trim())
-      .filter(Boolean);
-
-    for (const segment of segments) {
-      if (/^○/.test(segment) || !items.length) {
-        items.push(segment);
-      } else {
-        items[items.length - 1] = `${items[items.length - 1]}${segment}`;
-      }
-    }
-  }
-
-  return items;
 }
