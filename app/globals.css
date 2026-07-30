@@ -379,14 +379,14 @@ button { cursor: pointer; }
 .avatar.small { width: 44px; height: 44px; }
 .profile-heading { display: flex; align-items: center; gap: 25px; }
 .profile-heading h1 { margin-bottom: 5px; }
-.profile-text { display: grid; gap: 8px; max-width: 100%; overflow-x: auto; }
-.profile-text p { width: max-content; max-width: none; margin: 0; line-height: 1.9; white-space: nowrap; word-break: keep-all; }
+.profile-text { display: grid; gap: 8px; max-width: 100%; }
+.profile-text p { max-width: 100%; margin: 0; padding-left: 1.15em; text-indent: -1.15em; line-height: 1.9; white-space: normal; overflow-wrap: anywhere; word-break: normal; }
 .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .detail-row .chip-list { margin-top: 0; }
 .chip {
   display: inline-flex; align-items: center; min-height: 26px; padding: 4px 9px;
   color: var(--green); background: #e7eff8; border: 1px solid #cddbea; border-radius: 999px;
-  font-size: 11px; font-weight: 800; white-space: nowrap;
+  max-width: 100%; font-size: 11px; font-weight: 800; white-space: normal; overflow-wrap: anywhere;
 }
 .check-field { display: flex; align-items: center; gap: 10px; margin: 15px 0 24px; font-size: 13px; font-weight: 700; }
 .check-field input { width: 18px; height: 18px; }
