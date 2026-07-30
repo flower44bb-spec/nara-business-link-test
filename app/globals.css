@@ -371,6 +371,7 @@ button { cursor: pointer; }
 .members-search-grid { grid-template-columns: minmax(260px, 1fr) auto; }
 .member-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .member-card { padding: 22px; display: grid; gap: 8px; background: white; border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+.member-card-heading { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .member-card h3 { margin: 4px 0 2px; color: var(--green); font-size: 21px; }
 .member-card p { margin: 0; color: var(--text); font-size: 13px; font-weight: 700; line-height: 1.6; }
 .avatar { width: 62px; height: 62px; flex: 0 0 auto; display: grid; place-items: center; color: white; background: var(--green); border-radius: 50%; overflow: hidden; }

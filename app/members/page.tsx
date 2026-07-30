@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { HomeLink, Loading, PageHero } from "@/components/ui";
@@ -58,8 +58,15 @@ export default function MembersPage() {
             <div className="member-grid">
               {filtered.map((member) => (
                 <Link className="member-card" href={`/members/${member.id}`} key={member.id}>
-                  <span className="tag">{member.local_chapter || "所属単会未設定"}</span>
-                  <h3>{member.full_name || "氏名未設定"}</h3>
+                  <div className="member-card-heading">
+                    <div className="avatar small">
+                      {member.avatar_url ? <img src={member.avatar_url} alt="" /> : <UserRound size={25} />}
+                    </div>
+                    <div>
+                      <span className="tag">{member.local_chapter || "所属単会未設定"}</span>
+                      <h3>{member.full_name || "氏名未設定"}</h3>
+                    </div>
+                  </div>
                   <p>{member.position || "役職未設定"}</p>
                   <p>{member.company_name || "会社名未設定"}</p>
                   <p>{member.industry || "業種未設定"}</p>
