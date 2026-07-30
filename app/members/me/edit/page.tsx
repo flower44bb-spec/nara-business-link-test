@@ -51,7 +51,7 @@ export default function EditMyProfilePage() {
       sns_url: profile.sns_url || "",
       line_notify_target: profile.line_notify_target || "",
       qualifications: (profile.qualifications || []).join("、"),
-      specialties: (profile.specialties || []).join("、"),
+      specialties: (profile.specialties || []).join("\n"),
       available_work: profile.available_work || "",
       service_areas: (profile.service_areas || []).join("、"),
       experience_years: profile.experience_years || "",
@@ -93,7 +93,7 @@ export default function EditMyProfilePage() {
     const payload = {
       ...form,
       qualifications: splitTags(form.qualifications),
-      specialties: splitTags(form.specialties),
+      specialties: splitBulletItems(form.specialties),
       service_areas: splitTags(form.service_areas),
       avatar_url: avatarUrl,
       line_notifications_enabled: lineEnabled,
@@ -174,7 +174,12 @@ export default function EditMyProfilePage() {
                 </div>
                 <div className="field">
                   <label htmlFor="specialties">得意分野</label>
-                  <textarea id="specialties" value={form.specialties} onChange={(e) => field("specialties", e.target.value)} placeholder="SNS運用、補助金申請、動画制作 など。複数登録できます。" />
+                  <textarea
+                    id="specialties"
+                    value={form.specialties}
+                    onChange={(e) => field("specialties", e.target.value)}
+                    placeholder={"○SNS運用（InstagramやLINE公式の運用支援）\n○補助金申請（事業計画づくりの相談） のように、○ごとに入力してください。"}
+                  />
                 </div>
                 <div className="field">
                   <label htmlFor="available_work">対応可能業務</label>
@@ -262,4 +267,36 @@ function splitTags(value: string) {
     .split(/[\n,、]/)
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function splitBulletItems(value: string) {
+  if (!/[○⚪◯〇]/.test(value)) return splitTags(value);
+
+  const normalized = value
+    .replace(/\r\n/g, "\n")
+    .replace(/[⚪◯〇]/g, "○")
+    .replace(/[\uFE0E\uFE0F]/g, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const items: string[] = [];
+
+  for (const line of normalized) {
+    const segments = line
+      .replace(/(?!^)(○)/g, "\n$1")
+      .split("\n")
+      .map((segment) => segment.trim())
+      .filter(Boolean);
+
+    for (const segment of segments) {
+      if (/^○/.test(segment) || !items.length) {
+        items.push(segment);
+      } else {
+        items[items.length - 1] = `${items[items.length - 1]}${segment}`;
+      }
+    }
+  }
+
+  return items.length ? items : splitTags(value);
 }

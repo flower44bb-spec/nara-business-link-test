@@ -49,7 +49,7 @@ export default function MemberDetailPage() {
                   <div className="detail-row"><dt>相談できること</dt><dd><ProfileText value={member.can_help_with} /></dd></div>
                   <div className="detail-row"><dt>つながりたい業種</dt><dd><ProfileText value={member.wants_to_connect_with} /></dd></div>
                   <div className="detail-row"><dt>保有資格</dt><dd><ChipList values={member.qualifications || []} /></dd></div>
-                  <div className="detail-row"><dt>得意分野</dt><dd><ChipList values={member.specialties || []} /></dd></div>
+                  <div className="detail-row"><dt>得意分野</dt><dd><SpecialtyList values={member.specialties || []} /></dd></div>
                   <div className="detail-row"><dt>対応可能業務</dt><dd><ProfileText value={member.available_work} /></dd></div>
                   <div className="detail-row"><dt>対応エリア</dt><dd><ChipList values={member.service_areas || []} /></dd></div>
                   <div className="detail-row"><dt>経験年数</dt><dd>{member.experience_years || "未設定"}</dd></div>
@@ -107,6 +107,16 @@ function ChipList({ values }: { values: string[] }) {
   return <div className="chip-list">{values.map((value) => <span className="chip" key={value}>{value}</span>)}</div>;
 }
 
+function SpecialtyList({ values }: { values: string[] }) {
+  if (!values.length) return "未設定";
+  const hasBulletItems = values.some((value) => /[○⚪◯〇]/.test(value));
+  if (!hasBulletItems) return <ChipList values={values} />;
+
+  const lines = normalizeProfileItems(values);
+  if (!lines.length) return "未設定";
+  return <div className="profile-text">{lines.map((line) => <p className="profile-text-item" key={line}>{line}</p>)}</div>;
+}
+
 function ProfileText({ value }: { value?: string | null }) {
   const lines = normalizeProfileText(value);
   if (!lines.length) return "未設定";
@@ -115,7 +125,12 @@ function ProfileText({ value }: { value?: string | null }) {
 
 function normalizeProfileText(value?: string | null) {
   if (!value) return [];
-  const normalized = value
+  return normalizeProfileItems([value]);
+}
+
+function normalizeProfileItems(values: string[]) {
+  const normalized = values
+    .join("\n")
     .replace(/\r\n/g, "\n")
     .replace(/[⚪◯〇]/g, "○")
     .replace(/[\uFE0E\uFE0F]/g, "")
