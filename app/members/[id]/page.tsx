@@ -115,21 +115,16 @@ function ProfileText({ value }: { value?: string | null }) {
 
 function normalizeProfileText(value?: string | null) {
   if (!value) return [];
-  const normalized = value
+  const compacted = value
     .replace(/\r\n/g, "\n")
     .split("\n")
     .map((line) => line.trim())
+    .filter(Boolean)
+    .join("");
+
+  return compacted
+    .replace(/(?!^)(○)/g, "\n$1")
+    .split("\n")
+    .map((line) => line.trim())
     .filter(Boolean);
-  const lines: string[] = [];
-
-  for (const line of normalized) {
-    const startsNewItem = /^[○・\-]/.test(line);
-    if (!lines.length || startsNewItem) {
-      lines.push(line);
-    } else {
-      lines[lines.length - 1] = `${lines[lines.length - 1]}${line}`;
-    }
-  }
-
-  return lines;
 }
