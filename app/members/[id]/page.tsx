@@ -110,21 +110,36 @@ function ChipList({ values }: { values: string[] }) {
 function ProfileText({ value }: { value?: string | null }) {
   const lines = normalizeProfileText(value);
   if (!lines.length) return "未設定";
-  return <div className="profile-text">{lines.map((line) => <p key={line}>{line}</p>)}</div>;
+  return <div className="profile-text">{lines.map((line) => <p className="profile-text-item" key={line}>{line}</p>)}</div>;
 }
 
 function normalizeProfileText(value?: string | null) {
   if (!value) return [];
-  const compacted = value
+  const normalized = value
     .replace(/\r\n/g, "\n")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .join("");
-
-  return compacted
-    .replace(/(?!^)(○)/g, "\n$1")
+    .replace(/[⚪◯〇]/g, "○")
+    .replace(/[\uFE0E\uFE0F]/g, "")
     .split("\n")
     .map((line) => line.trim())
     .filter(Boolean);
+
+  const items: string[] = [];
+
+  for (const line of normalized) {
+    const segments = line
+      .replace(/(?!^)(○)/g, "\n$1")
+      .split("\n")
+      .map((segment) => segment.trim())
+      .filter(Boolean);
+
+    for (const segment of segments) {
+      if (/^○/.test(segment) || !items.length) {
+        items.push(segment);
+      } else {
+        items[items.length - 1] = `${items[items.length - 1]}${segment}`;
+      }
+    }
+  }
+
+  return items;
 }

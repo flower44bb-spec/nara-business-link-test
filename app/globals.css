@@ -379,8 +379,12 @@ button { cursor: pointer; }
 .avatar.small { width: 44px; height: 44px; }
 .profile-heading { display: flex; align-items: center; gap: 25px; }
 .profile-heading h1 { margin-bottom: 5px; }
-.profile-text { display: grid; gap: 8px; max-width: 100%; }
-.profile-text p { max-width: 100%; margin: 0; padding-left: 1.15em; text-indent: -1.15em; line-height: 1.9; white-space: normal; overflow-wrap: anywhere; word-break: normal; }
+.profile-text { display: grid; gap: 10px; max-width: 100%; }
+.profile-text-item {
+  max-width: 100%; margin: 0; padding: 10px 12px 10px 2.1em; text-indent: -1.05em;
+  color: var(--text); background: #f4f8fd; border: 1px solid #cddbea; border-radius: 12px;
+  line-height: 1.8; white-space: normal; overflow-wrap: anywhere; word-break: normal;
+}
 .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .detail-row .chip-list { margin-top: 0; }
 .chip {
