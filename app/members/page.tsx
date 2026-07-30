@@ -28,18 +28,20 @@ export default function MembersPage() {
 
   const filtered = useMemo(() => {
     const query = keyword.toLocaleLowerCase();
-    return members.filter((member) =>
-      `${member.full_name || ""} ${member.company_name || ""} ${member.industry || ""} ${member.local_chapter || ""} ${member.sns_url || ""} ${member.homepage_url || ""} ${member.instagram_url || ""} ${member.facebook_url || ""} ${member.x_url || ""} ${member.other_sns_url || ""} ${member.available_work || ""} ${(member.qualifications || []).join(" ")} ${(member.specialties || []).join(" ")} ${(member.service_areas || []).join(" ")}`
+    return members.filter((member) => {
+      const memberSpecialties = normalizeSpecialtyItems(member.specialties || []);
+
+      return `${member.full_name || ""} ${member.company_name || ""} ${member.industry || ""} ${member.local_chapter || ""} ${member.sns_url || ""} ${member.homepage_url || ""} ${member.instagram_url || ""} ${member.facebook_url || ""} ${member.x_url || ""} ${member.other_sns_url || ""} ${member.available_work || ""} ${(member.qualifications || []).join(" ")} ${memberSpecialties.join(" ")} ${(member.service_areas || []).join(" ")}`
         .toLocaleLowerCase().includes(query)
       && (!qualification || (member.qualifications || []).includes(qualification))
-      && (!specialty || (member.specialties || []).includes(specialty))
+      && (!specialty || memberSpecialties.includes(specialty))
       && (!serviceArea || (member.service_areas || []).includes(serviceArea))
-      && (!experienceYears || member.experience_years === experienceYears),
-    );
+      && (!experienceYears || member.experience_years === experienceYears);
+    });
   }, [experienceYears, keyword, members, qualification, serviceArea, specialty]);
 
   const qualifications = useMemo(() => uniqueTags(members.flatMap((member) => member.qualifications || [])), [members]);
-  const specialties = useMemo(() => uniqueTags(members.flatMap((member) => member.specialties || [])), [members]);
+  const specialties = useMemo(() => uniqueTags(members.flatMap((member) => normalizeSpecialtyItems(member.specialties || []))), [members]);
   const serviceAreas = useMemo(() => uniqueTags(members.flatMap((member) => member.service_areas || [])), [members]);
 
   async function logSearch() {
@@ -92,7 +94,7 @@ export default function MembersPage() {
                     <span className="tag">{member.local_chapter || "所属単会未設定"}</span>
                     <h3>{member.full_name || "氏名未設定"}</h3>
                     <p>{member.company_name || "会社名未設定"} / {member.industry || "業種未設定"}</p>
-                    <ChipList values={[...(member.qualifications || []), ...(member.specialties || [])].slice(0, 5)} />
+                    <ChipList values={[...(member.qualifications || []), ...normalizeSpecialtyItems(member.specialties || [])].slice(0, 5)} />
                   </div>
                 </Link>
               ))}
@@ -106,6 +108,41 @@ export default function MembersPage() {
 
 function uniqueTags(values: string[]) {
   return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "ja"));
+}
+
+function normalizeSpecialtyItems(values: string[]) {
+  const joined = values.join("\n");
+  if (!/[○⚪◯〇]/.test(joined)) {
+    return values.map((value) => value.trim()).filter(Boolean);
+  }
+
+  const normalized = joined
+    .replace(/\r\n/g, "\n")
+    .replace(/[⚪◯〇]/g, "○")
+    .replace(/[\uFE0E\uFE0F]/g, "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const items: string[] = [];
+
+  for (const line of normalized) {
+    const segments = line
+      .replace(/(?!^)(○)/g, "\n$1")
+      .split("\n")
+      .map((segment) => segment.trim())
+      .filter(Boolean);
+
+    for (const segment of segments) {
+      if (/^○/.test(segment) || !items.length) {
+        items.push(segment);
+      } else {
+        items[items.length - 1] = `${items[items.length - 1]}${segment}`;
+      }
+    }
+  }
+
+  return items;
 }
 
 function ChipList({ values }: { values: string[] }) {
