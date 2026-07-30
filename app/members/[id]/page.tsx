@@ -45,17 +45,15 @@ export default function MemberDetailPage() {
                 <dl className="detail-list">
                   <div className="detail-row"><dt>会社名</dt><dd>{member.company_name || "未設定"}</dd></div>
                   <div className="detail-row"><dt>業種</dt><dd>{member.industry || "未設定"}</dd></div>
-                  <div className="detail-row"><dt>自己紹介</dt><dd>{member.bio || "未設定"}</dd></div>
-                  <div className="detail-row"><dt>相談できること</dt><dd>{member.can_help_with || "未設定"}</dd></div>
-                  <div className="detail-row"><dt>つながりたい業種</dt><dd>{member.wants_to_connect_with || "未設定"}</dd></div>
+                  <div className="detail-row"><dt>自己紹介</dt><dd><ProfileText value={member.bio} /></dd></div>
+                  <div className="detail-row"><dt>相談できること</dt><dd><ProfileText value={member.can_help_with} /></dd></div>
+                  <div className="detail-row"><dt>つながりたい業種</dt><dd><ProfileText value={member.wants_to_connect_with} /></dd></div>
                   <div className="detail-row"><dt>保有資格</dt><dd><ChipList values={member.qualifications || []} /></dd></div>
                   <div className="detail-row"><dt>得意分野</dt><dd><ChipList values={member.specialties || []} /></dd></div>
-                  <div className="detail-row"><dt>対応可能業務</dt><dd>{member.available_work || "未設定"}</dd></div>
+                  <div className="detail-row"><dt>対応可能業務</dt><dd><ProfileText value={member.available_work} /></dd></div>
                   <div className="detail-row"><dt>対応エリア</dt><dd><ChipList values={member.service_areas || []} /></dd></div>
                   <div className="detail-row"><dt>経験年数</dt><dd>{member.experience_years || "未設定"}</dd></div>
-                  <div className="detail-row"><dt>Webサイト</dt><dd><ProfileLink url={member.website_url} label="Webサイトを開く" /></dd></div>
                   <div className="detail-row"><dt>SNS</dt><dd><ProfileLink url={member.sns_url} label="SNSを開く" /></dd></div>
-                  <div className="detail-row"><dt>ポートフォリオ</dt><dd><ProfileLink url={member.portfolio_url} label="ポートフォリオを開く" /></dd></div>
                   <div className="detail-row"><dt>ホームページ</dt><dd><ProfileLink url={member.homepage_url} label="ホームページを開く" /></dd></div>
                   <div className="detail-row"><dt>Instagram</dt><dd><ProfileLink url={member.instagram_url} label="Instagramを開く" /></dd></div>
                   <div className="detail-row"><dt>Facebook</dt><dd><ProfileLink url={member.facebook_url} label="Facebookを開く" /></dd></div>
@@ -107,4 +105,31 @@ function normalizeExternalUrl(url?: string | null) {
 function ChipList({ values }: { values: string[] }) {
   if (!values.length) return "未設定";
   return <div className="chip-list">{values.map((value) => <span className="chip" key={value}>{value}</span>)}</div>;
+}
+
+function ProfileText({ value }: { value?: string | null }) {
+  const lines = normalizeProfileText(value);
+  if (!lines.length) return "未設定";
+  return <div className="profile-text">{lines.map((line) => <p key={line}>{line}</p>)}</div>;
+}
+
+function normalizeProfileText(value?: string | null) {
+  if (!value) return [];
+  const normalized = value
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const lines: string[] = [];
+
+  for (const line of normalized) {
+    const startsNewItem = /^[○・\-]/.test(line);
+    if (!lines.length || startsNewItem) {
+      lines.push(line);
+    } else {
+      lines[lines.length - 1] = `${lines[lines.length - 1]}${line}`;
+    }
+  }
+
+  return lines;
 }

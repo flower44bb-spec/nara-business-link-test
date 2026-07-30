@@ -379,6 +379,8 @@ button { cursor: pointer; }
 .avatar.small { width: 44px; height: 44px; }
 .profile-heading { display: flex; align-items: center; gap: 25px; }
 .profile-heading h1 { margin-bottom: 5px; }
+.profile-text { display: grid; gap: 8px; }
+.profile-text p { margin: 0; line-height: 1.9; white-space: normal; }
 .chip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .detail-row .chip-list { margin-top: 0; }
 .chip {

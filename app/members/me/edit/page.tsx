@@ -15,9 +15,9 @@ export default function EditMyProfilePage() {
   const { user, profile, isApproved, refreshProfile } = useAuth();
   const [form, setForm] = useState({
     full_name: "", local_chapter: "", position: "", company_name: "", industry: "",
-    bio: "", can_help_with: "", wants_to_connect_with: "", website_url: "", sns_url: "", line_notify_target: "",
+    bio: "", can_help_with: "", wants_to_connect_with: "", sns_url: "", line_notify_target: "",
     qualifications: "", specialties: "", available_work: "", service_areas: "", experience_years: "",
-    portfolio_url: "", homepage_url: "", instagram_url: "", facebook_url: "", x_url: "", other_sns_url: "",
+    homepage_url: "", instagram_url: "", facebook_url: "", x_url: "", other_sns_url: "",
   });
   const [image, setImage] = useState<File | null>(null);
   const [imageProcessing, setImageProcessing] = useState(false);
@@ -48,7 +48,6 @@ export default function EditMyProfilePage() {
       bio: profile.bio || "",
       can_help_with: profile.can_help_with || "",
       wants_to_connect_with: profile.wants_to_connect_with || "",
-      website_url: profile.website_url || "",
       sns_url: profile.sns_url || "",
       line_notify_target: profile.line_notify_target || "",
       qualifications: (profile.qualifications || []).join("、"),
@@ -56,7 +55,6 @@ export default function EditMyProfilePage() {
       available_work: profile.available_work || "",
       service_areas: (profile.service_areas || []).join("、"),
       experience_years: profile.experience_years || "",
-      portfolio_url: profile.portfolio_url || "",
       homepage_url: profile.homepage_url || "",
       instagram_url: profile.instagram_url || "",
       facebook_url: profile.facebook_url || "",
@@ -198,23 +196,8 @@ export default function EditMyProfilePage() {
                   </select>
                 </div>
                 <div className="field">
-                  <label htmlFor="website_url">WebサイトURL</label>
-                  <input
-                    id="website_url"
-                    inputMode="url"
-                    placeholder="https://example.com"
-                    type="url"
-                    value={form.website_url}
-                    onChange={(e) => field("website_url", e.target.value)}
-                  />
-                </div>
-                <div className="field">
                   <label htmlFor="homepage_url">ホームページURL</label>
                   <input id="homepage_url" inputMode="url" placeholder="https://example.com" type="url" value={form.homepage_url} onChange={(e) => field("homepage_url", e.target.value)} />
-                </div>
-                <div className="field">
-                  <label htmlFor="portfolio_url">ポートフォリオURL</label>
-                  <input id="portfolio_url" inputMode="url" placeholder="https://example.com/works" type="url" value={form.portfolio_url} onChange={(e) => field("portfolio_url", e.target.value)} />
                 </div>
                 <div className="field">
                   <label htmlFor="instagram_url">Instagram</label>

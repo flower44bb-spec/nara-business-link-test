@@ -29,7 +29,7 @@ export default function MembersPage() {
   const filtered = useMemo(() => {
     const query = keyword.toLocaleLowerCase();
     return members.filter((member) =>
-      `${member.full_name || ""} ${member.company_name || ""} ${member.industry || ""} ${member.local_chapter || ""} ${member.website_url || ""} ${member.sns_url || ""} ${member.available_work || ""} ${(member.qualifications || []).join(" ")} ${(member.specialties || []).join(" ")} ${(member.service_areas || []).join(" ")}`
+      `${member.full_name || ""} ${member.company_name || ""} ${member.industry || ""} ${member.local_chapter || ""} ${member.sns_url || ""} ${member.homepage_url || ""} ${member.instagram_url || ""} ${member.facebook_url || ""} ${member.x_url || ""} ${member.other_sns_url || ""} ${member.available_work || ""} ${(member.qualifications || []).join(" ")} ${(member.specialties || []).join(" ")} ${(member.service_areas || []).join(" ")}`
         .toLocaleLowerCase().includes(query)
       && (!qualification || (member.qualifications || []).includes(qualification))
       && (!specialty || (member.specialties || []).includes(specialty))
