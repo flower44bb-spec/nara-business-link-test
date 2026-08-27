@@ -12,7 +12,7 @@ const links = [
   ["/collaborations", "コラボ募集"],
   ["/successes", "成功事例"],
   ["/marche", "PR"],
-  ["/members", "青年部員"],
+  ["/members", "会員・事業者"],
   ["/messages", "DM"],
   ["/deals", "商談"],
 ];

@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Pencil, UserRound } from "lucide-react";
+import { Building2, ExternalLink, MapPin, Pencil, Plus, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,21 +8,29 @@ import { useAuth } from "@/components/auth-provider";
 import { MessageUserButton } from "@/components/message-user-button";
 import { BackLink, Empty, Loading, PageHero } from "@/components/ui";
 import { hasProfileItemMarkers, normalizeProfileItems } from "@/lib/profile-text";
+import { recordDescription, recordTitle } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
-import type { Profile } from "@/types";
+import type { BaseRecord, Profile } from "@/types";
 
 export default function MemberDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [member, setMember] = useState<Profile | null>(null);
+  const [businesses, setBusinesses] = useState<BaseRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.from("public_profiles").select("*").eq("id", id).single().then(({ data }) => {
+    async function loadMember() {
+      const [{ data }, businessesResult] = await Promise.all([
+        supabase.from("public_profiles").select("*").eq("id", id).single(),
+        loadMemberBusinesses(id, Boolean(user?.id === id || isAdmin)),
+      ]);
       setMember(data as Profile | null);
+      setBusinesses((businessesResult.data as BaseRecord[]) ?? []);
       setLoading(false);
-    });
-  }, [id]);
+    }
+    loadMember();
+  }, [id, isAdmin, user?.id]);
 
   return (
     <main>
@@ -61,6 +69,35 @@ export default function MemberDetailPage() {
                   <div className="detail-row"><dt>X</dt><dd><ProfileLink url={member.x_url} label="Xを開く" /></dd></div>
                   <div className="detail-row"><dt>その他SNS</dt><dd><ProfileLink url={member.other_sns_url} label="SNSを開く" /></dd></div>
                 </dl>
+                <h2 className="detail-subheading">事業者情報</h2>
+                {businesses.length ? (
+                  <div className="linked-business-list">
+                    {businesses.map((business) => (
+                      <Link className="linked-business-card" href={`/businesses/${business.id}`} key={business.id}>
+                        {business.image_url ? (
+                          <img
+                            className="linked-business-image"
+                            src={`${business.image_url}${business.image_url.includes("?") ? "&" : "?"}v=${encodeURIComponent(String(business.updated_at || business.image_url))}`}
+                            alt={recordTitle(business)}
+                          />
+                        ) : (
+                          <div className="linked-business-image placeholder"><Building2 size={28} /></div>
+                        )}
+                        <div>
+                          {business.approval_status && business.approval_status !== "approved" && (
+                            <span className={`status ${business.approval_status}`}>{business.approval_status === "pending" ? "承認待ち" : "却下"}</span>
+                          )}
+                          <span className="tag">{String(business.category || "業種未設定")}</span>
+                          <h3>{recordTitle(business)}</h3>
+                          <p className="linked-business-meta"><MapPin size={14} /> {String(business.area || "地域未設定")}</p>
+                          <p className="summary">{recordDescription(business).slice(0, 110)}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="empty-inline">登録事業者情報はありません。</p>
+                )}
               </article>
               <aside className="side-card">
                 <h3>この会員とつながる</h3>
@@ -68,7 +105,10 @@ export default function MemberDetailPage() {
                 <p className="summary"><strong>この会員に相談する</strong></p>
                 <MessageUserButton recipientId={member.id} />
                 {user?.id === member.id && (
-                  <Link className="button secondary" href="/members/me/edit"><Pencil size={16} /> プロフィール編集</Link>
+                  <>
+                    <Link className="button secondary" href="/members/me/edit"><Pencil size={16} /> プロフィール編集</Link>
+                    <Link className="button secondary" href="/businesses/new"><Plus size={16} /> 事業者情報を追加</Link>
+                  </>
                 )}
               </aside>
             </div>
@@ -77,6 +117,16 @@ export default function MemberDetailPage() {
       </section>
     </main>
   );
+}
+
+function loadMemberBusinesses(memberId: string, canSeeAll: boolean) {
+  let query = supabase
+    .from("businesses")
+    .select("*")
+    .eq("user_id", memberId)
+    .order("created_at", { ascending: false });
+  if (!canSeeAll) query = query.eq("approval_status", "approved");
+  return query;
 }
 
 function ProfileLink({ url, label }: { url?: string | null; label: string }) {
