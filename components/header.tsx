@@ -11,7 +11,7 @@ const links = [
   ["/problems", "困りごと相談"],
   ["/collaborations", "コラボ募集"],
   ["/successes", "成功事例"],
-  ["/marche", "イベント"],
+  ["/marche", "PR"],
   ["/members", "青年部員"],
   ["/messages", "DM"],
   ["/deals", "商談"],

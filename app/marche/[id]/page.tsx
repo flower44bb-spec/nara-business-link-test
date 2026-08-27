@@ -43,7 +43,7 @@ export default function MarcheDetailPage() {
 
   return (
     <main>
-      <PageHero eyebrow="Marche & Event Detail" title="イベント情報詳細" description="開催概要、PR内容、募集情報をご確認ください。" />
+      <PageHero eyebrow="PR Detail" title="PR詳細" description="開催概要、PR内容、募集情報をご確認ください。" />
       <section className="page-content">
         <div className="container">
           <BackLink href="/marche" />
@@ -53,7 +53,7 @@ export default function MarcheDetailPage() {
               {isAdmin ? "変更を保存しました。" : "変更を保存しました。管理者の再承認後に一般公開されます。"}
             </p>
           )}
-          {loading ? <Loading /> : !post ? <Empty text="案件が見つかりません。" /> : (
+          {loading ? <Loading /> : !post ? <Empty text="PRが見つかりません。" /> : (
             <div className="detail-layout">
               <article className="detail-card">
                 {post.image_url && <img className="detail-image" src={post.image_url} alt={post.event_name} />}
@@ -64,25 +64,25 @@ export default function MarcheDetailPage() {
                 <PostAuthorDisplay author={author} />
                 <LikeButton targetType="marche_posts" targetId={id} ownerId={post.user_id} />
                 <dl className="detail-list">
-                  <div className="detail-row"><dt>開催日</dt><dd>{post.event_date}</dd></div>
-                  <div className="detail-row"><dt>開催場所</dt><dd>{post.location}</dd></div>
-                  <div className="detail-row"><dt>掲載種別</dt><dd>{post.event_type || "マルシェ"}</dd></div>
-                  <div className="detail-row"><dt>主催区分</dt><dd>{post.organizer_type || "未設定"}</dd></div>
-                  <div className="detail-row"><dt>主催者名</dt><dd>{post.organizer}</dd></div>
+                  <div className="detail-row"><dt>開催日・掲載日</dt><dd>{post.event_date}</dd></div>
+                  <div className="detail-row"><dt>開催場所・対象地域</dt><dd>{post.location}</dd></div>
+                  <div className="detail-row"><dt>PR種別</dt><dd>{post.event_type || "PR"}</dd></div>
+                  <div className="detail-row"><dt>発信元区分</dt><dd>{post.organizer_type || "未設定"}</dd></div>
+                  <div className="detail-row"><dt>発信元・主催者名</dt><dd>{post.organizer}</dd></div>
                   <div className="detail-row"><dt>対象者</dt><dd>{post.target_audience || "指定なし"}</dd></div>
-                  <div className="detail-row"><dt>募集内容・業種</dt><dd>{post.desired_industries || "募集情報なし"}</dd></div>
+                  <div className="detail-row"><dt>募集内容・PR内容</dt><dd>{post.desired_industries || "募集情報なし"}</dd></div>
                   <div className="detail-row"><dt>申込・募集締切</dt><dd>{post.application_deadline || "主催者へ確認"}</dd></div>
                   <div className="detail-row"><dt>出店料・参加費</dt><dd>{post.booth_fee || "主催者へ確認"}</dd></div>
                 </dl>
               </article>
               <aside className="side-card">
-                <h3>イベントについて相談</h3>
+                <h3>PRについて相談</h3>
                 <DealStartButton
                   contractorId={post.user_id}
                   sourceType="marche_posts"
                   sourceId={id}
                   title={post.event_name}
-                  category={post.event_type || "イベント"}
+                  category={post.event_type || "PR"}
                   area={post.location}
                   description={post.description}
                 />

@@ -34,7 +34,7 @@ const sources = [
   { table: "problems", label: "困りごと", href: "problems" },
   { table: "collaborations", label: "コラボ", href: "collaborations" },
   { table: "successes", label: "成功事例", href: "successes" },
-  { table: "marche_posts", label: "イベント", href: "marche" },
+  { table: "marche_posts", label: "PR", href: "marche" },
 ] as const;
 
 export function HomeStats() {

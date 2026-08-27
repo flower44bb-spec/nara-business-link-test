@@ -22,7 +22,7 @@ export default function EditMarchePage() {
   }, [id]);
   return (
     <main>
-      <PageHero eyebrow="Edit Event" title="イベント情報を編集" description="編集後は再度管理者の承認が必要です。" />
+      <PageHero eyebrow="Edit PR" title="PRを編集" description="編集後は再度管理者の承認が必要です。" />
       <section className="page-content">
         <div className="container">
           <BackLink href={`/marche/${id}`} />
@@ -31,7 +31,7 @@ export default function EditMarchePage() {
               isAdmin || post.user_id === user?.id
                 ? <MarcheForm post={post} />
                 : <ApprovalGate adminOnly action="この案件の編集"><span /></ApprovalGate>
-            ) : <p className="error">案件が見つかりません。</p>}
+            ) : <p className="error">PRが見つかりません。</p>}
           </div>
         </div>
       </section>
