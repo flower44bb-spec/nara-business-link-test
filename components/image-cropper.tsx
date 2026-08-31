@@ -164,7 +164,7 @@ export function ImageCropper({
         onChange={(event) => selectImage(event.target.files?.[0])}
       />
       <p className="image-help">
-        JPEG・PNG・WebP、10MB以下。選択後に画像をドラッグして表示範囲を調整してください。
+        JPEG・PNG・WebP、10MB以下。画像全体が収まる形で保存されます。必要に応じて拡大・移動してください。
       </p>
       {error && <p className="inline-error">{error}</p>}
       {crop ? (
@@ -180,7 +180,7 @@ export function ImageCropper({
               onPointerUp={endDrag}
               onPointerCancel={endDrag}
             />
-            <span><Move size={16} /> ドラッグして範囲を移動</span>
+            <span><Move size={16} /> 拡大時はドラッグして位置を調整</span>
           </div>
           <label className="crop-zoom">
             <ZoomIn size={17} />
@@ -195,7 +195,7 @@ export function ImageCropper({
             />
           </label>
           <p className={processing ? "crop-status processing" : "crop-status ready"}>
-            {processing ? "表示範囲を反映しています..." : "この表示範囲が保存されます"}
+            {processing ? "表示範囲を反映しています..." : "画像全体を収めた状態で保存されます"}
           </p>
         </div>
       ) : currentImageUrl ? (
@@ -231,7 +231,7 @@ function exportCrop(canvas: HTMLCanvasElement | null, crop: CropState) {
 }
 
 function clampCrop(crop: CropState, outputWidth: number, outputHeight: number) {
-  const baseScale = Math.max(
+  const baseScale = Math.min(
     outputWidth / crop.image.naturalWidth,
     outputHeight / crop.image.naturalHeight,
   );
@@ -256,7 +256,7 @@ function drawCrop(
   const context = canvas?.getContext("2d");
   if (!canvas || !context) return;
   const next = clampCrop(crop, outputWidth, outputHeight);
-  const baseScale = Math.max(
+  const baseScale = Math.min(
     outputWidth / next.image.naturalWidth,
     outputHeight / next.image.naturalHeight,
   );
@@ -264,7 +264,8 @@ function drawCrop(
   const width = next.image.naturalWidth * scale;
   const height = next.image.naturalHeight * scale;
 
-  context.clearRect(0, 0, outputWidth, outputHeight);
+  context.fillStyle = "#f4f8fd";
+  context.fillRect(0, 0, outputWidth, outputHeight);
   context.drawImage(
     next.image,
     (outputWidth - width) / 2 + next.offsetX,
