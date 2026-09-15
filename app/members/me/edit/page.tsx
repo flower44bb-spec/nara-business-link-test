@@ -152,16 +152,25 @@ export default function EditMyProfilePage() {
                   </p>
                 )}
                 {[
-                  ["full_name", "氏名"], ["local_chapter", "所属単会"], ["position", "役職"],
-                  ["company_name", "会社名"], ["industry", "業種"],
+                  ["full_name", "氏名 *"], ["local_chapter", "所属単会 *"], ["position", "役職"],
+                  ["company_name", "会社名 *"], ["industry", "業種 *"],
                 ].map(([key, label]) => (
                   <div className="field" key={key}>
                     <label htmlFor={key}>{label}</label>
-                    <input id={key} value={form[key as keyof typeof form]} onChange={(e) => field(key as keyof typeof form, e.target.value)} />
+                    <input
+                      id={key}
+                      value={form[key as keyof typeof form]}
+                      onChange={(e) => field(key as keyof typeof form, e.target.value)}
+                      required={["full_name", "local_chapter", "company_name", "industry"].includes(key)}
+                    />
                   </div>
                 ))}
+                <div className="field">
+                  <label htmlFor="bio">自己紹介 *</label>
+                  <textarea id="bio" value={form.bio} onChange={(e) => field("bio", e.target.value)} required />
+                </div>
                 {[
-                  ["bio", "自己紹介"], ["can_help_with", "相談できること"],
+                  ["can_help_with", "相談できること"],
                   ["wants_to_connect_with", "つながりたい業種"],
                 ].map(([key, label]) => (
                   <div className="field" key={key}>

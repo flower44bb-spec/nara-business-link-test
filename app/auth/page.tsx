@@ -88,7 +88,7 @@ export default function AuthPage() {
       <section className="auth-card">
         <HomeLink />
         <h1>{user ? "ログイン中です" : "会員メニュー"}</h1>
-        <p>奈良県商工会青年部員のアカウントでご利用ください。現在は登録後すぐに会員機能をご利用いただけます。</p>
+        <p>奈良県商工会青年部員のアカウントでご利用ください。初回ログイン時は、会員プロフィールと事業者情報の最低限登録をお願いします。</p>
         {user ? (
           <>
             <div className="notice">{user.email}</div>
@@ -97,6 +97,9 @@ export default function AuthPage() {
             )}
             <Link className="button" href="/members/me/edit">
               <Pencil size={16} /> 会員情報を編集
+            </Link>
+            <Link className="button secondary" href="/onboarding">
+              初回設定を確認
             </Link>
             <button className="button secondary" type="button" onClick={logout}>
               ログアウト

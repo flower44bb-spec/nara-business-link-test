@@ -139,8 +139,8 @@ export function BusinessForm({
         <textarea id="description" value={description} onChange={(event) => setDescription(event.target.value)} required />
       </div>
       <div className="field">
-        <label htmlFor="services">商品・サービス・得意分野</label>
-        <textarea id="services" value={services} onChange={(event) => setServices(event.target.value)} />
+        <label htmlFor="services">商品・サービス・得意分野 *</label>
+        <textarea id="services" value={services} onChange={(event) => setServices(event.target.value)} required />
       </div>
       <div className="field">
         <label htmlFor="needs">求めている連携</label>

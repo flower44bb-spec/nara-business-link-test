@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { Header } from "@/components/header";
+import { OnboardingGuard } from "@/components/onboarding-guard";
 import { PageViewTracker } from "@/components/page-view-tracker";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({
       <body>
         <AuthProvider>
           <Header />
+          <OnboardingGuard />
           <PageViewTracker />
           {children}
           <footer className="site-footer">

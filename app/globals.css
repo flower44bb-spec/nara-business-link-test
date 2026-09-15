@@ -302,8 +302,16 @@ button { cursor: pointer; }
 .form-card { max-width: 760px; margin: 0 auto; }
 .form-card h2, .detail-card h1 { font-family: "Shippori Mincho", serif; }
 .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 26px; }
+.onboarding-heading {
+  display: flex; gap: 16px; align-items: flex-start; margin-bottom: 22px; padding: 18px;
+  color: var(--ink); background: #edf4fb; border: 1px solid #cddbea; border-radius: 10px;
+}
+.onboarding-heading svg { flex: 0 0 auto; color: var(--green); }
+.onboarding-heading h2 { margin: 0 0 6px; font-size: 23px; }
+.onboarding-heading p { margin: 0; color: var(--muted); line-height: 1.8; }
 .notice, .error { padding: 13px 16px; margin-bottom: 20px; border-radius: 4px; font-size: 13px; }
 .notice { color: #2c5c45; background: #e5f0e8; }
+.notice svg { vertical-align: -3px; margin-right: 4px; }
 .error { color: #8a321f; background: #f8e5df; }
 .detail-layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(250px, .8fr); gap: 26px; }
 .detail-card { min-width: 0; }
