@@ -147,16 +147,18 @@ export function AdminAnalytics() {
   ];
 
   return (
-    <section className="admin-panel analytics-panel">
-      <div className="analytics-heading">
+    <details className="admin-panel admin-foldout analytics-panel">
+      <summary>
         <div>
-          <h2>利用状況・有料化判断</h2>
+          <span className="admin-foldout-title">利用状況・有料化判断</span>
           <p className="admin-panel-help">
             直近30日間の利用状況と、契約プラン見直しの判断材料です。
           </p>
         </div>
         <span className="analytics-period">過去30日</span>
-      </div>
+      </summary>
+
+      <div className="admin-foldout-body">
 
       {loading ? (
         <p>利用状況を集計しています...</p>
@@ -259,7 +261,8 @@ export function AdminAnalytics() {
           または複数管理者で運用したくなった時を切替検討の目安にしてください。
         </p>
       </div>
-    </section>
+      </div>
+    </details>
   );
 }
 

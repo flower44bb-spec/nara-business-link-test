@@ -200,76 +200,94 @@ export default function AdminPage() {
             {loading ? <Loading /> : (
               <div className="admin-sections">
                 <AdminAnalytics />
-                <section className="admin-panel">
-                  <h2>ログイン履歴 <span>{loginEvents.length}</span></h2>
-                  <p className="admin-panel-help">直近100件のログイン成功履歴です。誰がいつログインしたかを確認できます。</p>
-                  <button className="icon-action" type="button" onClick={() => exportLoginEventsCsv(loginEvents, users)}>
-                    <Download size={16} /> ログイン履歴CSV出力
-                  </button>
-                  <div className="admin-table-wrap">
-                    <table className="admin-table">
-                      <thead><tr><th>ログイン日時</th><th>氏名</th><th>メール</th><th>所属・会社</th><th>利用環境</th></tr></thead>
-                      <tbody>
-                        {loginEvents.length ? loginEvents.map((event) => {
-                          const profile = event.user_id ? users.find((item) => item.id === event.user_id) : undefined;
-                          return (
-                            <tr key={event.id}>
-                              <td>{new Date(event.created_at).toLocaleString("ja-JP")}</td>
-                              <td>{profile?.full_name || "未設定"}</td>
-                              <td>{event.email || profile?.email || "未設定"}</td>
-                              <td>{profile?.local_chapter || "-"} / {profile?.company_name || "-"}</td>
-                              <td>{shortUserAgent(event.user_agent)}</td>
-                            </tr>
-                          );
-                        }) : <tr><td colSpan={5}>ログイン履歴はまだありません。Supabaseでログイン履歴SQLが実行済みか確認してください。</td></tr>}
-                      </tbody>
-                    </table>
+                <details className="admin-panel admin-foldout">
+                  <summary>
+                    <div>
+                      <span className="admin-foldout-title">ログイン履歴 <span>{loginEvents.length}</span></span>
+                      <p className="admin-panel-help">直近100件のログイン成功履歴です。誰がいつログインしたかを確認できます。</p>
+                    </div>
+                  </summary>
+                  <div className="admin-foldout-body">
+                    <button className="icon-action" type="button" onClick={() => exportLoginEventsCsv(loginEvents, users)}>
+                      <Download size={16} /> ログイン履歴CSV出力
+                    </button>
+                    <div className="admin-table-wrap">
+                      <table className="admin-table">
+                        <thead><tr><th>ログイン日時</th><th>氏名</th><th>メール</th><th>所属・会社</th><th>利用環境</th></tr></thead>
+                        <tbody>
+                          {loginEvents.length ? loginEvents.map((event) => {
+                            const profile = event.user_id ? users.find((item) => item.id === event.user_id) : undefined;
+                            return (
+                              <tr key={event.id}>
+                                <td>{new Date(event.created_at).toLocaleString("ja-JP")}</td>
+                                <td>{profile?.full_name || "未設定"}</td>
+                                <td>{event.email || profile?.email || "未設定"}</td>
+                                <td>{profile?.local_chapter || "-"} / {profile?.company_name || "-"}</td>
+                                <td>{shortUserAgent(event.user_agent)}</td>
+                              </tr>
+                            );
+                          }) : <tr><td colSpan={5}>ログイン履歴はまだありません。Supabaseでログイン履歴SQLが実行済みか確認してください。</td></tr>}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </section>
+                </details>
 
-                <section className="admin-panel">
-                  <h2>商談管理 <span>{deals.length}</span></h2>
-                  <p className="admin-panel-help">投稿やDMから始まった商談の進捗、金額、成功事例への変換状況を確認できます。</p>
-                  <button className="icon-action" type="button" onClick={() => exportDealsCsv(deals, users)}>
-                    <Download size={16} /> 商談CSV出力
-                  </button>
-                  <div className="admin-table-wrap">
-                    <table className="admin-table">
-                      <thead><tr><th>商談名</th><th>状態</th><th>依頼者</th><th>受注者</th><th>金額</th><th>成功事例</th><th>操作</th></tr></thead>
-                      <tbody>
-                        {deals.length ? deals.map((deal) => {
-                          const requester = users.find((profile) => profile.id === deal.requester_id);
-                          const contractor = users.find((profile) => profile.id === deal.contractor_id);
-                          return (
-                            <tr key={deal.id}>
-                              <td>{deal.title}</td>
-                              <td><span className={`status ${deal.status}`}>{dealStatusLabels[deal.status]}</span></td>
-                              <td>{requester?.full_name || requester?.company_name || "未設定"}</td>
-                              <td>{contractor?.full_name || contractor?.company_name || "未設定"}</td>
-                              <td>{formatDealAmount(deal.amount)}</td>
-                              <td>{deal.success_id ? <Link className="text-link" href={`/successes/${deal.success_id}`}>登録済み</Link> : "未登録"}</td>
-                              <td><Link className="icon-action" href={`/deals/${deal.id}`}><Eye size={16} /> 詳細</Link></td>
-                            </tr>
-                          );
-                        }) : <tr><td colSpan={7}>商談はまだありません。</td></tr>}
-                      </tbody>
-                    </table>
+                <details className="admin-panel admin-foldout">
+                  <summary>
+                    <div>
+                      <span className="admin-foldout-title">商談管理 <span>{deals.length}</span></span>
+                      <p className="admin-panel-help">投稿やDMから始まった商談の進捗、金額、成功事例への変換状況を確認できます。</p>
+                    </div>
+                  </summary>
+                  <div className="admin-foldout-body">
+                    <button className="icon-action" type="button" onClick={() => exportDealsCsv(deals, users)}>
+                      <Download size={16} /> 商談CSV出力
+                    </button>
+                    <div className="admin-table-wrap">
+                      <table className="admin-table">
+                        <thead><tr><th>商談名</th><th>状態</th><th>依頼者</th><th>受注者</th><th>金額</th><th>成功事例</th><th>操作</th></tr></thead>
+                        <tbody>
+                          {deals.length ? deals.map((deal) => {
+                            const requester = users.find((profile) => profile.id === deal.requester_id);
+                            const contractor = users.find((profile) => profile.id === deal.contractor_id);
+                            return (
+                              <tr key={deal.id}>
+                                <td>{deal.title}</td>
+                                <td><span className={`status ${deal.status}`}>{dealStatusLabels[deal.status]}</span></td>
+                                <td>{requester?.full_name || requester?.company_name || "未設定"}</td>
+                                <td>{contractor?.full_name || contractor?.company_name || "未設定"}</td>
+                                <td>{formatDealAmount(deal.amount)}</td>
+                                <td>{deal.success_id ? <Link className="text-link" href={`/successes/${deal.success_id}`}>登録済み</Link> : "未登録"}</td>
+                                <td><Link className="icon-action" href={`/deals/${deal.id}`}><Eye size={16} /> 詳細</Link></td>
+                              </tr>
+                            );
+                          }) : <tr><td colSpan={7}>商談はまだありません。</td></tr>}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                </section>
+                </details>
 
-                <section className="admin-panel">
-                  <h2>スキル分析</h2>
-                  <p className="admin-panel-help">会員の資格・得意分野・検索回数・相談件数をランキングで確認できます。</p>
-                  <button className="icon-action" type="button" onClick={() => exportSkillsCsv(skillRankings)}>
-                    <Download size={16} /> スキルCSV出力
-                  </button>
-                  <div className="ranking-grid">
-                    <RankingBox title="資格一覧" items={skillRankings.qualifications || []} />
-                    <RankingBox title="得意分野一覧" items={skillRankings.specialties || []} />
-                    <RankingBox title="検索回数ランキング" items={skillRankings.searches || []} />
-                    <RankingBox title="相談件数ランキング" items={skillRankings.consultations || []} />
+                <details className="admin-panel admin-foldout">
+                  <summary>
+                    <div>
+                      <span className="admin-foldout-title">スキル分析</span>
+                      <p className="admin-panel-help">会員の資格・得意分野・検索回数・相談件数をランキングで確認できます。</p>
+                    </div>
+                  </summary>
+                  <div className="admin-foldout-body">
+                    <button className="icon-action" type="button" onClick={() => exportSkillsCsv(skillRankings)}>
+                      <Download size={16} /> スキルCSV出力
+                    </button>
+                    <div className="ranking-grid">
+                      <RankingBox title="資格一覧" items={skillRankings.qualifications || []} />
+                      <RankingBox title="得意分野一覧" items={skillRankings.specialties || []} />
+                      <RankingBox title="検索回数ランキング" items={skillRankings.searches || []} />
+                      <RankingBox title="相談件数ランキング" items={skillRankings.consultations || []} />
+                    </div>
                   </div>
-                </section>
+                </details>
 
                 <section className="admin-panel">
                   <div className="admin-post-groups">

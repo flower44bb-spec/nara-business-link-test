@@ -448,6 +448,26 @@ button { cursor: pointer; }
 .admin-panel h2 { margin-top: 0; font-size: 22px; }
 .admin-panel h2 span { display: inline-grid; min-width: 28px; height: 28px; place-items: center; color: white; background: var(--green); border-radius: 50%; font-size: 12px; }
 .admin-panel-help { margin: -7px 0 20px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.admin-foldout { padding: 0; overflow: hidden; }
+.admin-foldout > summary {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 25px;
+  cursor: pointer; list-style: none;
+}
+.admin-foldout > summary::-webkit-details-marker { display: none; }
+.admin-foldout > summary::after {
+  content: "開く"; flex: 0 0 auto; padding: 7px 12px; color: var(--green);
+  border: 1px solid var(--line); border-radius: 999px; font-size: 12px; font-weight: 800;
+}
+.admin-foldout[open] > summary { border-bottom: 1px solid var(--line); }
+.admin-foldout[open] > summary::after { content: "閉じる"; color: white; background: var(--green); border-color: var(--green); }
+.admin-foldout-title { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-size: 22px; font-weight: 900; }
+.admin-foldout-title > span {
+  display: inline-grid; min-width: 28px; height: 28px; place-items: center;
+  color: white; background: var(--green); border-radius: 50%; font-size: 12px;
+}
+.admin-foldout .admin-panel-help { margin: 7px 0 0; }
+.admin-foldout-body { padding: 22px 25px 25px; }
+.admin-foldout-body > .icon-action:first-child { margin-bottom: 14px; }
 .admin-post-groups { display: grid; gap: 12px; }
 .admin-post-group { overflow: hidden; border: 1px solid var(--line); border-radius: 7px; }
 .admin-post-group summary {
@@ -581,6 +601,8 @@ button { cursor: pointer; }
   .admin-toolbar { align-items: stretch; flex-direction: column; gap: 14px; }
   .analytics-heading { flex-direction: column; }
   .analytics-grid, .analytics-insights, .upgrade-check-grid { grid-template-columns: 1fr; }
+  .admin-foldout > summary { align-items: flex-start; flex-direction: column; }
+  .admin-foldout > summary::after { align-self: flex-start; }
   .admin-post-group summary { align-items: flex-start; flex-direction: column; }
   .admin-summary-meta { width: 100%; margin-left: 0; justify-content: flex-start; flex-wrap: wrap; }
   .cta-band .container, .site-footer { align-items: flex-start; flex-direction: column; }
