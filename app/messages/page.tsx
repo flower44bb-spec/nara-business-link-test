@@ -45,7 +45,7 @@ export default function MessagesPage() {
 
   return (
     <main>
-      <PageHero eyebrow="Direct Messages" title="DM" description="承認済みの青年部員同士で、仕事や連携について安全に相談できます。" />
+      <PageHero eyebrow="Direct Messages" title="DM" description="青年部員同士で、仕事や連携について安全に相談できます。" />
       <section className="page-content">
         <div className="container">
           <HomeLink />

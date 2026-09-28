@@ -18,7 +18,7 @@ export function LikeButton({
   initialCount?: number;
   compact?: boolean;
 }) {
-  const { user, isApproved } = useAuth();
+  const { user } = useAuth();
   const [count, setCount] = useState(initialCount ?? 0);
   const [liked, setLiked] = useState(false);
   const [loading, setLoading] = useState(initialCount === undefined);
@@ -55,10 +55,6 @@ export function LikeButton({
     setError("");
     if (!user) {
       setError("ログイン後にいいねできます。");
-      return;
-    }
-    if (!isApproved) {
-      setError("管理者承認後にいいねできます。");
       return;
     }
     setLoading(true);

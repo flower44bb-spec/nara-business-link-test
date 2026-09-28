@@ -77,7 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       session,
       user: session?.user ?? null,
       profile,
-      isApproved: profile?.role === "member" || profile?.role === "admin",
+      // Member approval has been retired. Every authenticated user can use member features.
+      isApproved: Boolean(session?.user),
       isAdmin: profile?.role === "admin",
       loading,
       refreshProfile,

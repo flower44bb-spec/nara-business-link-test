@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 
 export function MessageUserButton({ recipientId }: { recipientId?: string | null }) {
   const router = useRouter();
-  const { user, isApproved } = useAuth();
+  const { user } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -17,10 +17,6 @@ export function MessageUserButton({ recipientId }: { recipientId?: string | null
   async function startConversation() {
     if (!user) {
       router.push("/auth");
-      return;
-    }
-    if (!isApproved) {
-      setError("管理者承認後にDMを利用できます。");
       return;
     }
     setLoading(true);

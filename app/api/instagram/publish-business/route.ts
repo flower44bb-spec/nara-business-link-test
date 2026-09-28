@@ -64,10 +64,6 @@ export async function POST(request: NextRequest) {
   if (businessError || !business) {
     return errorResponse("事業者情報を取得できませんでした。", 404);
   }
-  if (business.approval_status !== "approved") {
-    return errorResponse("承認済みの事業者のみInstagramへ投稿できます。", 400);
-  }
-
   const imageUrl = String(business.image_url || "");
   if (!isPublicHttpsUrl(imageUrl)) {
     return errorResponse("Instagram投稿には公開されたHTTPS画像が必要です。", 400);

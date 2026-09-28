@@ -185,7 +185,7 @@ export function HomeStats() {
             </div>
           ))}
         </div>
-        <p className="stats-note">管理者承認済みの登録・実績を集計しています。</p>
+        <p className="stats-note">現在公開されている登録情報と実績を集計しています。</p>
         <section className="featured-showcase" aria-label="注目情報">
           <div className="featured-showcase-heading">
             <span><Flame size={18} /> Pickup Topics</span>

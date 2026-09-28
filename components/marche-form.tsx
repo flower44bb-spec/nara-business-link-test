@@ -12,7 +12,7 @@ import type { MarchePost } from "@/types";
 
 export function MarcheForm({ post }: { post?: MarchePost }) {
   const router = useRouter();
-  const { user, isApproved, isAdmin } = useAuth();
+  const { user } = useAuth();
   const [form, setForm] = useState({
     event_type: post?.event_type || "地域PR",
     event_name: post?.event_name || "",
@@ -46,7 +46,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!user || !isApproved) return;
+    if (!user) return;
     if (imageProcessing) {
       setError("画像の表示範囲を反映中です。完了してから保存してください。");
       return;
@@ -73,7 +73,7 @@ export function MarcheForm({ post }: { post?: MarchePost }) {
       application_deadline: form.application_deadline || null,
       image_url: imageUrl,
       user_id: user.id,
-      approval_status: isAdmin ? post?.approval_status || "approved" : "pending",
+      approval_status: "approved",
       updated_at: new Date().toISOString(),
     };
     let { data, error: saveError } = post

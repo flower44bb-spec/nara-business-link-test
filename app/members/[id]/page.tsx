@@ -84,9 +84,6 @@ export default function MemberDetailPage() {
                           <div className="linked-business-image placeholder"><Building2 size={28} /></div>
                         )}
                         <div>
-                          {business.approval_status && business.approval_status !== "approved" && (
-                            <span className={`status ${business.approval_status}`}>{business.approval_status === "pending" ? "承認待ち" : "却下"}</span>
-                          )}
                           <span className="tag">{String(business.category || "業種未設定")}</span>
                           <h3>{recordTitle(business)}</h3>
                           <p className="linked-business-meta"><MapPin size={14} /> {String(business.area || "地域未設定")}</p>

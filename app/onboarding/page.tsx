@@ -13,7 +13,7 @@ import type { BaseRecord } from "@/types";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, profile, isAdmin, loading: authLoading, refreshProfile } = useAuth();
+  const { user, profile, loading: authLoading, refreshProfile } = useAuth();
   const [business, setBusiness] = useState<BaseRecord | null>(null);
   const [loadingBusiness, setLoadingBusiness] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -126,7 +126,7 @@ export default function OnboardingPage() {
       content: trimmed.bio,
       services: trimmed.services,
       user_id: user.id,
-      approval_status: isAdmin ? business?.approval_status || "approved" : "pending",
+      approval_status: "approved",
       updated_at: new Date().toISOString(),
     };
 

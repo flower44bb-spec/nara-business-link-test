@@ -16,13 +16,13 @@ export function DeleteButton({
   redirect: string;
 }) {
   const router = useRouter();
-  const { isApproved, isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
   async function remove() {
-    if (!isApproved && !isAdmin) {
-      setError("管理者承認後に削除できます。");
+    if (!user && !isAdmin) {
+      setError("ログイン後に削除できます。");
       return;
     }
     if (!window.confirm("このデータを削除します。よろしいですか？")) return;

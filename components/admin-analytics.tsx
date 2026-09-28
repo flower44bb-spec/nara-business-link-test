@@ -129,12 +129,8 @@ export function AdminAnalytics() {
       icon: Activity,
     },
     { label: "登録会員総数", value: summary.registered_members, icon: Users },
-    { label: "承認済み会員", value: summary.approved_members, icon: Users },
-    { label: "承認待ち会員", value: summary.pending_members, icon: UserPlus },
     { label: "30日新規会員", value: summary.new_members, icon: UserPlus },
     { label: "登録事業者総数", value: summary.registered_businesses, icon: Building2 },
-    { label: "承認済み事業者", value: summary.approved_businesses, icon: Building2 },
-    { label: "承認待ち事業者", value: summary.pending_businesses, icon: Building2 },
     { label: "全投稿数", value: summary.total_posts, icon: BarChart3 },
     { label: "いいね数", value: summary.likes, icon: Heart },
     { label: "DM送信数", value: summary.messages, icon: MessageCircle },
@@ -196,7 +192,7 @@ export function AdminAnalytics() {
             <div>
               <span>会員利用率の参考値</span>
               <strong>{activeMemberRate.toFixed(1)}%</strong>
-              <small>30日ログイン利用者 ÷ 承認済み会員</small>
+              <small>30日ログイン利用者 ÷ 登録会員</small>
             </div>
           </div>
 

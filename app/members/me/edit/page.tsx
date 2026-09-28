@@ -146,11 +146,6 @@ export default function EditMyProfilePage() {
                     別のウインドウでもプロフィールを編集中です。このウインドウの入力内容は個別に一時保存されます。
                   </p>
                 )}
-                {!isApproved && (
-                  <p className="pending-banner">
-                    管理者承認前でも会員情報を修正できます。保存後も承認状態は変わりません。
-                  </p>
-                )}
                 {[
                   ["full_name", "氏名 *"], ["local_chapter", "所属単会 *"], ["position", "役職"],
                   ["company_name", "会社名 *"], ["industry", "業種 *"],

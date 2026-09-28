@@ -16,8 +16,7 @@ export function InstagramPublishButton({ business }: { business: BaseRecord }) {
 
   if (!isAdmin) return null;
 
-  const canPublish =
-    business.approval_status === "approved" && Boolean(business.image_url);
+  const canPublish = Boolean(business.image_url);
 
   async function publish(event: FormEvent) {
     event.preventDefault();
@@ -73,7 +72,7 @@ export function InstagramPublishButton({ business }: { business: BaseRecord }) {
       </button>
       {!canPublish && (
         <p className="inline-error">
-          承認済みで画像が登録された事業者のみ投稿できます。
+          画像が登録された事業者のみ投稿できます。
         </p>
       )}
       {open && canPublish && (

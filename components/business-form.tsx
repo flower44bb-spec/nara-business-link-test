@@ -16,7 +16,7 @@ export function BusinessForm({
   business?: BaseRecord;
 }) {
   const router = useRouter();
-  const { user, isApproved, isAdmin, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [name, setName] = useState(String(business?.name || business?.title || ""));
   const [category, setCategory] = useState(String(business?.category || ""));
   const [area, setArea] = useState(String(business?.area || ""));
@@ -49,7 +49,7 @@ export function BusinessForm({
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!user || !isApproved) {
+    if (!user) {
       router.push("/auth");
       return;
     }
@@ -92,7 +92,7 @@ export function BusinessForm({
       contact,
       image_url: imageUrl || null,
       user_id: business?.user_id || user.id,
-      approval_status: isAdmin ? business?.approval_status || "approved" : "pending",
+      approval_status: "approved",
     };
     const result = business
       ? await updateRecord("businesses", String(business.id), payload)
@@ -111,7 +111,7 @@ export function BusinessForm({
   }
 
   if (authLoading) return <p>認証情報を確認しています...</p>;
-  if (!user || !isApproved) return <ApprovalGate action="事業者の登録・編集"><span /></ApprovalGate>;
+  if (!user) return <ApprovalGate action="事業者の登録・編集"><span /></ApprovalGate>;
 
   return (
     <form onSubmit={submit}>
@@ -166,8 +166,8 @@ export function BusinessForm({
             : imageProcessing
               ? "画像を反映中..."
               : business
-                ? "変更を保存（再承認）"
-                : "事業者を登録（承認申請）"}
+                ? "変更を保存"
+                : "事業者を登録"}
         </button>
       </div>
     </form>

@@ -20,9 +20,6 @@ export function ResourceCard({
     <article className={item.is_featured ? "card featured-card" : "card"}>
       {item.is_featured && <div className="featured-ribbon">注目情報</div>}
       <div className="card-body">
-        {item.approval_status && item.approval_status !== "approved" && (
-          <span className={`status ${item.approval_status}`}>{item.approval_status === "pending" ? "承認待ち" : "却下"}</span>
-        )}
         {item.is_featured && <span className="featured-badge">ピックアップ</span>}
         <span className="tag">{String(item.category || config.label)}</span>
         {config.table === "collaborations" && item.collaboration_status === "successful" && (

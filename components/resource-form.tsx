@@ -20,7 +20,7 @@ export function ResourceForm({
   dealId?: string | null;
 }) {
   const router = useRouter();
-  const { user, isApproved, isAdmin, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const sourceDealId = config.table === "successes" && !item ? dealId : null;
   const [title, setTitle] = useState(String(item?.title || ""));
   const [category, setCategory] = useState(String(item?.category || ""));
@@ -82,7 +82,7 @@ export function ResourceForm({
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!user || !isApproved) {
+    if (!user) {
       router.push("/auth");
       return;
     }
@@ -127,7 +127,7 @@ export function ResourceForm({
       related_post_type: config.table === "successes" ? sourceDeal?.source_type || null : undefined,
       related_post_id: config.table === "successes" ? sourceDeal?.source_id || null : undefined,
       user_id: item?.user_id || user.id,
-      approval_status: isAdmin ? item?.approval_status || "approved" : "pending",
+      approval_status: "approved",
     };
     const { data, error: saveError } = item
       ? await updateRecord(config.table, String(item.id), payload)
@@ -151,7 +151,7 @@ export function ResourceForm({
   }
 
   if (authLoading) return <p>認証情報を確認しています...</p>;
-  if (!user || !isApproved) return <ApprovalGate action={`${config.label}の投稿`}><span /></ApprovalGate>;
+  if (!user) return <ApprovalGate action={`${config.label}の投稿`}><span /></ApprovalGate>;
 
   return (
     <form onSubmit={submit}>
@@ -233,10 +233,8 @@ export function ResourceForm({
             : imageProcessing
               ? "画像を反映中..."
             : item
-              ? isAdmin
-                ? "変更を保存"
-                : "変更を保存（再承認）"
-              : `${config.singular}を投稿（承認申請）`}
+              ? "変更を保存"
+              : `${config.singular}を投稿`}
         </button>
       </div>
     </form>

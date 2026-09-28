@@ -47,17 +47,16 @@ export default function MarcheDetailPage() {
       <section className="page-content">
         <div className="container">
           <BackLink href="/marche" />
-          {saved === "new" && <p className="notice">投稿を受け付けました。管理者承認後に一般公開されます。</p>}
+          {saved === "new" && <p className="notice">投稿を公開しました。</p>}
           {saved === "edit" && (
             <p className="notice">
-              {isAdmin ? "変更を保存しました。" : "変更を保存しました。管理者の再承認後に一般公開されます。"}
+              変更を保存し、公開内容へ反映しました。
             </p>
           )}
           {loading ? <Loading /> : !post ? <Empty text="PRが見つかりません。" /> : (
             <div className="detail-layout">
               <article className="detail-card">
                 {post.image_url && <img className="detail-image" src={post.image_url} alt={post.event_name} />}
-                {post.approval_status !== "approved" && <span className="status pending">承認待ち</span>}
                 <h1>{post.event_name}</h1>
                 <p className="detail-description">{post.description}</p>
                 <h2 className="detail-subheading">投稿者情報</h2>

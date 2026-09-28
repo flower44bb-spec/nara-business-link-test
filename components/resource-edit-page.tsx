@@ -34,7 +34,7 @@ export function ResourceEditPage({ config }: { config: ResourceConfig }) {
       <PageHero
         eyebrow={`Edit ${config.accent}`}
         title={`${config.label}を編集`}
-        description="投稿内容を最新の情報に更新できます。一般会員の編集後は再度管理者の承認が必要です。"
+        description="投稿内容を最新の情報に更新できます。編集内容は保存後すぐに公開ページへ反映されます。"
       />
       <section className="page-content">
         <div className="container">

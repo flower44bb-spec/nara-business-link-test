@@ -77,18 +77,15 @@ export function ResourceDetail({ config }: { config: ResourceConfig }) {
       <section className="page-content">
         <div className="container">
           <BackLink href={`/${config.table}`} />
-          {saved === "new" && <p className="notice">投稿を受け付けました。管理者承認後に公開されます。</p>}
+          {saved === "new" && <p className="notice">投稿を公開しました。</p>}
           {saved === "edit" && (
             <p className="notice">
-              {isAdmin ? "変更を保存しました。" : "変更を保存しました。管理者の再承認後に公開されます。"}
+              変更を保存し、公開内容へ反映しました。
             </p>
           )}
           {loading ? <Loading /> : error || !item ? <Empty text={`投稿を取得できませんでした。${error}`} /> : (
             <div className="detail-layout">
               <article className="detail-card">
-                {item.approval_status && item.approval_status !== "approved" && (
-                  <span className={`status ${item.approval_status}`}>{item.approval_status === "pending" ? "承認待ち" : "却下"}</span>
-                )}
                 <span className="tag">{String(item.category || config.label)}</span>
                 {config.table === "collaborations" && item.collaboration_status === "successful" && (
                   <span className="status successful">コラボ成功</span>

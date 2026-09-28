@@ -92,9 +92,6 @@ export default function AuthPage() {
         {user ? (
           <>
             <div className="notice">{user.email}</div>
-            {profile?.role === "pending" && (
-              <div className="pending-banner">管理者承認待ちです</div>
-            )}
             <Link className="button" href="/members/me/edit">
               <Pencil size={16} /> 会員情報を編集
             </Link>

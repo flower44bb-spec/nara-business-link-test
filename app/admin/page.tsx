@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Download, Eye, RefreshCw, Shield, Star, Trash2, X } from "lucide-react";
+import { Download, Eye, RefreshCw, Shield, Star, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ApprovalGate } from "@/components/approval-gate";
@@ -47,14 +47,9 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [pendingPage, setPendingPage] = useState(1);
   const [accountPage, setAccountPage] = useState(1);
 
-  const pendingUsers = users.filter((profile) => profile.role === "pending");
-  const activePendingCount = pendingUsers.filter((profile) => !profile.rejected_at).length;
-  const pendingTotalPages = Math.max(1, Math.ceil(pendingUsers.length / ADMIN_PAGE_SIZE));
   const accountTotalPages = Math.max(1, Math.ceil(users.length / ADMIN_PAGE_SIZE));
-  const visiblePendingUsers = paginate(pendingUsers, pendingPage, ADMIN_PAGE_SIZE);
   const visibleAccountUsers = paginate(users, accountPage, ADMIN_PAGE_SIZE);
 
   async function load() {
@@ -97,29 +92,8 @@ export default function AdminPage() {
 
   useEffect(() => { load(); }, []);
   useEffect(() => {
-    setPendingPage((page) => Math.min(page, pendingTotalPages));
-  }, [pendingTotalPages]);
-  useEffect(() => {
     setAccountPage((page) => Math.min(page, accountTotalPages));
   }, [accountTotalPages]);
-
-  async function updateUser(profile: Profile, approve: boolean) {
-    setMessage("");
-    setError("");
-    const { error: updateError } = await supabase.from("profiles").update(
-      approve
-        ? { role: "member", rejected_at: null, updated_at: new Date().toISOString() }
-        : { role: "pending", rejected_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-    ).eq("id", profile.id);
-    if (updateError) {
-      console.error("Failed to update member approval:", updateError);
-      setError("会員の承認状態を更新できませんでした。時間をおいて再度お試しください。");
-    }
-    else {
-      setMessage(`${profile.full_name || profile.email || "ユーザー"}を${approve ? "承認" : "却下"}しました。`);
-      await load();
-    }
-  }
 
   async function deleteUser(profile: Profile) {
     const displayName = profile.full_name || profile.email || "この会員";
@@ -143,23 +117,17 @@ export default function AdminPage() {
     await load();
   }
 
-  async function updatePost(post: PendingContent, action: "approve" | "reject" | "delete") {
+  async function deletePost(post: PendingContent) {
     setMessage("");
     setError("");
-    if (action === "delete" && !window.confirm("この投稿を削除します。よろしいですか？")) return;
-    const { error: updateError } = action === "delete"
-      ? await supabase.from(post.sourceTable).delete().eq("id", post.id)
-      : await supabase.rpc("admin_set_content_status", {
-          target_table: post.sourceTable,
-          target_id: post.id,
-          next_status: action === "approve" ? "approved" : "rejected",
-        });
+    if (!window.confirm("この投稿を削除します。よろしいですか？")) return;
+    const { error: updateError } = await supabase.from(post.sourceTable).delete().eq("id", post.id);
     if (updateError) {
       console.error("Failed to update post status:", updateError);
       setError("投稿の状態を更新できませんでした。時間をおいて再度お試しください。");
     }
     else {
-      setMessage(`「${postTitle(post)}」を${action === "approve" ? "承認" : action === "reject" ? "却下" : "削除"}しました。`);
+      setMessage(`「${postTitle(post)}」を削除しました。`);
       await load();
     }
   }
@@ -186,13 +154,13 @@ export default function AdminPage() {
 
   return (
     <main>
-      <PageHero eyebrow="Administration" title="管理者ページ" description="会員登録と各投稿の承認状況を確認し、公開範囲を管理します。" />
+      <PageHero eyebrow="Administration" title="管理者ページ" description="会員・投稿・利用状況を確認し、サイトの掲載内容を管理します。" />
       <section className="page-content">
         <div className="container">
           <HomeLink />
           <ApprovalGate adminOnly action="管理者ページ">
             <div className="admin-toolbar">
-              <div><Shield /><strong>承認管理</strong></div>
+              <div><Shield /><strong>サイト管理</strong></div>
               <button className="button secondary" type="button" onClick={load}><RefreshCw size={16} /> 再読み込み</button>
             </div>
             {message && <p className="notice">{message}</p>}
@@ -291,47 +259,6 @@ export default function AdminPage() {
 
                 <section className="admin-panel">
                   <div className="admin-post-groups">
-                    <details className="admin-post-group" open={activePendingCount > 0 || undefined}>
-                      <summary>
-                        <span>未承認ユーザー</span>
-                        <span className="admin-summary-meta">
-                          {activePendingCount > 0 && <span className="pending-count">{activePendingCount}件 承認待ち</span>}
-                          <span className="total-count">全{pendingUsers.length}件</span>
-                        </span>
-                      </summary>
-                      <p className="admin-list-range">{itemRange(pendingUsers.length, pendingPage)}</p>
-                      <div className="admin-table-wrap">
-                        <table className="admin-table">
-                          <thead><tr><th>氏名</th><th>メール</th><th>所属・会社</th><th>状態</th><th>操作</th></tr></thead>
-                          <tbody>
-                            {visiblePendingUsers.length ? visiblePendingUsers.map((profile) => (
-                              <tr key={profile.id}>
-                                <td>{profile.full_name || "未設定"}</td>
-                                <td>{profile.email || "未設定"}</td>
-                                <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
-                                <td><span className={profile.rejected_at ? "status rejected" : "status pending"}>{profile.rejected_at ? "却下済み" : "承認待ち"}</span></td>
-                                <td className="action-cell">
-                                  <button className="icon-action approve" type="button" onClick={() => updateUser(profile, true)}><Check size={16} /> 承認</button>
-                                  {!profile.rejected_at && <button className="icon-action reject" type="button" onClick={() => updateUser(profile, false)}><X size={16} /> 却下</button>}
-                                </td>
-                              </tr>
-                            )) : <tr><td colSpan={5}>未承認ユーザーはいません。</td></tr>}
-                          </tbody>
-                        </table>
-                      </div>
-                      <Pagination
-                        currentPage={pendingPage}
-                        onPageChange={setPendingPage}
-                        pageSize={ADMIN_PAGE_SIZE}
-                        scrollToTop={false}
-                        totalItems={pendingUsers.length}
-                      />
-                    </details>
-                  </div>
-                </section>
-
-                <section className="admin-panel">
-                  <div className="admin-post-groups">
                     <details className="admin-post-group">
                       <summary>
                         <span>会員アカウント照会</span>
@@ -350,7 +277,7 @@ export default function AdminPage() {
                                 <td>{profile.full_name || "未設定"}</td>
                                 <td>{profile.email || "未設定"}</td>
                                 <td>{profile.local_chapter || "-"} / {profile.company_name || "-"}</td>
-                                <td><span className={`status ${profile.role}`}>{profile.role === "admin" ? "管理者" : profile.role === "member" ? "承認済み" : "承認待ち"}</span></td>
+                                <td><span className={`status ${profile.role}`}>{profile.role === "admin" ? "管理者" : "会員"}</span></td>
                                 <td className="action-cell">
                                   {profile.id === user?.id ? (
                                     <span className="admin-self-label">ログイン中</span>
@@ -379,26 +306,19 @@ export default function AdminPage() {
                 <section className="admin-panel admin-post-management">
                   <h2>
                     投稿管理
-                    <span>{posts.filter((post) => post.approval_status === "pending").length}</span>
+                    <span>{posts.length}</span>
                   </h2>
                   <p className="admin-panel-help">
-                    投稿種別を選ぶと、承認状況と投稿者情報を確認できます。
+                    投稿種別を選ぶと、公開内容と投稿者情報を確認できます。
                   </p>
                   <div className="admin-post-groups">
                     {contentTables.map(({ table, label }) => {
                       const tablePosts = posts.filter((post) => post.sourceTable === table);
-                      const pendingCount = tablePosts.filter(
-                        (post) => post.approval_status === "pending",
-                      ).length;
-
                       return (
-                        <details className="admin-post-group" open={pendingCount > 0 || undefined} key={table}>
+                        <details className="admin-post-group" key={table}>
                           <summary>
                             <span>{label}</span>
                             <span className="admin-summary-meta">
-                              {pendingCount > 0 && (
-                                <span className="pending-count">{pendingCount}件 承認待ち</span>
-                              )}
                               <span className="total-count">全{tablePosts.length}件</span>
                             </span>
                           </summary>
@@ -424,35 +344,17 @@ export default function AdminPage() {
                                     <td>{post.author?.full_name || "未設定"}</td>
                                     <td>{post.author?.local_chapter || "-"} / {post.author?.company_name || "-"}</td>
                                     <td>
-                                      <span className={`status ${post.approval_status}`}>
-                                        {post.approval_status === "approved"
-                                          ? "公開中"
-                                          : post.approval_status === "rejected"
-                                            ? "却下"
-                                            : "承認待ち"}
-                                      </span>
+                                      <span className="status approved">公開中</span>
                                     </td>
                                     <td>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : "-"}</td>
                                     <td className="action-cell">
                                       <Link className="icon-action" href={postHref(post)}>
                                         <Eye size={16} /> 詳細
                                       </Link>
-                                      {post.approval_status === "approved" && (
-                                        <button className={post.is_featured ? "icon-action featured" : "icon-action"} type="button" onClick={() => toggleFeatured(post)}>
-                                          <Star size={16} /> {post.is_featured ? "優先解除" : "優先表示"}
-                                        </button>
-                                      )}
-                                      {post.approval_status !== "approved" && (
-                                        <button className="icon-action approve" type="button" onClick={() => updatePost(post, "approve")}>
-                                          <Check size={16} /> 承認
-                                        </button>
-                                      )}
-                                      {post.approval_status !== "rejected" && (
-                                        <button className="icon-action reject" type="button" onClick={() => updatePost(post, "reject")}>
-                                          <X size={16} /> 却下
-                                        </button>
-                                      )}
-                                      <button className="icon-action delete" type="button" onClick={() => updatePost(post, "delete")}>
+                                      <button className={post.is_featured ? "icon-action featured" : "icon-action"} type="button" onClick={() => toggleFeatured(post)}>
+                                        <Star size={16} /> {post.is_featured ? "優先解除" : "優先表示"}
+                                      </button>
+                                      <button className="icon-action delete" type="button" onClick={() => deletePost(post)}>
                                         <Trash2 size={16} /> 削除
                                       </button>
                                     </td>

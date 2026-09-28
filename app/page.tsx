@@ -53,7 +53,7 @@ const features = [
     href: "/messages",
     icon: MessageCircle,
     title: "DM",
-    text: "承認済みの会員同士で、仕事や連携の相談を直接進められます。",
+    text: "会員同士で、仕事や連携の相談を直接進められます。",
   },
 ];
 
