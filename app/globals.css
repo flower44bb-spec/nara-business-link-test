@@ -213,6 +213,15 @@ button { cursor: pointer; }
 .back-links { display: flex; flex-wrap: wrap; gap: 20px; }
 .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 26px; }
 .toolbar h2 { margin: 0; font-family: "Shippori Mincho", serif; font-size: 29px; }
+.toolbar-actions { display: flex; align-items: center; gap: 10px; }
+.my-business-grid { display: grid; gap: 18px; }
+.my-business-card { display: grid; grid-template-columns: 220px 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: white; box-shadow: var(--shadow); }
+.my-business-card-image { display: flex; min-height: 210px; align-items: center; justify-content: center; color: var(--blue); background: var(--blue-pale); }
+.my-business-card-image img { width: 100%; height: 100%; object-fit: contain; }
+.my-business-card-body { padding: 24px; }
+.my-business-card-body h3 { margin: 12px 0 8px; font-family: "Shippori Mincho", serif; font-size: 24px; }
+.my-business-actions { justify-content: flex-start; margin-top: 18px; }
+.my-business-actions .button { min-width: auto; }
 .search-panel { padding: 24px; margin-bottom: 28px; background: #e7eff8; border-radius: 8px; }
 .search-grid { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; }
 .field { display: grid; gap: 8px; margin-bottom: 18px; }
@@ -590,7 +599,11 @@ button { cursor: pointer; }
   .page-hero { padding: 55px 0; }
   .page-content { padding: 38px 0 65px; }
   .toolbar { align-items: stretch; flex-direction: column; }
+  .toolbar-actions { align-items: stretch; flex-direction: column; }
   .toolbar .button { width: 100%; }
+  .my-business-card { grid-template-columns: 1fr; }
+  .my-business-card-image { min-height: 180px; }
+  .my-business-actions { flex-direction: column; }
   .form-card, .auth-card { padding: 25px; }
   .detail-row { grid-template-columns: 1fr; gap: 6px; }
   .linked-business-card { grid-template-columns: 1fr; }

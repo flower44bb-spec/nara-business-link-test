@@ -16,7 +16,10 @@ export default function BusinessesPage() {
           <HomeLink />
           <div className="toolbar">
             <h2>登録事業者</h2>
-            <Link className="button" href="/businesses/new"><Plus size={17} /> 新規登録</Link>
+            <div className="toolbar-actions">
+              <Link className="button secondary" href="/businesses/mine">自分の登録事業者</Link>
+              <Link className="button" href="/businesses/new"><Plus size={17} /> 事業者を追加登録</Link>
+            </div>
           </div>
           <BusinessList />
         </div>

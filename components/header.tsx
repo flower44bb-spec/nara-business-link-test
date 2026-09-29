@@ -54,6 +54,11 @@ export function Header() {
             <Shield size={15} /> 管理
           </Link>
         )}
+        {user && (
+          <Link href="/businesses/mine" onClick={() => setOpen(false)}>
+            登録事業者
+          </Link>
+        )}
         {user ? (
           <button className="nav-auth ghost" type="button" onClick={logout}>
             <LogOut size={17} /> ログアウト

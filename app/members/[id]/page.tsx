@@ -104,7 +104,8 @@ export default function MemberDetailPage() {
                 {user?.id === member.id && (
                   <>
                     <Link className="button secondary" href="/members/me/edit"><Pencil size={16} /> プロフィール編集</Link>
-                    <Link className="button secondary" href="/businesses/new"><Plus size={16} /> 事業者情報を追加</Link>
+                    <Link className="button secondary" href="/businesses/mine"><Building2 size={16} /> 登録事業者を管理</Link>
+                    <Link className="button secondary" href="/businesses/new"><Plus size={16} /> 事業者を追加登録</Link>
                   </>
                 )}
               </aside>

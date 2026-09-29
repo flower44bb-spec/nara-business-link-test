@@ -167,7 +167,7 @@ export function BusinessForm({
               ? "画像を反映中..."
               : business
                 ? "変更を保存"
-                : "事業者を登録"}
+                : "事業者を追加登録"}
         </button>
       </div>
     </form>
