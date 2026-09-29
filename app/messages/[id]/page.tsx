@@ -36,6 +36,12 @@ export default function MessageDetailPage() {
       supabase.from("public_profiles").select("*").eq("id", partnerId).single(),
       supabase.from("messages").select("*").eq("conversation_id", id).order("created_at"),
     ]);
+    await supabase
+      .from("messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("conversation_id", id)
+      .neq("sender_id", user.id)
+      .is("read_at", null);
     setPartner(profileData as Profile);
     setMessages((messageData as DirectMessage[]) ?? []);
     setLoading(false);

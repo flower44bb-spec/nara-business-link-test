@@ -1,6 +1,6 @@
 "use client";
 
-import { LogIn, LogOut, Menu, Shield, X } from "lucide-react";
+import { LogIn, LogOut, Menu, Shield, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -55,8 +55,8 @@ export function Header() {
           </Link>
         )}
         {user && (
-          <Link href="/businesses/mine" onClick={() => setOpen(false)}>
-            登録事業者
+          <Link className="mypage-link" href="/mypage" onClick={() => setOpen(false)}>
+            <UserRound size={15} /> マイページ
           </Link>
         )}
         {user ? (
