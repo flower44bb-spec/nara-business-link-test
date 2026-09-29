@@ -23,7 +23,7 @@ export default function MarchePage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    supabase.from("marche_posts").select("*").eq("approval_status", "approved").order("event_date").then(async ({ data, error: fetchError }) => {
+    supabase.from("marche_posts").select("*").order("event_date").then(async ({ data, error: fetchError }) => {
       if (fetchError) setError(fetchError.message);
       const loadedPosts = sortFeaturedFirst((data as MarchePost[]) ?? [], "event_date");
       setPosts(loadedPosts);

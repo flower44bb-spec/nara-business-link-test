@@ -23,7 +23,7 @@ export default function MemberDetailPage() {
     async function loadMember() {
       const [{ data }, businessesResult] = await Promise.all([
         supabase.from("public_profiles").select("*").eq("id", id).single(),
-        loadMemberBusinesses(id, Boolean(user?.id === id || isAdmin)),
+        loadMemberBusinesses(id),
       ]);
       setMember(data as Profile | null);
       setBusinesses((businessesResult.data as BaseRecord[]) ?? []);
@@ -116,14 +116,12 @@ export default function MemberDetailPage() {
   );
 }
 
-function loadMemberBusinesses(memberId: string, canSeeAll: boolean) {
-  let query = supabase
+function loadMemberBusinesses(memberId: string) {
+  return supabase
     .from("businesses")
     .select("*")
     .eq("user_id", memberId)
     .order("created_at", { ascending: false });
-  if (!canSeeAll) query = query.eq("approval_status", "approved");
-  return query;
 }
 
 function ProfileLink({ url, label }: { url?: string | null; label: string }) {

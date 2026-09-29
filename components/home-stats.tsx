@@ -55,22 +55,18 @@ export function HomeStats() {
           .select("id", { count: "exact", head: true }),
         supabase
           .from("businesses")
-          .select("id", { count: "exact", head: true })
-          .eq("approval_status", "approved"),
+          .select("id", { count: "exact", head: true }),
         supabase
           .from("collaborations")
           .select("id", { count: "exact", head: true })
-          .eq("approval_status", "approved")
           .eq("collaboration_status", "successful"),
         supabase
           .from("problems")
           .select("id", { count: "exact", head: true })
-          .eq("approval_status", "approved")
           .not("resolved_at", "is", null),
         supabase
           .from("successes")
           .select("transaction_amount")
-          .eq("approval_status", "approved")
           .not("transaction_amount", "is", null),
         supabase
           .from("business_deals")
@@ -100,7 +96,6 @@ export function HomeStats() {
           const { data } = await supabase
             .from(source.table)
             .select("*")
-            .eq("approval_status", "approved")
             .order("created_at", { ascending: false })
             .limit(6);
           return ((data as BaseRecord[]) ?? []).map((item) => ({ ...item, sourceTable: source.href, sourceLabel: source.label }));
@@ -111,7 +106,6 @@ export function HomeStats() {
           const { data, error } = await supabase
             .from(source.table)
             .select("*")
-            .eq("approval_status", "approved")
             .eq("is_featured", true)
             .order("featured_at", { ascending: false })
             .limit(4);

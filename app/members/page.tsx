@@ -19,7 +19,7 @@ export default function MembersPage() {
   useEffect(() => {
     Promise.all([
       supabase.from("public_profiles").select("*").order("full_name"),
-      supabase.from("businesses").select("*").eq("approval_status", "approved").order("created_at", { ascending: false }),
+      supabase.from("businesses").select("*").order("created_at", { ascending: false }),
     ]).then(([membersResult, businessesResult]) => {
         setMembers((membersResult.data as Profile[]) ?? []);
         setBusinesses((businessesResult.data as BaseRecord[]) ?? []);
