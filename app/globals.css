@@ -625,6 +625,33 @@ button { cursor: pointer; }
   color: var(--rust) !important;
   display: inline-flex;
   gap: 0.3rem;
+  position: relative;
+}
+.nav-unread-badge {
+  align-items: center;
+  background: #b53d2f;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.66rem;
+  font-weight: 800;
+  height: 21px;
+  justify-content: center;
+  line-height: 1;
+  min-width: 21px;
+  padding: 0 0.3rem;
+}
+.mypage-unread-badge {
+  background: #b53d2f;
+  border-radius: 999px;
+  color: #fff;
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  margin-left: 0.45rem;
+  padding: 0.25rem 0.55rem;
+  vertical-align: middle;
 }
 
 .mypage-section { background: #f3f7fc; }

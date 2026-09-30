@@ -207,7 +207,7 @@ export default function MyPage() {
               {unreadCount > 0 && (
                 <section className="mypage-inbox-alert">
                   <div className="mypage-section-heading">
-                    <div><span className="mypage-kicker">NEW MESSAGE</span><h2>新しい連絡が届いています</h2></div>
+                    <div><span className="mypage-kicker">NEW MESSAGE</span><h2>新しい連絡が届いています <span className="mypage-unread-badge">未読 {unreadCount}件</span></h2></div>
                     <Link href="/messages">すべてのDMを見る <ArrowRight size={16} /></Link>
                   </div>
                   <div className="mypage-notice-list">

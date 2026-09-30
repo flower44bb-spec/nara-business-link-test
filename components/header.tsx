@@ -2,7 +2,7 @@
 
 import { LogIn, LogOut, Menu, Shield, UserRound, X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./auth-provider";
 
@@ -20,6 +20,46 @@ const links = [
 export function Header() {
   const { user, isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      setUnreadCount(0);
+      return;
+    }
+
+    const userId = user.id;
+    let active = true;
+    async function loadUnreadCount() {
+      const { data: conversations } = await supabase
+        .from("conversations")
+        .select("id");
+      const ids = (conversations ?? []).map((conversation) => conversation.id);
+      if (!ids.length) {
+        if (active) setUnreadCount(0);
+        return;
+      }
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .in("conversation_id", ids)
+        .neq("sender_id", userId)
+        .is("read_at", null);
+      if (active) setUnreadCount(count ?? 0);
+    }
+
+    loadUnreadCount();
+    const interval = window.setInterval(loadUnreadCount, 30000);
+    const refresh = () => loadUnreadCount();
+    window.addEventListener("focus", refresh);
+    window.addEventListener("messages-read", refresh);
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("messages-read", refresh);
+    };
+  }, [user]);
 
   async function logout() {
     await supabase.auth.signOut();
@@ -57,6 +97,7 @@ export function Header() {
         {user && (
           <Link className="mypage-link" href="/mypage" onClick={() => setOpen(false)}>
             <UserRound size={15} /> マイページ
+            {unreadCount > 0 && <span className="nav-unread-badge" aria-label={`未読DM ${unreadCount}件`}>{unreadCount > 99 ? "99+" : unreadCount}</span>}
           </Link>
         )}
         {user ? (
