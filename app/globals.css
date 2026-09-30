@@ -734,6 +734,19 @@ button { cursor: pointer; }
 .mypage-business-image img { height: 100%; object-fit: cover; width: 100%; }
 .mypage-row-actions { align-items: center; display: flex; gap: 0.55rem; }
 .mypage-row-actions a { align-items: center; border: 1px solid #cbd9e8; border-radius: 8px; color: var(--blue); display: inline-flex; gap: 0.25rem; padding: 0.45rem 0.7rem; text-decoration: none; }
+.mypage-delete-button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dfb7b0;
+  border-radius: 8px;
+  color: #a33f31;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 0.25rem;
+  padding: 0.45rem 0.7rem;
+}
+.mypage-delete-button:disabled { cursor: wait; opacity: 0.55; }
 .mypage-empty { align-items: center; background: #f6f9fc; border-radius: 13px; display: flex; gap: 1rem; margin-top: 1.2rem; padding: 1.2rem; }
 .mypage-empty > svg { color: var(--blue); }
 .mypage-empty h3,

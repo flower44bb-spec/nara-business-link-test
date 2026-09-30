@@ -13,12 +13,14 @@ import {
   Pencil,
   Plus,
   Trophy,
+  Trash2,
   UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { HomeLink, Loading, PageHero } from "@/components/ui";
+import { dealStatusLabels } from "@/lib/deals";
 import { recordTitle } from "@/lib/records";
 import { supabase } from "@/lib/supabase";
 import type { BaseRecord, BusinessDeal, Conversation, DirectMessage, MarchePost, Profile } from "@/types";
@@ -57,6 +59,7 @@ export default function MyPage() {
   const [deals, setDeals] = useState<BusinessDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState("");
+  const [deletingKey, setDeletingKey] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -145,6 +148,23 @@ export default function MyPage() {
   const recentPosts = useMemo(() => posts.slice(0, 8), [posts]);
   const unreadNotices = notices.filter((notice) => notice.unreadCount > 0).slice(0, 4);
 
+  async function removeItem(table: string, id: string | number, label: string) {
+    if (!window.confirm(`「${label}」を削除します。削除後は元に戻せません。よろしいですか？`)) return;
+    const key = `${table}-${id}`;
+    setDeletingKey(key);
+    setWarning("");
+    const { error } = await supabase.from(table).delete().eq("id", id);
+    if (error) {
+      setWarning(`削除できませんでした: ${error.message}`);
+    } else if (table === "business_deals") {
+      setDeals((current) => current.filter((deal) => String(deal.id) !== String(id)));
+    } else {
+      const itemType = table === "marche_posts" ? "marche" : table;
+      setPosts((current) => current.filter((post) => !(post.itemType === itemType && String(post.id) === String(id))));
+    }
+    setDeletingKey("");
+  }
+
   if (authLoading) return <Loading />;
   if (!user) {
     return (
@@ -231,12 +251,47 @@ export default function MyPage() {
                 )}
               </section>
 
+              <section className="mypage-panel" id="deals">
+                <div className="mypage-section-heading">
+                  <div><span className="mypage-kicker">MY DEALS</span><h2>商談管理</h2><p>自分が開始した商談は、ここから確認・削除できます。</p></div>
+                  <Link className="button secondary" href="/deals">商談一覧を見る</Link>
+                </div>
+                {deals.length ? (
+                  <div className="mypage-post-list">
+                    {deals.slice(0, 8).map((deal) => (
+                      <article key={deal.id}>
+                        <span className={`status ${deal.status}`}>{dealStatusLabels[deal.status]}</span>
+                        <div><h3>{deal.title || "商談名未入力"}</h3><time>{new Date(deal.updated_at || deal.created_at).toLocaleDateString("ja-JP")}</time></div>
+                        <div className="mypage-row-actions">
+                          <Link href={`/deals/${deal.id}`}>詳細</Link>
+                          {deal.created_by === user.id && (
+                            <button className="mypage-delete-button" type="button" onClick={() => removeItem("business_deals", deal.id, deal.title || "商談名未入力")} disabled={deletingKey === `business_deals-${deal.id}`}>
+                              <Trash2 size={15} /> {deletingKey === `business_deals-${deal.id}` ? "削除中" : "削除"}
+                            </button>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : <div className="mypage-empty"><BriefcaseBusiness /><div><h3>商談はまだありません</h3><p>投稿詳細やDMから商談を開始できます。</p></div></div>}
+              </section>
+
               <section className="mypage-panel" id="posts">
                 <div className="mypage-section-heading"><div><span className="mypage-kicker">MY POSTS</span><h2>自分の投稿</h2><p>最近の投稿をまとめて確認できます。</p></div></div>
                 {recentPosts.length ? (
                   <div className="mypage-post-list">
                     {recentPosts.map((post) => (
-                      <article key={`${post.itemType}-${post.id}`}><span className="tag">{post.itemLabel}</span><div><h3>{post.displayTitle}</h3><time>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : ""}</time></div><div className="mypage-row-actions"><Link href={post.detailHref}>詳細</Link><Link href={post.editHref}><Pencil size={15} /> 編集</Link></div></article>
+                      <article key={`${post.itemType}-${post.id}`}>
+                        <span className="tag">{post.itemLabel}</span>
+                        <div><h3>{post.displayTitle}</h3><time>{post.created_at ? new Date(post.created_at).toLocaleDateString("ja-JP") : ""}</time></div>
+                        <div className="mypage-row-actions">
+                          <Link href={post.detailHref}>詳細</Link>
+                          <Link href={post.editHref}><Pencil size={15} /> 編集</Link>
+                          <button className="mypage-delete-button" type="button" onClick={() => removeItem(post.itemType === "marche" ? "marche_posts" : post.itemType, post.id, post.displayTitle)} disabled={deletingKey === `${post.itemType === "marche" ? "marche_posts" : post.itemType}-${post.id}`}>
+                            <Trash2 size={15} /> {deletingKey === `${post.itemType === "marche" ? "marche_posts" : post.itemType}-${post.id}` ? "削除中" : "削除"}
+                          </button>
+                        </div>
+                      </article>
                     ))}
                   </div>
                 ) : <div className="mypage-empty"><Lightbulb /><div><h3>投稿はまだありません</h3><p>上の「登録・投稿する」から目的に合う項目を選べます。</p></div></div>}
